@@ -12,12 +12,12 @@
  * GNU Lesser General Public License for more details.
  */
 
-#ifndef _ABSTRACT_LOGGER_H_
-#define _ABSTRACT_LOGGER_H_
+#ifndef _BASE_LOGGER_H_
+#define _BASE_LOGGER_H_
 
 #include <string>
 
-#define MakeLevel(NAME)                                                                   \
+#define MakeSwitcherLogLevel(NAME)                                                        \
  public:                                                                                  \
   template <typename... Targs>                                                            \
   void NAME(const char* format, const ::std::string& value, Targs... Fargs) {             \
@@ -27,19 +27,19 @@
   void NAME(const char* format) { on_##NAME(make_string(format)); }                       \
                                                                                           \
  private:                                                                                 \
-  virtual void on_##NAME(std::string&&) = 0;
+  virtual void on_##NAME(std::string&&){};
 
-namespace shmdata {
+namespace switcher {
 
-class AbstractLogger {
+class BaseLogger {
  public:
-  virtual ~AbstractLogger() = default;
-  MakeLevel(error);
-  MakeLevel(critical);
-  MakeLevel(warning);
-  MakeLevel(message);
-  MakeLevel(info);
-  MakeLevel(debug);
+  virtual ~BaseLogger() = default;
+  MakeSwitcherLogLevel(error);
+  MakeSwitcherLogLevel(critical);
+  MakeSwitcherLogLevel(warning);
+  MakeSwitcherLogLevel(message);
+  MakeSwitcherLogLevel(info);
+  MakeSwitcherLogLevel(debug);
 
  private:
   std::string make_string(const char* format) { return std::string(format); }

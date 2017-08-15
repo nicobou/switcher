@@ -19,27 +19,15 @@
 
 #include <string.h>
 #include <fstream>
-
 #include "./gst-utils.hpp"
 #include "./information-tree-json.hpp"
 #include "./scope-exit.hpp"
 #include "./switcher.hpp"
 
 namespace switcher {
-Switcher::ptr Switcher::make_manager(const std::string& name) {
-  if (!gst_is_initialized()) gst_init(nullptr, nullptr);
-  GstRegistry* registry = gst_registry_get();
-  // TODO add option for scanning a path
-  gst_registry_scan_path(registry, "/usr/local/lib/gstreamer-1.0/");
-  gst_registry_scan_path(registry, "/usr/lib/gstreamer-1.0/");
 
-  Switcher::ptr manager(new Switcher(name));
-  manager->me_ = manager;
-  return manager;
-}
-
-Switcher::Switcher(const std::string& name)
-    : manager_impl_(QuiddityContainer::make_manager(this, name)), name_(name) {}
+Switcher::Switcher(const std::string& name, BaseLogger&& log)
+    : log_(log), manager_impl_(QuiddityContainer::make_manager(this, name)), name_(name) {}
 
 std::string Switcher::get_name() const { return name_; }
 
@@ -54,6 +42,14 @@ void Switcher::reset_state(bool remove_created_quiddities) {
   }
   invocations_.clear();
   quiddities_at_reset_ = manager_impl_->get_instances();
+}
+
+void Switcher::init_gst() {
+  if (!gst_is_initialized()) gst_init(nullptr, nullptr);
+  GstRegistry* registry = gst_registry_get();
+  // TODO add option for scanning a path
+  gst_registry_scan_path(registry, "/usr/local/lib/gstreamer-1.0/");
+  gst_registry_scan_path(registry, "/usr/lib/gstreamer-1.0/");
 }
 
 void Switcher::try_save_current_invocation(const InvocationSpec& invocation_spec) {
@@ -94,10 +90,6 @@ bool Switcher::load_state(InfoTree::ptr state) {
   auto custom_states = state->get_tree(".custom_states");
   auto nicknames = state->get_tree(".nicknames");
 
-  bool debug = false;
-
-  if (debug) g_print("start playing history\n");
-
   // making quiddities
   if (quiddities) {
     auto quids = quiddities->get_child_keys(".");
@@ -105,7 +97,7 @@ bool Switcher::load_state(InfoTree::ptr state) {
     for (auto& it : quids) {
       std::string quid_class = quiddities->branch_get_value(it);
       if (it != create(quid_class, it)) {
-        g_warning("error creating quiddity %s (of type %s)", it.c_str(), quid_class.c_str());
+        log_.warning("error creating quiddity % (of type %)", it, quid_class);
       }
     }
 
@@ -125,7 +117,7 @@ bool Switcher::load_state(InfoTree::ptr state) {
     for (auto& it : nicknames->get_child_keys(".")) {
       std::string nickname = nicknames->branch_get_value(it);
       if (!set_nickname(it, nickname))
-        g_warning("error applying nickname %s for %s", nickname.c_str(), it.c_str());
+        log_.warning("error applying nickname %s for %s", nickname.c_str(), it.c_str());
     }
   }
 
@@ -141,10 +133,10 @@ bool Switcher::load_state(InfoTree::ptr state) {
         } else {
           if (!use_prop<MPtr(&PContainer::set_str_str)>(
                   quid, prop, Any::to_string(properties->branch_get_value(quid + "." + prop))))
-            g_warning("failed to apply value, quiddity is %s, property is %s, value is %s",
-                      quid.c_str(),
-                      prop.c_str(),
-                      Any::to_string(properties->branch_get_value(quid + "." + prop)).c_str());
+            log_.warning("failed to apply value, quiddity is %s, property is %s, value is %s",
+                         quid.c_str(),
+                         prop.c_str(),
+                         Any::to_string(properties->branch_get_value(quid + "." + prop)).c_str());
         }
       }
     }
@@ -153,17 +145,6 @@ bool Switcher::load_state(InfoTree::ptr state) {
   invocation_loop_.run([&]() {
     // playing history
     for (auto& it : history) {
-      // do not run invocations that not supposed to be saved
-      if (debug) {
-        g_print("running invocation:");
-        for (auto& iter : it.args_) g_print(" %s ", iter.c_str());
-        g_print("\n");
-        if (!it.vector_arg_.empty()) {
-          g_print("            vector args:");
-          for (auto& iter : it.vector_arg_) g_print(" %s ", iter.c_str());
-          g_print("\n");
-        }
-      }
       manager_impl_->invoke(it.args_[0], it.args_[1], nullptr, it.vector_arg_);
     }
   });  // invocation_loop_.run
@@ -184,7 +165,7 @@ bool Switcher::load_state(InfoTree::ptr state) {
   // starting quiddities
   for (auto& quid : quid_to_start) {
     if (!use_prop<MPtr(&PContainer::set_str_str)>(quid, "started", "true")) {
-      g_warning("failed to start quiddity %s", quid.c_str());
+      log_.warning("failed to start quiddity %s", quid.c_str());
     }
   }
 
@@ -490,7 +471,7 @@ std::vector<std::string> Switcher::get_quiddities() const {
 std::string Switcher::get_nickname(const std::string& name) const {
   auto quid = manager_impl_->get_quiddity(name);
   if (!quid) {
-    g_debug("quiddity %s not found", name.c_str());
+    log_.debug("quiddity % not found", name);
     return std::string();
   }
   return quid->get_nickname();
@@ -499,7 +480,7 @@ std::string Switcher::get_nickname(const std::string& name) const {
 bool Switcher::set_nickname(const std::string& name, const std::string& nickname) {
   auto quid = manager_impl_->get_quiddity(name);
   if (!quid) {
-    g_debug("quiddity %s not found", name.c_str());
+    log_.debug("quiddity % not found", name);
     return false;
   }
   return quid->set_nickname(nickname);

@@ -16,11 +16,11 @@
 #define _CONSOLE_LOGGER_H_
 
 #include <iostream>
-#include "./abstract-logger.hpp"
+#include "./base-logger.hpp"
 
-namespace shmdata {
+namespace switcher {
 
-class ConsoleLogger : public AbstractLogger {
+class ConsoleLogger : public BaseLogger {
  public:
   void set_debug(bool debug) { debug_ = debug; }
 

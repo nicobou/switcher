@@ -31,6 +31,8 @@
 #include <string>
 #include <thread>
 #include <vector>
+#include "./base-logger.hpp"
+#include "./console-logger.hpp"
 #include "./information-tree.hpp"
 #include "./invocation-spec.hpp"
 #include "./make-consultable.hpp"
@@ -43,17 +45,17 @@ class Switcher {
   friend class Bundle;  // access to manager_impl_
  public:
   using ptr = std::shared_ptr<Switcher>;
-  using PropCallback = std::function<void(const std::string& val)>;
-  using SignalCallback = void (*)(const std::string& subscriber_name,
-                                  const std::string& quiddity_name,
-                                  const std::string& signal_name,
-                                  const std::vector<std::string>& params,
-                                  void* user_data);
-  using PropCallbackMap = std::map<std::string, std::pair<PropCallback, void*>>;
-  using SignalCallbackMap = std::map<std::string, std::pair<SignalCallback, void*>>;
 
   ~Switcher() = default;
-  static Switcher::ptr make_manager(const std::string& name);
+
+  template <typename L = ConsoleLogger, typename... Largs>
+  static Switcher::ptr make_manager(const std::string& name, Largs... args) {
+    init_gst();
+    Switcher::ptr manager(new Switcher(name, L(std::forward<Largs>(args)...)));
+    manager->me_ = manager;
+    return manager;
+  }
+
   Switcher& operator=(const Switcher&) = delete;
   Switcher(const Switcher&) = delete;
   std::string get_name() const;
@@ -130,6 +132,8 @@ class Switcher {
   bool has_method(const std::string& quiddity_name, const std::string& method_name);
 
  private:
+  // logs
+  mutable BaseLogger log_;
   // invocation of quiddity_manager_impl_ methods in a dedicated thread
   mutable ThreadedWrapper<> invocation_loop_{};
   QuiddityContainer::ptr manager_impl_;  // may be shared with others for
@@ -142,9 +146,10 @@ class Switcher {
   std::vector<InvocationSpec> invocations_{};
 
   Switcher() = delete;
-  explicit Switcher(const std::string& name);
+  explicit Switcher(const std::string& name, BaseLogger&& log);
   void auto_init(const std::string& quiddity_name);
   void try_save_current_invocation(const InvocationSpec& invocation_spec);
+  static void init_gst();
 };
 }  // namespace switcher
 
