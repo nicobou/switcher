@@ -852,7 +852,7 @@ bool PJCall::make_call(std::string dst_uri) {
 }
 
 bool PJCall::create_outgoing_sdp(pjsip_dialog* dlg, call_t* call, pjmedia_sdp_session** res) {
-  auto quid_manager = SIPPlugin::this_->manager_impl_.lock();
+  auto quid_manager = SIPPlugin::this_->qcontainer_.lock();
   if (!quid_manager) g_warning("%s: quid manager cannot be locked for use", __FUNCTION__);
   pj_str_t contact;
   std::string tmpstr("sip:" + call->peer_uri);

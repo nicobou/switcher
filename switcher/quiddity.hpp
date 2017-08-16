@@ -227,7 +227,7 @@ class Quiddity {
   // used in order to dynamically create other quiddity, weak_ptr is used in
   // order to
   // avoid circular references to the manager_impl
-  std::weak_ptr<QuiddityContainer> manager_impl_{};
+  std::weak_ptr<QuiddityContainer> qcontainer_{};
   std::string manager_name_{};  // FIXME ??
 };
 

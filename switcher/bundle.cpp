@@ -34,7 +34,7 @@ Bundle::Bundle(const std::string& name)
 Bundle::~Bundle() { quitting_ = true; }
 
 bool Bundle::init() {
-  auto manager = manager_impl_.lock();
+  auto manager = qcontainer_.lock();
   if (!manager) {
     g_warning("no manager in bundle");
   } else {
@@ -43,7 +43,7 @@ bool Bundle::init() {
     }
   }
 
-  manager_->manager_impl_->configurations_ = manager->configurations_;
+  manager_->qcontainer_->configurations_ = manager->configurations_;
 
   if (!config<MPtr(&InfoTree::branch_has_data)>("pipeline")) {
     g_warning("bundle description is missing the pipeline description");
@@ -65,7 +65,7 @@ bool Bundle::init() {
     shmcntr_.install_connect_method(
         [this](const std::string& shmpath) {
           std::string* return_value = nullptr;
-          manager_->manager_impl_->get_quiddity(reader_quid_)
+          manager_->qcontainer_->get_quiddity(reader_quid_)
               ->invoke_method("connect", &return_value, {shmpath});
           On_scope_exit {
             if (return_value) delete return_value;
@@ -74,7 +74,7 @@ bool Bundle::init() {
         },
         [this](const std::string& shmpath) {
           std::string* return_value = nullptr;
-          manager_->manager_impl_->get_quiddity(reader_quid_)
+          manager_->qcontainer_->get_quiddity(reader_quid_)
               ->invoke_method("disconnect", &return_value, {shmpath});
           On_scope_exit {
             if (return_value) delete return_value;
@@ -83,7 +83,7 @@ bool Bundle::init() {
         },
         [this]() {
           std::string* return_value = nullptr;
-          manager_->manager_impl_->get_quiddity(reader_quid_)
+          manager_->qcontainer_->get_quiddity(reader_quid_)
               ->invoke_method("disconnect-all", &return_value, {});
           On_scope_exit {
             if (return_value) delete return_value;
@@ -92,14 +92,14 @@ bool Bundle::init() {
         },
         [this](const std::string& caps) {
           std::string* return_value = nullptr;
-          manager_->manager_impl_->get_quiddity(reader_quid_)
+          manager_->qcontainer_->get_quiddity(reader_quid_)
               ->invoke_method("can-sink-caps", &return_value, {caps});
           On_scope_exit {
             if (return_value) delete return_value;
           };
           return *return_value == "true";
         },
-        manager_->manager_impl_->get_quiddity(reader_quid_)
+        manager_->qcontainer_->get_quiddity(reader_quid_)
             ->tree<MPtr(&InfoTree::branch_get_value)>("shmdata.max_reader")
             .copy_as<unsigned int>());
   }
@@ -139,7 +139,7 @@ bool Bundle::make_quiddities(const std::vector<bundle::quiddity_spec_t>& quids) 
     }  // quiddity is created
 
     // registering quiddity properties
-    auto quid_ptr = manager_->manager_impl_->get_quiddity(name);
+    auto quid_ptr = manager_->qcontainer_->get_quiddity(name);
     on_tree_datas_.emplace_back(std::make_unique<on_tree_data_t>(this, name, quid_ptr.get(), quid));
     quid_ptr->sig<MPtr(&SContainer::subscribe_by_name)>(
         std::string("on-tree-grafted"),
@@ -207,7 +207,7 @@ void Bundle::on_tree_grafted(const std::string& key, void* user_data) {
           static_cast<std::string>(shm_match[0]) + ".caps");
       if (!caps.empty()) {
         for (auto& it : context->quid_spec_.connects_to_) {
-          if (!context->self_->manager_->manager_impl_->get_quiddity(it)->invoke_method(
+          if (!context->self_->manager_->qcontainer_->get_quiddity(it)->invoke_method(
                   "can-sink-caps", nullptr, {caps})) {
             g_message("ERROR: bundle specification error: %s cannot connect with %s (caps is %s)",
                       context->quid_spec_.name.c_str(),
@@ -219,7 +219,7 @@ void Bundle::on_tree_grafted(const std::string& key, void* user_data) {
                       caps.c_str());
             continue;
           }
-          context->self_->manager_->manager_impl_->get_quiddity(it)->invoke_method(
+          context->self_->manager_->qcontainer_->get_quiddity(it)->invoke_method(
               "connect", nullptr, {shm_match[1]});
           {
             std::lock_guard<std::mutex> lock(context->self_->connected_shms_mtx_);
@@ -353,7 +353,7 @@ void Bundle::on_tree_pruned(const std::string& key, void* user_data) {
     std::swap(context->quid_spec_.connects_to_, context->quid_spec_.connected_to_);
     if (!context->self_->quitting_.load()) {
       for (auto& it : to_disconnect) {
-        auto quid = context->self_->manager_->manager_impl_->get_quiddity(it.first);
+        auto quid = context->self_->manager_->qcontainer_->get_quiddity(it.first);
         if (!quid) continue;
         quid->invoke_method("disconnect", nullptr, {it.second});
       }
@@ -370,8 +370,8 @@ void Bundle::on_tree_pruned(const std::string& key, void* user_data) {
 
 bool Bundle::start() {
   for (auto& it : start_quids_) {
-    if (!manager_->manager_impl_->get_quiddity(it)->prop<MPtr(&PContainer::set_str_str)>("started",
-                                                                                         "true")) {
+    if (!manager_->qcontainer_->get_quiddity(it)->prop<MPtr(&PContainer::set_str_str)>("started",
+                                                                                       "true")) {
       g_warning("fail to set start %s", it.c_str());
       return false;
     }
@@ -381,8 +381,8 @@ bool Bundle::start() {
 
 bool Bundle::stop() {
   for (auto& it : start_quids_) {
-    if (!manager_->manager_impl_->get_quiddity(it)->prop<MPtr(&PContainer::set_str_str)>("started",
-                                                                                         "false")) {
+    if (!manager_->qcontainer_->get_quiddity(it)->prop<MPtr(&PContainer::set_str_str)>("started",
+                                                                                       "false")) {
       g_warning("fail to set start %s", it.c_str());
       return false;
     }

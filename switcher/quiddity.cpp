@@ -269,7 +269,7 @@ std::string Quiddity::get_socket_name_prefix() { return "switcher_"; }
 std::string Quiddity::get_socket_dir() { return "/tmp"; }
 
 void Quiddity::set_manager_impl(QuiddityContainer::ptr manager_impl) {
-  manager_impl_ = manager_impl;
+  qcontainer_ = manager_impl;
   manager_name_ = manager_impl->get_name();
 }
 
@@ -354,7 +354,7 @@ void Quiddity::set_configuration(InfoTree::ptr config) { configuration_tree_ = c
 void Quiddity::self_destruct() {
   std::unique_lock<std::mutex> lock(self_destruct_mtx_);
   auto thread = std::thread([ this, th_lock = std::move(lock) ]() mutable {
-    auto manager = manager_impl_.lock();
+    auto manager = qcontainer_.lock();
     auto self_name = get_name();
     th_lock.unlock();
     if (!manager) return;

@@ -99,7 +99,7 @@ bool GstPipeliner::seek(gdouble position_in_ms) { return gst_pipeline_->seek(pos
 
 // gboolean GstPipeliner::run_remove_quid(gpointer user_data) {
 //   GstPipeliner *context = static_cast<GstPipeliner *>(user_data);
-//   QuiddityContainer::ptr manager = context->manager_impl_.lock();
+//   QuiddityContainer::ptr manager = context->qcontainer_.lock();
 //   if (manager) {
 //     // copying in case of self destruction
 //     std::list<std::string> tmp = context->quids_to_remove_;

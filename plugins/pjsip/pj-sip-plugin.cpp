@@ -96,7 +96,7 @@ SIPPlugin::SIPPlugin(const std::string&)
 SIPPlugin::~SIPPlugin() {
   if (!i_m_the_one_) return;
 
-  auto manager = manager_impl_.lock();
+  auto manager = qcontainer_.lock();
   if (manager) manager->unregister_removal_cb(quiddity_removal_cb_id_);
 
   sip_calls_->finalize_calls();
@@ -140,7 +140,7 @@ bool SIPPlugin::init() {
 
   if (!pjsip_->invoke<MPtr(&PJSIP::safe_bool_idiom)>()) return false;
   apply_configuration();
-  auto manager = manager_impl_.lock();
+  auto manager = qcontainer_.lock();
   if (!manager) {
     g_warning("bug in SIPPLugin, line %d", __LINE__);
     return false;
@@ -228,7 +228,7 @@ bool SIPPlugin::start_sip_transport() {
 }
 
 void SIPPlugin::create_quiddity_stream(const std::string& peer_uri, const std::string& quid_name) {
-  auto manager = manager_impl_.lock();
+  auto manager = qcontainer_.lock();
   if (!manager) {
     g_warning("bug in SIPPLugin, line %d", __LINE__);
     return;
@@ -249,7 +249,7 @@ void SIPPlugin::create_quiddity_stream(const std::string& peer_uri, const std::s
 
 void SIPPlugin::expose_stream_to_quiddity(const std::string& quid_name,
                                           const std::string& shmpath) {
-  auto manager = manager_impl_.lock();
+  auto manager = qcontainer_.lock();
   if (!manager) {
     g_warning("bug in SIPPLugin, line %d", __LINE__);
     return;
@@ -259,7 +259,7 @@ void SIPPlugin::expose_stream_to_quiddity(const std::string& quid_name,
 }
 
 void SIPPlugin::remove_exposed_quiddity(const std::string& peer_uri, const std::string& quid_name) {
-  auto manager = manager_impl_.lock();
+  auto manager = qcontainer_.lock();
   if (!manager) {
     g_warning("bug in SIPPLugin, line %d", __LINE__);
     return;
@@ -277,7 +277,7 @@ void SIPPlugin::remove_exposed_quiddity(const std::string& peer_uri, const std::
   manager->remove(quid);
 }
 void SIPPlugin::remove_exposed_quiddities(const std::string& peer_uri) {
-  auto manager = manager_impl_.lock();
+  auto manager = qcontainer_.lock();
   if (!manager) {
     g_warning("bug in SIPPLugin, line %d", __LINE__);
     return;

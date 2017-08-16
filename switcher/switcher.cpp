@@ -27,21 +27,21 @@
 namespace switcher {
 
 Switcher::Switcher(const std::string& name, BaseLogger&& log)
-    : log_(log), manager_impl_(QuiddityContainer::make_manager(this, name)), name_(name) {}
+    : log_(log), qcontainer_(QuiddityContainer::make_manager(this, name)), name_(name) {}
 
 std::string Switcher::get_name() const { return name_; }
 
 void Switcher::reset_state(bool remove_created_quiddities) {
   if (remove_created_quiddities) {
-    for (auto& quid : manager_impl_->get_instances()) {
+    for (auto& quid : qcontainer_->get_instances()) {
       if (quiddities_at_reset_.cend() ==
           std::find(quiddities_at_reset_.cbegin(), quiddities_at_reset_.cend(), quid)) {
-        manager_impl_->remove(quid);
+        qcontainer_->remove(quid);
       }
     }
   }
   invocations_.clear();
-  quiddities_at_reset_ = manager_impl_->get_instances();
+  quiddities_at_reset_ = qcontainer_->get_instances();
 }
 
 void Switcher::init_gst() {
@@ -103,11 +103,11 @@ bool Switcher::load_state(InfoTree::ptr state) {
 
     // loading custom state
     for (auto& it : quids) {
-      if (!manager_impl_->has_instance(it)) continue;
+      if (!qcontainer_->has_instance(it)) continue;
       if (custom_states && !custom_states->empty()) {
-        manager_impl_->get_quiddity(it)->on_loading(custom_states->get_tree(it));
+        qcontainer_->get_quiddity(it)->on_loading(custom_states->get_tree(it));
       } else {
-        manager_impl_->get_quiddity(it)->on_loading(InfoTree::make());
+        qcontainer_->get_quiddity(it)->on_loading(InfoTree::make());
       }
     }
   }
@@ -145,7 +145,7 @@ bool Switcher::load_state(InfoTree::ptr state) {
   invocation_loop_.run([&]() {
     // playing history
     for (auto& it : history) {
-      manager_impl_->invoke(it.args_[0], it.args_[1], nullptr, it.vector_arg_);
+      qcontainer_->invoke(it.args_[0], it.args_[1], nullptr, it.vector_arg_);
     }
   });  // invocation_loop_.run
 
@@ -153,10 +153,10 @@ bool Switcher::load_state(InfoTree::ptr state) {
   if (quiddities_user_data) {
     auto quids = quiddities_user_data->get_child_keys(".");
     for (auto& it : quids) {
-      if (manager_impl_->has_instance(it)) {
+      if (qcontainer_->has_instance(it)) {
         auto child_keys = quiddities_user_data->get_child_keys(it);
         for (auto& kit : child_keys) {
-          manager_impl_->user_data<MPtr(&InfoTree::graft)>(
+          qcontainer_->user_data<MPtr(&InfoTree::graft)>(
               it, kit, quiddities_user_data->get_tree(it + "." + kit));
         }
       }
@@ -175,10 +175,10 @@ bool Switcher::load_state(InfoTree::ptr state) {
     for (auto& quid : quids) {
       auto tmpreaders = readers->get_child_keys(quid);
       for (auto& reader : tmpreaders) {
-        manager_impl_->invoke(quid,
-                              "connect",
-                              nullptr,
-                              {Any::to_string(readers->branch_get_value(quid + "." + reader))});
+        qcontainer_->invoke(quid,
+                            "connect",
+                            nullptr,
+                            {Any::to_string(readers->branch_get_value(quid + "." + reader))});
       }
     }
   }
@@ -187,15 +187,15 @@ bool Switcher::load_state(InfoTree::ptr state) {
   if (quiddities) {
     auto quids = quiddities->get_child_keys(".");
     for (auto& it : quids) {
-      if (!manager_impl_->has_instance(it)) continue;
-      manager_impl_->get_quiddity(it)->on_loaded();
+      if (!qcontainer_->has_instance(it)) continue;
+      qcontainer_->get_quiddity(it)->on_loaded();
     }
   }
   return true;
 }
 
 InfoTree::ptr Switcher::get_state() const {
-  auto quiddities = manager_impl_->get_instances();
+  auto quiddities = qcontainer_->get_instances();
   InfoTree::ptr tree = InfoTree::make();
 
   // saving history
@@ -207,7 +207,7 @@ InfoTree::ptr Switcher::get_state() const {
   // saving per-quiddity information
   for (auto& quid_name : quiddities) {
     // saving custom tree if some is provided
-    auto custom_tree = manager_impl_->get_quiddity(quid_name)->on_saving();
+    auto custom_tree = qcontainer_->get_quiddity(quid_name)->on_saving();
     if (custom_tree && !custom_tree->empty())
       tree->graft(".custom_states." + quid_name, std::move(custom_tree));
 
@@ -238,7 +238,7 @@ InfoTree::ptr Switcher::get_state() const {
               quid_name, std::string("property.") + prop + ".writable"))
         continue;
       // Don't save properties with saving disabled.
-      if (!manager_impl_->get_quiddity(quid_name)->prop_is_saved(prop)) continue;
+      if (!qcontainer_->get_quiddity(quid_name)->prop_is_saved(prop)) continue;
       tree->graft(".properties." + quid_name + "." + prop,
                   InfoTree::make(use_tree<MPtr(&InfoTree::branch_get_value)>(
                       quid_name, std::string("property.") + prop + ".value")));
@@ -246,7 +246,7 @@ InfoTree::ptr Switcher::get_state() const {
 
     // Record shmdata connections.
     // Ignore them if no connect-to methods is installed for this quiddity.
-    if (!manager_impl_->get_quiddity(quid_name)->has_method("connect")) continue;
+    if (!qcontainer_->get_quiddity(quid_name)->has_method("connect")) continue;
 
     auto readers = use_tree<MPtr(&InfoTree::get_child_keys)>(quid_name, "shmdata.reader");
     int nb = 0;
@@ -260,7 +260,7 @@ InfoTree::ptr Switcher::get_state() const {
   }
   // calling on_saved callback
   for (auto& quid_name : quiddities) {
-    manager_impl_->get_quiddity(quid_name)->on_saved();
+    qcontainer_->get_quiddity(quid_name)->on_saved();
   }
 
   return tree;
@@ -288,10 +288,10 @@ bool Switcher::invoke_va(const std::string& quiddity_name,
     current_invocation.set_vector_arg(method_args);
 
     std::string* result = nullptr;
-    if (manager_impl_->invoke(current_invocation.args_[0],
-                              current_invocation.args_[1],
-                              &result,
-                              current_invocation.vector_arg_)) {
+    if (qcontainer_->invoke(current_invocation.args_[0],
+                            current_invocation.args_[1],
+                            &result,
+                            current_invocation.vector_arg_)) {
       current_invocation.success_ = true;
       if (nullptr == result)
         current_invocation.result_.push_back("error");
@@ -322,10 +322,10 @@ bool Switcher::invoke(const std::string& quiddity_name,
     current_invocation.set_vector_arg(args);
 
     std::string* result = nullptr;
-    if (manager_impl_->invoke(current_invocation.args_[0],
-                              current_invocation.args_[1],
-                              &result,
-                              current_invocation.vector_arg_)) {
+    if (qcontainer_->invoke(current_invocation.args_[0],
+                            current_invocation.args_[1],
+                            &result,
+                            current_invocation.vector_arg_)) {
       current_invocation.success_ = true;
       if (nullptr == result)
         current_invocation.result_.push_back("error");
@@ -347,7 +347,7 @@ bool Switcher::invoke(const std::string& quiddity_name,
 std::string Switcher::get_methods_description(const std::string& quiddity_name) {
   std::string res;
   invocation_loop_.run([&]() {
-    res = manager_impl_->get_methods_description(quiddity_name);
+    res = qcontainer_->get_methods_description(quiddity_name);
   });  // invocation_loop_.run
   return res;
 }
@@ -356,7 +356,7 @@ std::string Switcher::get_method_description(const std::string& quiddity_name,
                                              const std::string& method_name) {
   std::string res;
   invocation_loop_.run([&]() {
-    res = manager_impl_->get_method_description(quiddity_name, method_name);
+    res = qcontainer_->get_method_description(quiddity_name, method_name);
   });  // invocation_loop_.run
   return res;
 }
@@ -364,7 +364,7 @@ std::string Switcher::get_method_description(const std::string& quiddity_name,
 std::string Switcher::get_methods_description_by_class(const std::string& class_name) {
   std::string res;
   invocation_loop_.run([&]() {
-    res = manager_impl_->get_methods_description_by_class(class_name);
+    res = qcontainer_->get_methods_description_by_class(class_name);
   });  // invocation_loop_.run
   return res;
 }
@@ -373,7 +373,7 @@ std::string Switcher::get_method_description_by_class(const std::string& class_n
                                                       const std::string& method_name) {
   std::string res;
   invocation_loop_.run([&]() {
-    res = manager_impl_->get_method_description_by_class(class_name, method_name);
+    res = qcontainer_->get_method_description_by_class(class_name, method_name);
   });  // invocation_loop_.run
   return res;
 }
@@ -381,13 +381,13 @@ std::string Switcher::get_method_description_by_class(const std::string& class_n
 bool Switcher::has_method(const std::string& quiddity_name, const std::string& method_name) {
   bool res;
   invocation_loop_.run([&]() {
-    res = manager_impl_->has_method(quiddity_name, method_name);
+    res = qcontainer_->has_method(quiddity_name, method_name);
   });  // invocation_loop_.run
   return res;
 }
 
 void Switcher::auto_init(const std::string& quiddity_name) {
-  Quiddity::ptr quidd = manager_impl_->get_quiddity(quiddity_name);
+  Quiddity::ptr quidd = qcontainer_->get_quiddity(quiddity_name);
   if (!quidd) return;
   SwitcherWrapper::ptr wrapper = std::dynamic_pointer_cast<SwitcherWrapper>(quidd);
   if (wrapper) wrapper->set_quiddity_manager(me_.lock());
@@ -396,24 +396,24 @@ void Switcher::auto_init(const std::string& quiddity_name) {
 std::string Switcher::create(const std::string& quiddity_class) {
   std::string res;
   invocation_loop_.run([&]() {
-    res = manager_impl_->create(quiddity_class);
+    res = qcontainer_->create(quiddity_class);
     auto_init(res);
   });  // invocation_loop_.run
   return res;
 }
 
 bool Switcher::scan_directory_for_plugins(const std::string& directory) {
-  return manager_impl_->scan_directory_for_plugins(directory);
+  return qcontainer_->scan_directory_for_plugins(directory);
 }
 
 bool Switcher::load_configuration_file(const std::string& file_path) {
-  return manager_impl_->load_configuration_file(file_path);
+  return qcontainer_->load_configuration_file(file_path);
 }
 
 std::string Switcher::create(const std::string& quiddity_class, const std::string& nickname) {
   std::string res;
   invocation_loop_.run([&]() {
-    res = manager_impl_->create(quiddity_class, nickname);
+    res = qcontainer_->create(quiddity_class, nickname);
     auto_init(res);
   });  // invocation_loop_.run
   return res;
@@ -422,54 +422,54 @@ std::string Switcher::create(const std::string& quiddity_class, const std::strin
 bool Switcher::remove(const std::string& quiddity_name) {
   bool res;
   invocation_loop_.run(
-      [&]() { res = manager_impl_->remove(quiddity_name); });  // invocation_loop_.run
+      [&]() { res = qcontainer_->remove(quiddity_name); });  // invocation_loop_.run
   return res;
 }
 
-bool Switcher::has_quiddity(const std::string& name) { return manager_impl_->has_instance(name); }
+bool Switcher::has_quiddity(const std::string& name) { return qcontainer_->has_instance(name); }
 
 std::vector<std::string> Switcher::get_classes() {
   std::vector<std::string> res;
-  invocation_loop_.run([&]() { res = manager_impl_->get_classes(); });  // invocation_loop_.run
+  invocation_loop_.run([&]() { res = qcontainer_->get_classes(); });  // invocation_loop_.run
   return res;
 }
 
 std::string Switcher::get_classes_doc() {
   std::string res;
-  invocation_loop_.run([&]() { res = manager_impl_->get_classes_doc(); });  // invocation_loop_.run
+  invocation_loop_.run([&]() { res = qcontainer_->get_classes_doc(); });  // invocation_loop_.run
   return res;
 }
 
 std::string Switcher::get_class_doc(const std::string& class_name) {
   std::string res;
   invocation_loop_.run(
-      [&]() { res = manager_impl_->get_class_doc(class_name); });  // invocation_loop_.run
+      [&]() { res = qcontainer_->get_class_doc(class_name); });  // invocation_loop_.run
   return res;
 }
 
 std::string Switcher::get_quiddities_description() {
   std::string res;
   invocation_loop_.run(
-      [&]() { res = manager_impl_->get_quiddities_description(); });  // invocation_loop_.run
+      [&]() { res = qcontainer_->get_quiddities_description(); });  // invocation_loop_.run
   return res;
 }
 
 std::string Switcher::get_quiddity_description(const std::string& quiddity_name) {
   std::string res;
   invocation_loop_.run([&]() {
-    res = manager_impl_->get_quiddity_description(quiddity_name);
+    res = qcontainer_->get_quiddity_description(quiddity_name);
   });  // invocation_loop_.run
   return res;
 }
 
 std::vector<std::string> Switcher::get_quiddities() const {
   std::vector<std::string> res;
-  invocation_loop_.run([&]() { res = manager_impl_->get_instances(); });  // invocation_loop_.run
+  invocation_loop_.run([&]() { res = qcontainer_->get_instances(); });  // invocation_loop_.run
   return res;
 }
 
 std::string Switcher::get_nickname(const std::string& name) const {
-  auto quid = manager_impl_->get_quiddity(name);
+  auto quid = qcontainer_->get_quiddity(name);
   if (!quid) {
     log_.debug("quiddity % not found", name);
     return std::string();
@@ -478,7 +478,7 @@ std::string Switcher::get_nickname(const std::string& name) const {
 }
 
 bool Switcher::set_nickname(const std::string& name, const std::string& nickname) {
-  auto quid = manager_impl_->get_quiddity(name);
+  auto quid = qcontainer_->get_quiddity(name);
   if (!quid) {
     log_.debug("quiddity % not found", name);
     return false;

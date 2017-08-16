@@ -152,8 +152,6 @@ void QuiddityContainer::register_classes() {
       DocumentationRegistry::get()->get_quiddity_type_from_class_name("GstAudioEncoder"));
   abstract_factory_.register_class<GstDecodebin>(
       DocumentationRegistry::get()->get_quiddity_type_from_class_name("GstDecodebin"));
-  // abstract_factory_.register_class<GstParseToBinSrc>
-  //     (DocumentationRegistry::get()->get_quiddity_type_from_class_name("GstParseToBinSrc"));
   abstract_factory_.register_class<HTTPSDPDec>(
       DocumentationRegistry::get()->get_quiddity_type_from_class_name("HTTPSDPDec"));
   abstract_factory_.register_class<Logger>(
@@ -162,10 +160,6 @@ void QuiddityContainer::register_classes() {
       DocumentationRegistry::get()->get_quiddity_type_from_class_name("PropertyMapper"));
   abstract_factory_.register_class<RtpSession>(
       DocumentationRegistry::get()->get_quiddity_type_from_class_name("RtpSession"));
-  // abstract_factory_.register_class<ShmdataFromGDPFile>
-  //     (DocumentationRegistry::get()->get_quiddity_type_from_class_name("ShmdataFromGDPFile"));
-  // abstract_factory_.register_class<ShmdataToFile>
-  //     (DocumentationRegistry::get()->get_quiddity_type_from_class_name("ShmdataToFile"));
   abstract_factory_.register_class<ShmDelay>(
       DocumentationRegistry::get()->get_quiddity_type_from_class_name("ShmDelay"));
   abstract_factory_.register_class<Timelapse>(

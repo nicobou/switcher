@@ -176,7 +176,7 @@ void PortMidiSource::on_pm_event(PmEvent* event, void* user_data) {
 
   // making property if needed
   if (context->make_property_for_next_midi_event_) {
-    QuiddityContainer::ptr manager = context->manager_impl_.lock();
+    QuiddityContainer::ptr manager = context->qcontainer_.lock();
     if (manager) {
       manager->get_root_manager()->invoke(context->get_name(),
                                           "map_midi_to_property",
