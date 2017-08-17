@@ -17,8 +17,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef __SWITCHER_QUIDDITY_MANAGER_IMPL_H__
-#define __SWITCHER_QUIDDITY_MANAGER_IMPL_H__
+#ifndef __SWITCHER_QUIDDITY_CONTAINER_H__
+#define __SWITCHER_QUIDDITY_CONTAINER_H__
 
 #include <memory>
 #include <thread>
@@ -42,8 +42,8 @@ class QuiddityContainer {
   using ptr = std::shared_ptr<QuiddityContainer>;
   using OnCreateRemoveCb = std::function<void(const std::string& nick_name)>;
 
-  static QuiddityContainer::ptr make_manager(Switcher* root_manager,
-                                             const std::string& name = "default");
+  static QuiddityContainer::ptr make_container(Switcher* switcher,
+                                               const std::string& name = "default");
   QuiddityContainer() = delete;
   virtual ~QuiddityContainer();
   QuiddityContainer(const QuiddityContainer&) = delete;
@@ -56,7 +56,7 @@ class QuiddityContainer {
   // configuration
   bool load_configuration_file(const std::string& file_path);
 
-  // **** info about manager
+  // **** info
   std::string get_name() const;
   std::vector<std::string> get_classes();
   std::vector<std::string> get_instances() const;
@@ -144,7 +144,7 @@ class QuiddityContainer {
       sig,                     // method used by quiddities to access the consultable
       sigs);                   // public forwarding method
 
-  Switcher* get_root_manager() { return manager_; };
+  Switcher* get_switcher() { return switcher_; };
 
  private:
   std::vector<std::string> plugin_dirs_{};
@@ -169,7 +169,7 @@ class QuiddityContainer {
   InfoTree::ptr classes_doc_{};
   CounterMap counters_{};
   std::weak_ptr<QuiddityContainer> me_{};
-  Switcher* manager_{nullptr};
+  Switcher* switcher_{nullptr};
   static void release_g_error(GError* error);
 
   // forwarding accessor and return constructor on error

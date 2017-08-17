@@ -27,7 +27,7 @@
 namespace switcher {
 
 Switcher::Switcher(const std::string& name, BaseLogger&& log)
-    : log_(log), qcontainer_(QuiddityContainer::make_manager(this, name)), name_(name) {}
+    : log_(log), qcontainer_(QuiddityContainer::make_container(this, name)), name_(name) {}
 
 std::string Switcher::get_name() const { return name_; }
 

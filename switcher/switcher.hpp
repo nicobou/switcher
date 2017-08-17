@@ -49,11 +49,11 @@ class Switcher {
   ~Switcher() = default;
 
   template <typename L = ConsoleLogger, typename... Largs>
-  static Switcher::ptr make_manager(const std::string& name, Largs... args) {
+  static Switcher::ptr make_switcher(const std::string& name, Largs... args) {
     init_gst();
-    Switcher::ptr manager(new Switcher(name, L(std::forward<Largs>(args)...)));
-    manager->me_ = manager;
-    return manager;
+    Switcher::ptr switcher(new Switcher(name, L(std::forward<Largs>(args)...)));
+    switcher->me_ = switcher;
+    return switcher;
   }
 
   Switcher& operator=(const Switcher&) = delete;

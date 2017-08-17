@@ -52,7 +52,7 @@ int main() {
   mesh_success = false;
   do_continue = true;
   {
-    Switcher::ptr manager = Switcher::make_manager("rtpposturetest");
+    Switcher::ptr manager = Switcher::make_switcher("rtpposturetest");
 
     gchar* usr_plugin_dir = g_strdup_printf("../gsoap/");
     manager->scan_directory_for_plugins(usr_plugin_dir);

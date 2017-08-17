@@ -160,7 +160,7 @@ int main(int argc, char* argv[]) {
   if (server_name == nullptr) server_name = "default";
   if (port_number == nullptr) port_number = "27182";
 
-  manager = Switcher::make_manager(server_name);
+  manager = Switcher::make_switcher(server_name);
 
   // create logger managing switcher log domain
   auto internal_logger = manager->create("logger", "internal-logger");

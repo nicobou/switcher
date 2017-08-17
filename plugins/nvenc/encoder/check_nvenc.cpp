@@ -57,7 +57,7 @@ void notify_success() {
 
 int main() {
   {
-    Switcher::ptr manager = Switcher::make_manager("test_manager");
+    Switcher::ptr manager = Switcher::make_switcher("test_manager");
 
     manager->scan_directory_for_plugins("./");
 
@@ -131,7 +131,7 @@ int main() {
     do_continue.store(true);
     success = false;
     // starting a new test: nvenc data can be decoded
-    Switcher::ptr manager = Switcher::make_manager("test_manager");
+    Switcher::ptr manager = Switcher::make_switcher("test_manager");
     manager->scan_directory_for_plugins("./");
     manager->load_configuration_file("./check_decode.json");
 

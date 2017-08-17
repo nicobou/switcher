@@ -178,12 +178,12 @@ void PortMidiSource::on_pm_event(PmEvent* event, void* user_data) {
   if (context->make_property_for_next_midi_event_) {
     QuiddityContainer::ptr manager = context->qcontainer_.lock();
     if (manager) {
-      manager->get_root_manager()->invoke(context->get_name(),
-                                          "map_midi_to_property",
-                                          nullptr,
-                                          {context->next_property_name_,
-                                           std::to_string(context->last_status_),
-                                           std::to_string(context->last_data1_)});
+      manager->get_switcher()->invoke(context->get_name(),
+                                      "map_midi_to_property",
+                                      nullptr,
+                                      {context->next_property_name_,
+                                       std::to_string(context->last_status_),
+                                       std::to_string(context->last_data1_)});
     } else {
       g_warning("no manager in portmidi-source");
     }

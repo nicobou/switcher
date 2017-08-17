@@ -358,7 +358,7 @@ void Quiddity::self_destruct() {
     auto self_name = get_name();
     th_lock.unlock();
     if (!manager) return;
-    if (!manager->get_root_manager()->remove(self_name))
+    if (!manager->get_switcher()->remove(self_name))
       g_warning("%s did not self destruct", get_name().c_str());
   });
   thread.detach();

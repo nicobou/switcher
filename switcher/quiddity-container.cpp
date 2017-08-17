@@ -48,12 +48,12 @@
 
 namespace switcher {
 
-QuiddityContainer::ptr QuiddityContainer::make_manager(Switcher* root_manager,
-                                                       const std::string& name) {
-  QuiddityContainer::ptr manager(new QuiddityContainer(name));
-  manager->me_ = manager;
-  manager->manager_ = root_manager;
-  return manager;
+QuiddityContainer::ptr QuiddityContainer::make_container(Switcher* switcher,
+                                                         const std::string& name) {
+  QuiddityContainer::ptr container(new QuiddityContainer(name));
+  container->me_ = container;
+  container->switcher_ = switcher;
+  return container;
 }
 
 QuiddityContainer::QuiddityContainer(const std::string& name) : name_(name) {
@@ -100,9 +100,6 @@ void QuiddityContainer::remove_shmdata_sockets() {
   release_g_error(error);
   if (nullptr == enumerator) return;
   On_scope_exit {
-    // GError *error = nullptr;
-    // g_file_enumerator_close(enumerator, nullptr, &error);
-    // release_g_error(error);
     g_object_unref(enumerator);
   };
   {
