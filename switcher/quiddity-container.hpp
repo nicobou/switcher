@@ -27,6 +27,7 @@
 #include "./abstract-factory.hpp"
 #include "./documentation-registry.hpp"
 #include "./information-tree.hpp"
+#include "./logged.hpp"
 #include "./plugin-loader.hpp"
 #include "./quiddity.hpp"
 
@@ -35,7 +36,7 @@ class QuidditySignalSubscriber;
 class Switcher;
 class Bundle;
 
-class QuiddityContainer {
+class QuiddityContainer : public Logged {
   friend class Bundle;
 
  public:
@@ -43,6 +44,7 @@ class QuiddityContainer {
   using OnCreateRemoveCb = std::function<void(const std::string& nick_name)>;
 
   static QuiddityContainer::ptr make_container(Switcher* switcher,
+                                               BaseLogger* log,
                                                const std::string& name = "default");
   QuiddityContainer() = delete;
   virtual ~QuiddityContainer();
@@ -147,6 +149,7 @@ class QuiddityContainer {
   Switcher* get_switcher() { return switcher_; };
 
  private:
+  BaseLogger* log_;
   std::vector<std::string> plugin_dirs_{};
   InfoTree::ptr configurations_{};
   std::unordered_map<std::string, PluginLoader::ptr> plugins_{};
@@ -156,7 +159,7 @@ class QuiddityContainer {
 
   bool load_plugin(const char* filename);
   void close_plugin(const std::string& class_name);
-  explicit QuiddityContainer(const std::string&);
+  QuiddityContainer(const std::string&, BaseLogger* log);
   void make_classes_doc();
   void register_classes();
   std::map<unsigned int, OnCreateRemoveCb> on_created_cbs_{};

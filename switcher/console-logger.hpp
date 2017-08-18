@@ -26,19 +26,19 @@ class ConsoleLogger : public BaseLogger {
 
  private:
   bool debug_{true};
-  void on_error(std::string&& str) final {
-    std::cerr << "\033[1;31merror: " << str << "\033[0m" << std::endl;
+  void on_error(std::string&& str) override final {
+    std::cerr << "\033[1;31merror: " << str << "\033[0m" << '\n';
   }
-  void on_critical(std::string&& str) final {
-    std::cerr << "\033[1;31mcritical: " << str << "\033[0m" << std::endl;
+  void on_critical(std::string&& str) override final {
+    std::cerr << "\033[1;31mcritical: " << str << "\033[0m" << '\n';
   }
-  void on_warning(std::string&& str) final {
-    std::cerr << "\033[1;33mwarning: " << str << "\033[0m" << std::endl;
+  void on_warning(std::string&& str) override final {
+    std::cerr << "\033[1;33mwarning: " << str << "\033[0m" << '\n';
   }
-  void on_message(std::string&& str) final { std::cout << "message: " << str << std::endl; }
-  void on_info(std::string&& str) final { std::cout << "info: " << str << std::endl; }
-  void on_debug(std::string&& str) final {
-    if (debug_) std::cout << "\033[0;33mdebug: " << str << "\033[0m" << std::endl;
+  void on_message(std::string&& str) override final { std::cout << "message: " << str << '\n'; }
+  void on_info(std::string&& str) override final { std::cout << "info: " << str << '\n'; }
+  void on_debug(std::string&& str) override final {
+    if (debug_) std::cout << "\033[0;33mdebug: " << str << "\033[0m" << '\n';
   }
 };
 

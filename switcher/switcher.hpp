@@ -51,7 +51,7 @@ class Switcher {
   template <typename L = ConsoleLogger, typename... Largs>
   static Switcher::ptr make_switcher(const std::string& name, Largs... args) {
     init_gst();
-    Switcher::ptr switcher(new Switcher(name, L(std::forward<Largs>(args)...)));
+    Switcher::ptr switcher(new Switcher(name, std::make_unique<L>(std::forward<Largs>(args)...)));
     switcher->me_ = switcher;
     return switcher;
   }
@@ -133,7 +133,7 @@ class Switcher {
 
  private:
   // logs
-  mutable BaseLogger log_;
+  mutable std::unique_ptr<BaseLogger> log_;
   // invocation of quiddity_qcontainer_ methods in a dedicated thread
   mutable ThreadedWrapper<> invocation_loop_{};
   QuiddityContainer::ptr qcontainer_;  // may be shared with others for
@@ -146,7 +146,11 @@ class Switcher {
   std::vector<InvocationSpec> invocations_{};
 
   Switcher() = delete;
-  explicit Switcher(const std::string& name, BaseLogger&& log);
+  template <typename L>  // unique_ptr<LOG_TYPE>
+  Switcher(const std::string& name, L&& log)
+      : log_(std::move(log)),
+        qcontainer_(QuiddityContainer::make_container(this, log_.get(), name)),
+        name_(name) {}
   void auto_init(const std::string& quiddity_name);
   void try_save_current_invocation(const InvocationSpec& invocation_spec);
   static void init_gst();

@@ -26,8 +26,6 @@
 
 namespace switcher {
 
-Switcher::Switcher(const std::string& name, BaseLogger&& log)
-    : log_(log), qcontainer_(QuiddityContainer::make_container(this, name)), name_(name) {}
 
 std::string Switcher::get_name() const { return name_; }
 
@@ -97,7 +95,7 @@ bool Switcher::load_state(InfoTree::ptr state) {
     for (auto& it : quids) {
       std::string quid_class = quiddities->branch_get_value(it);
       if (it != create(quid_class, it)) {
-        log_.warning("error creating quiddity % (of type %)", it, quid_class);
+        log_->warning("error creating quiddity % (of type %)", it, quid_class);
       }
     }
 
@@ -117,7 +115,7 @@ bool Switcher::load_state(InfoTree::ptr state) {
     for (auto& it : nicknames->get_child_keys(".")) {
       std::string nickname = nicknames->branch_get_value(it);
       if (!set_nickname(it, nickname))
-        log_.warning("error applying nickname %s for %s", nickname.c_str(), it.c_str());
+        log_->warning("error applying nickname %s for %s", nickname.c_str(), it.c_str());
     }
   }
 
@@ -133,10 +131,10 @@ bool Switcher::load_state(InfoTree::ptr state) {
         } else {
           if (!use_prop<MPtr(&PContainer::set_str_str)>(
                   quid, prop, Any::to_string(properties->branch_get_value(quid + "." + prop))))
-            log_.warning("failed to apply value, quiddity is %s, property is %s, value is %s",
-                         quid.c_str(),
-                         prop.c_str(),
-                         Any::to_string(properties->branch_get_value(quid + "." + prop)).c_str());
+            log_->warning("failed to apply value, quiddity is %s, property is %s, value is %s",
+                          quid.c_str(),
+                          prop.c_str(),
+                          Any::to_string(properties->branch_get_value(quid + "." + prop)).c_str());
         }
       }
     }
@@ -165,7 +163,7 @@ bool Switcher::load_state(InfoTree::ptr state) {
   // starting quiddities
   for (auto& quid : quid_to_start) {
     if (!use_prop<MPtr(&PContainer::set_str_str)>(quid, "started", "true")) {
-      log_.warning("failed to start quiddity %s", quid.c_str());
+      log_->warning("failed to start quiddity %s", quid.c_str());
     }
   }
 
@@ -471,7 +469,7 @@ std::vector<std::string> Switcher::get_quiddities() const {
 std::string Switcher::get_nickname(const std::string& name) const {
   auto quid = qcontainer_->get_quiddity(name);
   if (!quid) {
-    log_.debug("quiddity % not found", name);
+    log_->debug("quiddity % not found", name);
     return std::string();
   }
   return quid->get_nickname();
@@ -480,7 +478,7 @@ std::string Switcher::get_nickname(const std::string& name) const {
 bool Switcher::set_nickname(const std::string& name, const std::string& nickname) {
   auto quid = qcontainer_->get_quiddity(name);
   if (!quid) {
-    log_.debug("quiddity % not found", name);
+    log_->debug("quiddity % not found", name);
     return false;
   }
   return quid->set_nickname(nickname);

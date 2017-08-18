@@ -63,19 +63,19 @@ if (PLUGIN_GSOAP)
         generated/webservices/soapcontrolProxy.cpp
         )
 
-    add_library(soapclient SHARED
-        ${CLIENT_SOURCES}
-        )
+    # add_library(soapclient SHARED
+    #     ${CLIENT_SOURCES}
+    #     )
 
-    add_dependencies(soapclient ${SWITCHER_LIBRARY})
+    # add_dependencies(soapclient ${SWITCHER_LIBRARY})
 
-    target_include_directories(soapclient
-        PUBLIC ${GSOAP_GEN_DIR}
-        )
+    # target_include_directories(soapclient
+    #     PUBLIC ${GSOAP_GEN_DIR}
+    #     )
 
-    add_dependencies(soapclient webservices)
+    # add_dependencies(soapclient webservices)
 
-    # Client Static (for switcher-ctrl)
+    # # Client Static (for switcher-ctrl)
 
     add_library(soapclient-static STATIC
         ${CLIENT_SOURCES}
@@ -96,6 +96,6 @@ if (PLUGIN_GSOAP)
 
     # INSTALL
 
-    install(TARGETS soapserver soapclient LIBRARY DESTINATION ${SWITCHER_LIBRARY}/plugins)
+    install(TARGETS soapserver LIBRARY DESTINATION ${SWITCHER_LIBRARY}/plugins)
 
 endif ()
