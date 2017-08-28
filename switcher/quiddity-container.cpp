@@ -82,7 +82,7 @@ QuiddityContainer::~QuiddityContainer() {
 
 void QuiddityContainer::release_g_error(GError* error) {
   if (nullptr != error) {
-    g_debug("GError message: %s\n", error->message);
+    debug("GError message: %", std::string(error->message));
     g_error_free(error);
   }
 }

@@ -149,7 +149,6 @@ class QuiddityContainer : public Logged {
   Switcher* get_switcher() { return switcher_; };
 
  private:
-  BaseLogger* log_;
   std::vector<std::string> plugin_dirs_{};
   InfoTree::ptr configurations_{};
   std::unordered_map<std::string, PluginLoader::ptr> plugins_{};
@@ -173,7 +172,7 @@ class QuiddityContainer : public Logged {
   CounterMap counters_{};
   std::weak_ptr<QuiddityContainer> me_{};
   Switcher* switcher_{nullptr};
-  static void release_g_error(GError* error);
+  void release_g_error(GError* error);
 
   // forwarding accessor and return constructor on error
   std::pair<bool, Quiddity*> find_quiddity(const std::string& name) const {
@@ -186,7 +185,7 @@ class QuiddityContainer : public Logged {
   // construct result to pass when element has not been found:
   template <typename ReturnType>
   ReturnType construct_error_return(const std::string& name) const {
-    g_warning("quiddity %s not found", name.c_str());
+    warning("quiddity % not found", name);
     return ReturnType();
   }
 };

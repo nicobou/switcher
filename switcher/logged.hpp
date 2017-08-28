@@ -17,10 +17,10 @@
 
 #define MakeSwitcherLoggedMember(NAME)                                                          \
   template <typename... Targs>                                                                  \
-  void NAME(const char* format, const ::std::string& value, Targs... Fargs) {                   \
+  void NAME(const char* format, const ::std::string& value, Targs... Fargs) const {             \
     log_->NAME(format, std::forward<const std::string&>(value), std::forward<Targs>(Fargs)...); \
   }                                                                                             \
-  void NAME(const char* format) { log_->NAME(format); }
+  void NAME(const char* format) const { log_->NAME(format); }
 
 namespace switcher {
 
@@ -38,7 +38,7 @@ class Logged {
   MakeSwitcherLoggedMember(debug);
 
  private:
-  BaseLogger* log_{nullptr};
+  mutable BaseLogger* log_{nullptr};
 };
 
 }  // namespace shmdata
