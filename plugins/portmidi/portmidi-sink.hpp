@@ -30,7 +30,7 @@
 namespace switcher {
 class PortMidiSink : public Quiddity, public StartableQuiddity, public PortMidi {
  public:
-  PortMidiSink(const std::string&);
+  PortMidiSink(QuiddityConfiguration&&);
   ~PortMidiSink() = default;
   PortMidiSink(const PortMidiSink&) = delete;
   PortMidiSink& operator=(const PortMidiSink&) = delete;

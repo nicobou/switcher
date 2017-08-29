@@ -35,7 +35,7 @@
 namespace switcher {
 class PostureDetect : public Quiddity, public StartableQuiddity {
  public:
-  PostureDetect(const std::string&);
+  PostureDetect(QuiddityConfiguration&&);
   ~PostureDetect();
   PostureDetect(const PostureDetect&) = delete;
   PostureDetect& operator=(const PostureDetect&) = delete;

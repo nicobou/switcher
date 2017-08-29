@@ -35,8 +35,9 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(LADSPA,
 
 const std::vector<std::string> LADSPA::KPropertiesBlackList = {"name", "parent"};
 
-LADSPA::LADSPA(const std::string&)
-    : shmcntr_(static_cast<Quiddity*>(this)),
+LADSPA::LADSPA(QuiddityConfiguration&& conf)
+    : Quiddity(std::forward<QuiddityConfiguration>(conf)),
+      shmcntr_(static_cast<Quiddity*>(this)),
       gst_pipeline_(std::make_unique<GstPipeliner>(nullptr, nullptr)),
       plugins_list_(get_ladspa_plugins()),
       plugins_(Selection<>(std::move(plugins_list_.first), std::move(plugins_list_.second), 0)) {

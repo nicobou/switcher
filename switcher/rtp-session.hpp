@@ -37,7 +37,7 @@ class RtpSession : public Quiddity {
   friend RtpDestination;
 
  public:
-  RtpSession(const std::string&);
+  RtpSession(QuiddityConfiguration&&);
   ~RtpSession() = default;
   RtpSession(const RtpSession&) = delete;
   RtpSession& operator=(const RtpSession&) = delete;

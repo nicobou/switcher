@@ -35,16 +35,18 @@
 #include "./documentation-registry.hpp"
 #include "./information-tree.hpp"
 #include "./json-builder.hpp"
+#include "./logged.hpp"
 #include "./make-consultable.hpp"
 #include "./method.hpp"
 #include "./property-container.hpp"
+#include "./quiddity-configuration.hpp"
 #include "./quiddity-documentation.hpp"
 #include "./signal-container.hpp"
 
 namespace switcher {
 class QuiddityContainer;
 
-class Quiddity {
+class Quiddity : public Logged {
   friend class Bundle;  // access to props_ in order to forward properties
   // FIXME do something for this (to many friend class in quiddity.hpp):
   friend class ProtocolCurl;
@@ -61,7 +63,8 @@ class Quiddity {
 
  public:
   typedef std::shared_ptr<Quiddity> ptr;
-  Quiddity();
+  explicit Quiddity(QuiddityConfiguration&&);
+  Quiddity() = delete;
   Quiddity(const Quiddity&) = delete;
   Quiddity& operator=(const Quiddity&) = delete;
   virtual ~Quiddity();
@@ -240,16 +243,18 @@ class Quiddity {
       DocumentationRegistry::get()->register_quiddity_type_from_class_name(                   \
           std::string(#cpp_quiddity_class), class_name);
 
-#define SWITCHER_DECLARE_PLUGIN(cpp_quiddity_class)                                             \
-  extern "C" Quiddity* create(const std::string& name) { return new cpp_quiddity_class(name); } \
-  extern "C" void destroy(Quiddity* quiddity) { delete quiddity; }                              \
-  extern "C" const char* get_quiddity_type() {                                                  \
-    static char type[64];                                                                       \
-    strcpy(type,                                                                                \
-           DocumentationRegistry::get()                                                         \
-               ->get_quiddity_type_from_class_name(std::string(#cpp_quiddity_class))            \
-               .c_str());                                                                       \
-    return static_cast<const char*>(type);                                                      \
+#define SWITCHER_DECLARE_PLUGIN(cpp_quiddity_class)                                  \
+  extern "C" Quiddity* create(QuiddityConfiguration&& conf) {                        \
+    return new cpp_quiddity_class(std::forward<QuiddityConfiguration>(conf));        \
+  }                                                                                  \
+  extern "C" void destroy(Quiddity* quiddity) { delete quiddity; }                   \
+  extern "C" const char* get_quiddity_type() {                                       \
+    static char type[64];                                                            \
+    strcpy(type,                                                                     \
+           DocumentationRegistry::get()                                              \
+               ->get_quiddity_type_from_class_name(std::string(#cpp_quiddity_class)) \
+               .c_str());                                                            \
+    return static_cast<const char*>(type);                                           \
   }
 }  // namespace switcher
 #endif

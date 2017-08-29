@@ -31,8 +31,9 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(GstDecodebin,
                                      "LGPL",
                                      "Nicolas Bouillot");
 
-GstDecodebin::GstDecodebin(const std::string&)
-    : gst_pipeline_(std::make_unique<GstPipeliner>(nullptr, nullptr)),
+GstDecodebin::GstDecodebin(QuiddityConfiguration&& conf)
+    : Quiddity(std::forward<QuiddityConfiguration>(conf)),
+      gst_pipeline_(std::make_unique<GstPipeliner>(nullptr, nullptr)),
       shmsrc_("shmdatasrc"),
       shmcntr_(static_cast<Quiddity*>(this)) {}
 

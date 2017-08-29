@@ -36,8 +36,9 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(PulseSink,
                                      "LGPL",
                                      "Nicolas Bouillot");
 
-PulseSink::PulseSink(const std::string&)
-    : mainloop_(std::make_unique<GlibMainLoop>()),
+PulseSink::PulseSink(QuiddityConfiguration&& conf)
+    : Quiddity(std::forward<QuiddityConfiguration>(conf)),
+      mainloop_(std::make_unique<GlibMainLoop>()),
       shmcntr_(static_cast<Quiddity*>(this)),
       gst_pipeline_(std::make_unique<GstPipeliner>(nullptr, nullptr)) {}
 

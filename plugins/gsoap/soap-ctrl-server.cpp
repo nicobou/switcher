@@ -38,7 +38,8 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(SoapCtrlServer,
                                      "GPL",
                                      "Nicolas Bouillot");
 
-SoapCtrlServer::SoapCtrlServer(const std::string&) {}
+SoapCtrlServer::SoapCtrlServer(QuiddityConfiguration&& conf)
+    : SwitcherWrapper(std::forward<QuiddityConfiguration>(conf)) {}
 
 bool SoapCtrlServer::init() {
   soap_init(&soap_);

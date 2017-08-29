@@ -45,7 +45,7 @@ class GLFWVideo : public Quiddity {
    * \brief Constructor
    * \param Title of the window
    */
-  GLFWVideo(const std::string&);
+  GLFWVideo(QuiddityConfiguration&&);
   /**
    * \brief Destructor
    */

@@ -33,10 +33,11 @@
 
 namespace switcher {
 
-Quiddity::Quiddity()
-    : information_tree_(InfoTree::make()),
+Quiddity::Quiddity(QuiddityConfiguration&& conf)
+    : Logged(conf.log_),
+      information_tree_(InfoTree::make()),
       structured_user_data_(InfoTree::make()),
-      configuration_tree_(InfoTree::make()),
+      configuration_tree_(conf.tree_config_),
       props_(information_tree_,
              [this](const std::string& key) {
                smanage<MPtr(&SContainer::notify)>(on_tree_grafted_id_, InfoTree::make(key));
@@ -64,7 +65,8 @@ Quiddity::Quiddity()
           "on-user-data-pruned", "A branch has been pruned from the quiddity's user data tree")),
       on_nicknamed_id_(smanage<MPtr(&SContainer::make)>(
           "on-nicknamed", "A nickname has been given to the quiddity")),
-      methods_description_(std::make_shared<JSONBuilder>()) {
+      methods_description_(std::make_shared<JSONBuilder>()),
+      name_(conf.name_) {
   configuration_tree_->graft(".", InfoTree::make());
 }
 

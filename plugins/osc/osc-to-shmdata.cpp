@@ -29,7 +29,8 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(OscToShmdata,
                                      "LGPL",
                                      "Nicolas Bouillot");
 
-OscToShmdata::OscToShmdata(const std::string&) : port_(1056) {}
+OscToShmdata::OscToShmdata(QuiddityConfiguration&& conf)
+    : Quiddity(std::forward<QuiddityConfiguration>(conf)), port_(1056) {}
 
 bool OscToShmdata::init() {
   init_startable(this);

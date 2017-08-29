@@ -33,7 +33,7 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(PostureMeshSerialization,
                                      "LGPL",
                                      "Emmanuel Durand");
 
-PostureMeshSerialization::PostureMeshSerialization(const std::string&)
+PostureMeshSerialization::PostureMeshSerialization(QuiddityConfiguration&&)
     : shmcntr_(static_cast<Quiddity*>(this)) {
   serializer_ = make_shared<MeshSerializer>();
   // Default serializer parameters

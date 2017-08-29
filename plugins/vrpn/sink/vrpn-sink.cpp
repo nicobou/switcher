@@ -33,7 +33,9 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(VRPNSink,
 // Have to define it here, otherwise symbol not found...
 const unsigned int VRPNSink::vrpnLoopInterval{16};
 
-VRPNSink::VRPNSink(const std::string&) : shmdataConnector_(static_cast<Quiddity*>(this)) {}
+VRPNSink::VRPNSink(QuiddityConfiguration&& conf)
+    : Quiddity(std::forward<QuiddityConfiguration>(conf)),
+      shmdataConnector_(static_cast<Quiddity*>(this)) {}
 
 bool VRPNSink::init() {
   init_startable(this);

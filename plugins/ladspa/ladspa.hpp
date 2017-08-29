@@ -34,7 +34,7 @@ class LADSPA : public Quiddity {
  public:
 
   //! Constructor
-  LADSPA(const std::string&);
+  LADSPA(QuiddityConfiguration&&);
 
   //! Destructor
   ~LADSPA() = default;

@@ -31,8 +31,9 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(NVencPlugin,
                                      "LGPL",
                                      "Nicolas Bouillot");
 
-NVencPlugin::NVencPlugin(const std::string&)
-    : default_preset_id_(pmanage<MPtr(&PContainer::make_bool)>(
+NVencPlugin::NVencPlugin(QuiddityConfiguration&& conf)
+    : Quiddity(std::forward<QuiddityConfiguration>(conf)),
+      default_preset_id_(pmanage<MPtr(&PContainer::make_bool)>(
           "bitrate_from_preset",
           [this](bool value) {
             bitrate_from_preset_ = value;

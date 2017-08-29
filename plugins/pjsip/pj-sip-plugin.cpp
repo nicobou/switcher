@@ -34,8 +34,9 @@ SIPPlugin* SIPPlugin::this_ = nullptr;
 
 std::atomic<unsigned short> SIPPlugin::sip_plugin_used_(0);
 
-SIPPlugin::SIPPlugin(const std::string&)
-    : port_id_(pmanage<MPtr(&PContainer::make_string)>(
+SIPPlugin::SIPPlugin(QuiddityConfiguration&& conf)
+    : Quiddity(std::forward<QuiddityConfiguration>(conf)),
+      port_id_(pmanage<MPtr(&PContainer::make_string)>(
           "port",
           [this](const std::string& valstr) {
             if (valstr.empty()) return false;

@@ -27,7 +27,7 @@
 namespace switcher {
 class SoapCtrlServer : public SwitcherWrapper {
  public:
-  SoapCtrlServer(const std::string&);
+  SoapCtrlServer(QuiddityConfiguration&&);
   ~SoapCtrlServer();
   SoapCtrlServer(const SoapCtrlServer&) = delete;
   SoapCtrlServer& operator=(const SoapCtrlServer&) = delete;

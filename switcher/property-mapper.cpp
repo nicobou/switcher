@@ -32,7 +32,8 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(PropertyMapper,
                                      "LGPL",
                                      "Nicolas Bouillot");
 
-PropertyMapper::PropertyMapper(const std::string&) {}
+PropertyMapper::PropertyMapper(QuiddityConfiguration&& conf)
+    : Quiddity(std::forward<QuiddityConfiguration>(conf)) {}
 
 bool PropertyMapper::init() {
   install_method("Set Source Property",                                // long name

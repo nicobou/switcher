@@ -30,7 +30,8 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(ProtocolMapper,
                                      "LGPL",
                                      "Nicolas Bouillot/Jérémie Soria");
 
-ProtocolMapper::ProtocolMapper(const std::string&) {
+ProtocolMapper::ProtocolMapper(QuiddityConfiguration&& conf)
+    : Quiddity(std::forward<QuiddityConfiguration>(conf)) {
   config_file_id_ = pmanage<MPtr(&PContainer::make_string)>(
       "config_file",
       [this](const std::string& val) {

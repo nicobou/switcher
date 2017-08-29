@@ -33,8 +33,9 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(PulseSrc,
                                      "LGPL",
                                      "Nicolas Bouillot");
 
-PulseSrc::PulseSrc(const std::string&)
-    : mainloop_(std::make_unique<GlibMainLoop>()),
+PulseSrc::PulseSrc(QuiddityConfiguration&& conf)
+    : Quiddity(std::forward<QuiddityConfiguration>(conf)),
+      mainloop_(std::make_unique<GlibMainLoop>()),
       gst_pipeline_(std::make_unique<GstPipeliner>(nullptr, nullptr)) {
   pmanage<MPtr(&PContainer::make_group)>(
       "advanced", "Advanced configuration", "Advanced configuration");

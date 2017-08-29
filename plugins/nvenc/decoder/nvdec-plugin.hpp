@@ -30,7 +30,7 @@
 namespace switcher {
 class NVdecPlugin : public Quiddity {
  public:
-  NVdecPlugin(const std::string&);
+  NVdecPlugin(QuiddityConfiguration&&);
   ~NVdecPlugin() = default;
   NVdecPlugin(const NVdecPlugin&) = delete;
   NVdecPlugin& operator=(const NVdecPlugin&) = delete;

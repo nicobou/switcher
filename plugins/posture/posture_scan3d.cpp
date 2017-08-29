@@ -38,7 +38,7 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(PostureSc3,
                                      "LGPL",
                                      "Ludovic Schreiber");
 
-PostureSc3::PostureSc3(const std::string&) {
+PostureSc3::PostureSc3(QuiddityConfiguration&&) {
   merger_ = std::unique_ptr<PointCloudMerger>(new PointCloudMerger());
   sol_ = std::unique_ptr<Solidify>(new Solidify());
   sol_->setGridResolution(50);

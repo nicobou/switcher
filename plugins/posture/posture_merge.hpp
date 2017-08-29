@@ -37,7 +37,7 @@
 namespace switcher {
 class PostureMerge : public Quiddity, public StartableQuiddity {
  public:
-  PostureMerge(const std::string&);
+  PostureMerge(QuiddityConfiguration&&);
   ~PostureMerge();
   PostureMerge(const PostureMerge&) = delete;
   PostureMerge& operator=(const PostureMerge&) = delete;

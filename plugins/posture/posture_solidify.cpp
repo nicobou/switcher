@@ -33,7 +33,8 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(PostureSolidify,
                                      "LGPL",
                                      "Emmanuel Durand");
 
-PostureSolidify::PostureSolidify(const std::string&) : shmcntr_(static_cast<Quiddity*>(this)) {}
+PostureSolidify::PostureSolidify(QuiddityConfiguration&&)
+    : shmcntr_(static_cast<Quiddity*>(this)) {}
 
 PostureSolidify::~PostureSolidify() { stop(); }
 

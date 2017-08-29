@@ -30,7 +30,8 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(GstVideoEncoder,
                                      "LGPL",
                                      "Nicolas Bouillot");
 
-GstVideoEncoder::GstVideoEncoder(const std::string&) : shmcntr_(static_cast<Quiddity*>(this)) {}
+GstVideoEncoder::GstVideoEncoder(QuiddityConfiguration&& conf)
+    : Quiddity(std::forward<QuiddityConfiguration>(conf)), shmcntr_(static_cast<Quiddity*>(this)) {}
 
 bool GstVideoEncoder::init() {
   codecs_ = std::make_unique<GstVideoCodec>(

@@ -40,11 +40,12 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(GTKVideo,
 guint GTKVideo::instances_counter_ = 0;
 std::thread GTKVideo::gtk_main_thread_{};
 
-GTKVideo::GTKVideo(const std::string& name)
-    : shmcntr_(static_cast<Quiddity*>(this)),
+GTKVideo::GTKVideo(QuiddityConfiguration&& conf)
+    : Quiddity(std::forward<QuiddityConfiguration>(conf)),
+      shmcntr_(static_cast<Quiddity*>(this)),
       gst_pipeline_(std::make_unique<GstPipeliner>(
           nullptr, [this](GstMessage* msg) { return this->bus_sync(msg); })),
-      title_(name),
+      title_(get_name()),
       fullscreen_id_(pmanage<MPtr(&PContainer::make_bool)>("fullscreen",
                                                            [this](const bool& val) {
                                                              is_fullscreen_ = val;

@@ -36,7 +36,7 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(ShmdataFromGDPFile,
                                      "LGPL",
                                      "Nicolas Bouillot, Emmanuel Durand");
 
-ShmdataFromGDPFile::ShmdataFromGDPFile(const std::string&)
+ShmdataFromGDPFile::ShmdataFromGDPFile(QuiddityConfiguration&&)
     : custom_prop_(new CustomPropertyHelper()), shmdata_names_() {}
 
 ShmdataFromGDPFile::~ShmdataFromGDPFile() {}

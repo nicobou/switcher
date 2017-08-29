@@ -29,8 +29,9 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(DummySink,
                                      "LGPL",
                                      "Nicolas Bouillot");
 
-DummySink::DummySink(const std::string&)
-    : frame_received_id_(
+DummySink::DummySink(QuiddityConfiguration&& conf)
+    : Quiddity(std::forward<QuiddityConfiguration>(conf)),
+      frame_received_id_(
           pmanage<MPtr(&PContainer::make_bool)>("frame-received",
                                                 nullptr,
                                                 [this]() { return frame_received_; },

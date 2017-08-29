@@ -30,7 +30,8 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(GstAudioEncoder,
                                      "LGPL",
                                      "Nicolas Bouillot");
 
-GstAudioEncoder::GstAudioEncoder(const std::string&) : shmcntr_(static_cast<Quiddity*>(this)) {}
+GstAudioEncoder::GstAudioEncoder(QuiddityConfiguration&& conf)
+    : Quiddity(std::forward<QuiddityConfiguration>(conf)), shmcntr_(static_cast<Quiddity*>(this)) {}
 
 bool GstAudioEncoder::init() {
   codecs_ = std::make_unique<GstAudioCodec>(static_cast<Quiddity*>(this));

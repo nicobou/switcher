@@ -28,7 +28,7 @@
 namespace switcher {
 class GstAudioEncoder : public Quiddity {
  public:
-  GstAudioEncoder(const std::string&);
+  GstAudioEncoder(QuiddityConfiguration&&);
   ~GstAudioEncoder() = default;
   GstAudioEncoder(const GstAudioEncoder&) = delete;
   GstAudioEncoder& operator=(const GstAudioEncoder&) = delete;

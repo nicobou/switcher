@@ -33,8 +33,9 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(Uridecodebin,
                                      "LGPL",
                                      "Nicolas Bouillot");
 
-Uridecodebin::Uridecodebin(const std::string&)
-    : on_msg_async_cb_([this](GstMessage* msg) { this->bus_async(msg); }),
+Uridecodebin::Uridecodebin(QuiddityConfiguration&& conf)
+    : Quiddity(std::forward<QuiddityConfiguration>(conf)),
+      on_msg_async_cb_([this](GstMessage* msg) { this->bus_async(msg); }),
       on_msg_sync_cb_(nullptr),
       on_error_cb_([this](GstObject*, GError*) { this->error_ = true; }),
       gst_pipeline_(

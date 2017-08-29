@@ -34,7 +34,7 @@
 namespace switcher {
 class PulseSrc : public Quiddity, public StartableQuiddity {
  public:
-  PulseSrc(const std::string&);
+  PulseSrc(QuiddityConfiguration&&);
   ~PulseSrc();
   PulseSrc(const PulseSrc&) = delete;
   PulseSrc& operator=(const PulseSrc&) = delete;

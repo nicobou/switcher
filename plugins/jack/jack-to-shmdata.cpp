@@ -32,9 +32,10 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(JackToShmdata,
                                      "LGPL",
                                      "Nicolas Bouillot");
 
-JackToShmdata::JackToShmdata(const std::string& name)
-    : client_name_(name),
-      jack_client_(name.c_str(),
+JackToShmdata::JackToShmdata(QuiddityConfiguration&& conf)
+    : Quiddity(std::forward<QuiddityConfiguration>(conf)),
+      client_name_(get_name()),
+      jack_client_(get_name().c_str(),
                    &JackToShmdata::jack_process,
                    this,
                    [this](uint n) { on_xrun(n); },

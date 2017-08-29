@@ -28,7 +28,7 @@
 namespace switcher {
 class GstVideoEncoder : public Quiddity {
  public:
-  GstVideoEncoder(const std::string&);
+  GstVideoEncoder(QuiddityConfiguration&&);
   ~GstVideoEncoder() = default;
   GstVideoEncoder(const GstVideoEncoder&) = delete;
   GstVideoEncoder& operator=(const GstVideoEncoder&) = delete;

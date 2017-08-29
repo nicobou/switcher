@@ -51,8 +51,9 @@ const std::string GLFWVideo::kOverlayDisabledMessage =
 
 std::atomic<int> GLFWVideo::instance_counter_(0);
 
-GLFWVideo::GLFWVideo(const std::string& name)
-    : shmcntr_(static_cast<Quiddity*>(this)),
+GLFWVideo::GLFWVideo(QuiddityConfiguration&& conf)
+    : Quiddity(std::forward<QuiddityConfiguration>(conf)),
+      shmcntr_(static_cast<Quiddity*>(this)),
       gst_pipeline_(std::make_unique<GstPipeliner>(nullptr, nullptr)),
       background_config_id_(pmanage<MPtr(&PContainer::make_group)>(
           "background_config",
@@ -189,7 +190,7 @@ GLFWVideo::GLFWVideo(const std::string& name)
             });
           },
           std::chrono::milliseconds(500))),
-      title_(name),
+      title_(get_name()),
       title_id_(pmanage<MPtr(&PContainer::make_string)>("title",
                                                         [this](const std::string& val) {
                                                           title_ = val;

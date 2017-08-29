@@ -36,7 +36,8 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(NVdecPlugin,
 const std::array<const char*, 5> NVdecPlugin::kSupportedCodecs{
     {"video/x-h264", "video/x-h265", "video/mpeg", "video/x-jpeg", "image/jpeg"}};
 
-NVdecPlugin::NVdecPlugin(const std::string&) : shmcntr_(static_cast<Quiddity*>(this)) {
+NVdecPlugin::NVdecPlugin(QuiddityConfiguration&& conf)
+    : Quiddity(std::forward<QuiddityConfiguration>(conf)), shmcntr_(static_cast<Quiddity*>(this)) {
   auto devices = CudaContext::get_devices();
   std::vector<std::string> names;
   for (auto& it : devices) {

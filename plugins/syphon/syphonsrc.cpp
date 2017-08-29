@@ -37,7 +37,7 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(SyphonSrc,
                                      "LGPL",
                                      "Emmanuel Durand");
 
-SyphonSrc::SyphonSrc(const std::string&) {}
+SyphonSrc::SyphonSrc(QuiddityConfiguration&&) {}
 
 bool SyphonSrc::init() {
   init_startable(this);

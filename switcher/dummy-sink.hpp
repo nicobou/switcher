@@ -27,7 +27,7 @@
 namespace switcher {
 class DummySink : public Quiddity {
  public:
-  DummySink(const std::string&);
+  DummySink(QuiddityConfiguration&&);
   ~DummySink() = default;
   DummySink(const DummySink&) = delete;
   DummySink& operator=(const DummySink&) = delete;

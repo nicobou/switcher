@@ -31,7 +31,8 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(ExternalShmdataWriter,
                                      "LGPL",
                                      "Nicolas Bouillot");
 
-ExternalShmdataWriter::ExternalShmdataWriter(const std::string&) {}
+ExternalShmdataWriter::ExternalShmdataWriter(QuiddityConfiguration&& conf)
+    : Quiddity(std::forward<QuiddityConfiguration>(conf)) {}
 
 bool ExternalShmdataWriter::init() {
   pmanage<MPtr(&PContainer::make_string)>(

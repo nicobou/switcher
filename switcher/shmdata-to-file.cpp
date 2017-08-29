@@ -33,7 +33,7 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(ShmdataToFile,
                                      "LGPL",
                                      "Nicolas Bouillot, Emmanuel Durand");
 
-ShmdataToFile::ShmdataToFile(const std::string&)
+ShmdataToFile::ShmdataToFile(QuiddityConfiguration&&)
     : custom_prop_(std::make_shared<CustomPropertyHelper>()) {}
 
 ShmdataToFile::~ShmdataToFile() {

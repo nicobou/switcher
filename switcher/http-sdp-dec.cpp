@@ -37,8 +37,9 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(
     "LGPL",
     "Nicolas Bouillot");
 
-HTTPSDPDec::HTTPSDPDec(const std::string&)
-    : gst_pipeline_(std::make_unique<GstPipeliner>(nullptr, nullptr)),
+HTTPSDPDec::HTTPSDPDec(QuiddityConfiguration&& conf)
+    : Quiddity(std::forward<QuiddityConfiguration>(conf)),
+      gst_pipeline_(std::make_unique<GstPipeliner>(nullptr, nullptr)),
       souphttpsrc_("souphttpsrc"),
       sdpdemux_("sdpdemux"),
       decompress_streams_id_(

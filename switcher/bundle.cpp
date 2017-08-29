@@ -32,7 +32,8 @@ void destroy(Quiddity* quiddity) { delete quiddity; }
 }  // namespace bundle
 
 Bundle::Bundle(QuiddityConfiguration&& conf)
-    : conf_(conf),
+    : Quiddity(std::forward<QuiddityConfiguration>(conf)),
+      conf_(conf),
       shmcntr_(static_cast<Quiddity*>(this)),
       manager_(Switcher::make_switcher<LoggerForwarder>(conf_.name_, conf_.log_)) {}
 

@@ -25,7 +25,7 @@
 namespace switcher {
 class PropertyMapper : public Quiddity {
  public:
-  PropertyMapper(const std::string&);
+  PropertyMapper(QuiddityConfiguration&&);
   ~PropertyMapper();
   PropertyMapper(const PropertyMapper&);
   PropertyMapper& operator=(const PropertyMapper&);

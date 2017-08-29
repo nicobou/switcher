@@ -29,7 +29,7 @@
 namespace switcher {
 class V4L2Src : public Quiddity, public StartableQuiddity {
  public:
-  V4L2Src(const std::string&);
+  V4L2Src(QuiddityConfiguration&&);
   ~V4L2Src() = default;
   V4L2Src(const V4L2Src&) = delete;
   V4L2Src& operator=(const V4L2Src&) = delete;

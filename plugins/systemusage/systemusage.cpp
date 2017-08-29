@@ -41,8 +41,9 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(SystemUsage,
                                      "LGPL",
                                      "Emmanuel Durand");
 
-SystemUsage::SystemUsage(const std::string&)
-    : tree_{InfoTree::make()},
+SystemUsage::SystemUsage(QuiddityConfiguration&& conf)
+    : Quiddity(std::forward<QuiddityConfiguration>(conf)),
+      tree_{InfoTree::make()},
       period_(1.0),
       pollStateTask_(std::make_unique<PeriodicTask<>>(
           [this]() { this->pollState(); },

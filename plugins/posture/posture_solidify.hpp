@@ -36,7 +36,7 @@
 namespace switcher {
 class PostureSolidify : public Quiddity, public StartableQuiddity {
  public:
-  PostureSolidify(const std::string&);
+  PostureSolidify(QuiddityConfiguration&&);
   ~PostureSolidify();
   PostureSolidify(const PostureSolidify&) = delete;
   PostureSolidify& operator=(const PostureSolidify&) = delete;

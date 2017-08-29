@@ -34,8 +34,11 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(OscCtrlServer,
                                      "LGPL",
                                      "Nicolas Bouillot");
 
-OscCtrlServer::OscCtrlServer(const std::string&)
-    : port_(), osc_subscribers_(), osc_thread_(nullptr) {}
+OscCtrlServer::OscCtrlServer(QuiddityConfiguration&& conf)
+    : SwitcherWrapper(std::forward<QuiddityConfiguration>(conf)),
+      port_(),
+      osc_subscribers_(),
+      osc_thread_(nullptr) {}
 
 bool OscCtrlServer::init() {
   osc_thread_ = nullptr;

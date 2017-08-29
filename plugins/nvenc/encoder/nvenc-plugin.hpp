@@ -32,7 +32,7 @@
 namespace switcher {
 class NVencPlugin : public Quiddity {
  public:
-  NVencPlugin(const std::string&);
+  NVencPlugin(QuiddityConfiguration&&);
   ~NVencPlugin() = default;
   NVencPlugin(const NVencPlugin&) = delete;
   NVencPlugin& operator=(const NVencPlugin&) = delete;

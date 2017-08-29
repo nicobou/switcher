@@ -37,7 +37,6 @@ add_library(${SWITCHER_LIBRARY} SHARED
     information-tree.cpp
     invocation-spec.cpp
     json-builder.cpp
-    logger.cpp
     method.cpp
     net-utils.cpp
     plugin-loader.cpp
@@ -119,7 +118,6 @@ set(HEADER_INCLUDES
     information-tree.hpp
     is-specialization-of.hpp
     json-builder.hpp
-    logger.hpp
     make-consultable.hpp
     method.hpp
     net-utils.hpp

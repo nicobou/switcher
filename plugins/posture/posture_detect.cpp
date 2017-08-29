@@ -34,7 +34,7 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(PostureDetect,
                                      "LGPL",
                                      "Emmanuel Durand");
 
-PostureDetect::PostureDetect(const std::string&) : shmcntr_(static_cast<Quiddity*>(this)) {}
+PostureDetect::PostureDetect(QuiddityConfiguration&&) : shmcntr_(static_cast<Quiddity*>(this)) {}
 
 PostureDetect::~PostureDetect() { stop(); }
 

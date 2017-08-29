@@ -37,8 +37,9 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(RtpSession,
                                      "LGPL",
                                      "Nicolas Bouillot");
 
-RtpSession::RtpSession(const std::string&)
-    : gst_pipeline_(std::make_unique<GstPipeliner>(nullptr, nullptr)),
+RtpSession::RtpSession(QuiddityConfiguration&& conf)
+    : Quiddity(std::forward<QuiddityConfiguration>(conf)),
+      gst_pipeline_(std::make_unique<GstPipeliner>(nullptr, nullptr)),
       destinations_json_id_(
           pmanage<MPtr(&PContainer::make_string)>("destinations-json",
                                                   nullptr,

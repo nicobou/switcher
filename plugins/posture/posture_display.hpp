@@ -32,7 +32,7 @@
 namespace switcher {
 class PostureDisplay : public Quiddity {
  public:
-  PostureDisplay(const std::string&);
+  PostureDisplay(QuiddityConfiguration&&);
   ~PostureDisplay();
   PostureDisplay(const PostureDisplay&) = delete;
   PostureDisplay& operator=(const PostureDisplay&) = delete;

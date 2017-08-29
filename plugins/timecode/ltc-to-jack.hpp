@@ -34,8 +34,7 @@ namespace switcher {
  */
 class LTCToJack : public Quiddity {
  public:
-
-  LTCToJack(const std::string&);
+  LTCToJack(QuiddityConfiguration&&);
   ~LTCToJack();
   LTCToJack(const LTCToJack&) = delete;
   LTCToJack& operator=(const LTCToJack&) = delete;

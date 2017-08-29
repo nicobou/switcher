@@ -41,7 +41,7 @@
 namespace switcher {
 class VncClientSrc : public Quiddity, public StartableQuiddity {
  public:
-  VncClientSrc(const std::string&);
+  VncClientSrc(QuiddityConfiguration&&);
   ~VncClientSrc();
   VncClientSrc(const VncClientSrc&) = delete;
   VncClientSrc& operator=(const VncClientSrc&) = delete;

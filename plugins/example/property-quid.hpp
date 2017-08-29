@@ -28,7 +28,7 @@
 namespace switcher {
 class PropertyQuid : public Quiddity {
  public:
-  PropertyQuid(const std::string&);
+  PropertyQuid(QuiddityConfiguration&&);
   ~PropertyQuid() = default;
   PropertyQuid(const PropertyQuid&) = delete;
   PropertyQuid& operator=(const PropertyQuid&) = delete;

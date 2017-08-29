@@ -30,8 +30,9 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(GstVideoConverter,
                                      "LGPL",
                                      "Nicolas Bouillot");
 
-GstVideoConverter::GstVideoConverter(const std::string&)
-    : video_format_(
+GstVideoConverter::GstVideoConverter(QuiddityConfiguration&& conf)
+    : Quiddity(std::forward<QuiddityConfiguration>(conf)),
+      video_format_(
           GstUtils::get_gst_element_capability_as_list("videoconvert", "format", GST_PAD_SRC), 0),
       video_format_id_(
           pmanage<MPtr(&PContainer::make_selection<>)>("Pixel format",

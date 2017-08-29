@@ -34,7 +34,8 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(PostureColorize,
                                      "LGPL",
                                      "Emmanuel Durand");
 
-PostureColorize::PostureColorize(const std::string&) : shmcntr_(static_cast<Quiddity*>(this)) {}
+PostureColorize::PostureColorize(QuiddityConfiguration&&)
+    : shmcntr_(static_cast<Quiddity*>(this)) {}
 
 PostureColorize::~PostureColorize() { stop(); }
 

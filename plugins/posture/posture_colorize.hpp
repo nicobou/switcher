@@ -37,7 +37,7 @@
 namespace switcher {
 class PostureColorize : public Quiddity, public StartableQuiddity {
  public:
-  PostureColorize(const std::string&);
+  PostureColorize(QuiddityConfiguration&&);
   ~PostureColorize();
   PostureColorize(const PostureColorize&) = delete;
   PostureColorize& operator=(const PostureColorize&) = delete;

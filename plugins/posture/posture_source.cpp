@@ -34,7 +34,7 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(PostureSrc,
                                      "LGPL",
                                      "Emmanuel Durand");
 
-PostureSrc::PostureSrc(const std::string&) {
+PostureSrc::PostureSrc(QuiddityConfiguration&&) {
   calibration_reader_ = std::make_unique<CalibrationReader>("default.kvc");
   zcamera_ = std::make_unique<ZCamera>();
 

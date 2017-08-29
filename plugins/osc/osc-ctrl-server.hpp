@@ -29,7 +29,7 @@
 namespace switcher {
 class OscCtrlServer : public SwitcherWrapper {
  public:
-  OscCtrlServer(const std::string&);
+  OscCtrlServer(QuiddityConfiguration&&);
   ~OscCtrlServer();
   OscCtrlServer(const OscCtrlServer&) = delete;
   OscCtrlServer& operator=(const OscCtrlServer&) = delete;

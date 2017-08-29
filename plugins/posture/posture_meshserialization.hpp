@@ -35,7 +35,7 @@
 namespace switcher {
 class PostureMeshSerialization : public Quiddity {
  public:
-  PostureMeshSerialization(const std::string&);
+  PostureMeshSerialization(QuiddityConfiguration&&);
   PostureMeshSerialization(const PostureMeshSerialization&) = delete;
   PostureMeshSerialization& operator=(const PostureMeshSerialization&) = delete;
 

@@ -29,8 +29,9 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(PropertyQuid,
                                      "LGPL",
                                      "Nicolas Bouillot");
 
-PropertyQuid::PropertyQuid(const std::string&)
-    : bool_id_(pmanage<MPtr(&PContainer::make_bool)>("bool_",
+PropertyQuid::PropertyQuid(QuiddityConfiguration&& conf)
+    : Quiddity(std::forward<QuiddityConfiguration>(conf)),
+      bool_id_(pmanage<MPtr(&PContainer::make_bool)>("bool_",
                                                      [this](bool val) {
                                                        bool_ = val;
                                                        return true;

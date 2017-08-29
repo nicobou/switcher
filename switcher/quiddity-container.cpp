@@ -38,7 +38,6 @@
 #include "./gst-video-converter.hpp"
 #include "./gst-video-encoder.hpp"
 #include "./http-sdp-dec.hpp"
-#include "./logger.hpp"
 #include "./property-mapper.hpp"
 #include "./rtp-session.hpp"
 #include "./shm-delay.hpp"
@@ -153,8 +152,6 @@ void QuiddityContainer::register_classes() {
       DocumentationRegistry::get()->get_quiddity_type_from_class_name("GstDecodebin"));
   abstract_factory_.register_class<HTTPSDPDec>(
       DocumentationRegistry::get()->get_quiddity_type_from_class_name("HTTPSDPDec"));
-  abstract_factory_.register_class<Logger>(
-      DocumentationRegistry::get()->get_quiddity_type_from_class_name("Logger"));
   abstract_factory_.register_class<PropertyMapper>(
       DocumentationRegistry::get()->get_quiddity_type_from_class_name("PropertyMapper"));
   abstract_factory_.register_class<RtpSession>(

@@ -29,7 +29,8 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(PortMidiSink,
                                      "LGPL",
                                      "Nicolas Bouillot");
 
-PortMidiSink::PortMidiSink(const std::string&) : shmcntr_(static_cast<Quiddity*>(this)) {}
+PortMidiSink::PortMidiSink(QuiddityConfiguration&& conf)
+    : Quiddity(std::forward<QuiddityConfiguration>(conf)), shmcntr_(static_cast<Quiddity*>(this)) {}
 
 bool PortMidiSink::init() {
   init_startable(this);

@@ -33,7 +33,7 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(PostureMerge,
                                      "LGPL",
                                      "Emmanuel Durand");
 
-PostureMerge::PostureMerge(const std::string&) : shmcntr_(static_cast<Quiddity*>(this)) {}
+PostureMerge::PostureMerge(QuiddityConfiguration&&) : shmcntr_(static_cast<Quiddity*>(this)) {}
 
 PostureMerge::~PostureMerge() { stop(); }
 

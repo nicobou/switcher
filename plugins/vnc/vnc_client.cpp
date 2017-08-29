@@ -35,7 +35,8 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(VncClientSrc,
                                      "LGPL",
                                      "Emmanuel Durand");
 
-VncClientSrc::VncClientSrc(const std::string&) : shmcntr_(static_cast<Quiddity*>(this)) {}
+VncClientSrc::VncClientSrc(QuiddityConfiguration&& conf)
+    : Quiddity(std::forward<QuiddityConfiguration>(conf)), shmcntr_(static_cast<Quiddity*>(this)) {}
 
 VncClientSrc::~VncClientSrc() { stop(); }
 

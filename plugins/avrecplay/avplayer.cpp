@@ -36,8 +36,9 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(AVPlayer,
 
 const std::string AVPlayer::kShmDestPath = "/tmp/avplayer/";
 
-AVPlayer::AVPlayer(const std::string&)
-    : shmcntr_(static_cast<Quiddity*>(this)),
+AVPlayer::AVPlayer(QuiddityConfiguration&& conf)
+    : Quiddity(std::forward<QuiddityConfiguration>(conf)),
+      shmcntr_(static_cast<Quiddity*>(this)),
       gst_pipeline_(std::make_unique<GstPipeliner>(nullptr, nullptr)) {
   pmanage<MPtr(&PContainer::make_string)>(
       "playpath",

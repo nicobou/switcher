@@ -25,7 +25,7 @@
 namespace switcher {
 class EmptyQuiddity : public Quiddity {
  public:
-  EmptyQuiddity(const std::string&);
+  EmptyQuiddity(QuiddityConfiguration&&);
   ~EmptyQuiddity() = default;
   EmptyQuiddity(const EmptyQuiddity&) = delete;
   EmptyQuiddity& operator=(const EmptyQuiddity&) = delete;

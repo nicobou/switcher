@@ -31,9 +31,10 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(
     "LGPL",
     "Jérémie Soria");
 
-LTCSource::LTCSource(const std::string& name) : shmcntr_(static_cast<Quiddity*>(this)) {
-  jack_client_ =
-      jack_client_open(std::string(std::string("genLTC_") + name).c_str(), JackNullOption, nullptr);
+LTCSource::LTCSource(QuiddityConfiguration&& conf)
+    : Quiddity(std::forward<QuiddityConfiguration>(conf)), shmcntr_(static_cast<Quiddity*>(this)) {
+  jack_client_ = jack_client_open(
+      std::string(std::string("genLTC_") + get_name()).c_str(), JackNullOption, nullptr);
 
   if (!jack_client_) {
     g_warning("Could not create jack client (ltcsource).");

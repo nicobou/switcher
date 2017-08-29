@@ -30,7 +30,7 @@
 namespace switcher {
 class SyphonSrc : public Quiddity, public StartableQuiddity {
  public:
-  SyphonSrc(const std::string&);
+  SyphonSrc(QuiddityConfiguration&&);
   ~SyphonSrc() = default;
   SyphonSrc(const SyphonSrc&) = delete;
   SyphonSrc& operator=(const SyphonSrc&) = delete;

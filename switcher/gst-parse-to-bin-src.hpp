@@ -29,7 +29,7 @@
 namespace switcher {
 class GstParseToBinSrc : public GstPipeliner, StartableQuiddity {
  public:
-  GstParseToBinSrc(const std::string&);
+  GstParseToBinSrc(QuiddityConfiguration&&);
   ~GstParseToBinSrc();
   GstParseToBinSrc(const GstParseToBinSrc&) = delete;
   GstParseToBinSrc& operator=(const GstParseToBinSrc&) = delete;

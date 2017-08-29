@@ -39,7 +39,7 @@ class SIPPlugin : public Quiddity {
   friend PJWhiteList;
 
  public:
-  SIPPlugin(const std::string&);
+  SIPPlugin(QuiddityConfiguration&&);
   ~SIPPlugin();
   SIPPlugin(const SIPPlugin&) = delete;
   SIPPlugin& operator=(const SIPPlugin&) = delete;

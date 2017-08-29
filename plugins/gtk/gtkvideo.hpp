@@ -42,7 +42,7 @@
 namespace switcher {
 class GTKVideo : public Quiddity {
  public:
-  GTKVideo(const std::string&);
+  GTKVideo(QuiddityConfiguration&&);
   ~GTKVideo();
   GTKVideo(const GTKVideo&) = delete;
   GTKVideo& operator=(const GTKVideo&) = delete;

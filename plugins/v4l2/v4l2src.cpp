@@ -40,8 +40,9 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(V4L2Src,
                                      "GPL",
                                      "Nicolas Bouillot");
 
-V4L2Src::V4L2Src(const std::string&)
-    : gst_pipeline_(
+V4L2Src::V4L2Src(QuiddityConfiguration&& conf)
+    : Quiddity(std::forward<QuiddityConfiguration>(conf)),
+      gst_pipeline_(
           std::make_unique<GstPipeliner>(nullptr, nullptr, [this](GstObject* gstobj, GError * err) {
             on_gst_error(gstobj, err);
           })) {

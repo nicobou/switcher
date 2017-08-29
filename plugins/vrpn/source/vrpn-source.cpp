@@ -35,7 +35,8 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(
 // Have to define it here, otherwise symbol not found...
 const unsigned int VRPNSource::vrpnLoopInterval{16};
 
-VRPNSource::VRPNSource(const std::string&) {}
+VRPNSource::VRPNSource(QuiddityConfiguration&& conf)
+    : Quiddity(std::forward<QuiddityConfiguration>(conf)) {}
 
 VRPNSource::~VRPNSource() { destroyed_ = true; }
 

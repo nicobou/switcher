@@ -35,7 +35,7 @@
 namespace switcher {
 class PulseSink : public Quiddity {
  public:
-  PulseSink(const std::string&);
+  PulseSink(QuiddityConfiguration&&);
   ~PulseSink();
   PulseSink(const PulseSink&) = delete;
   PulseSink& operator=(const PulseSink&) = delete;

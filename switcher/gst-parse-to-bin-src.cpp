@@ -30,7 +30,7 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(GstParseToBinSrc,
                                      "LGPL",
                                      "Nicolas Bouillot");
 
-GstParseToBinSrc::GstParseToBinSrc(const std::string&)
+GstParseToBinSrc::GstParseToBinSrc(QuiddityConfiguration&&)
     : gst_parse_to_bin_src_(nullptr),
       custom_props_(new CustomPropertyHelper()),
       gst_launch_pipeline_spec_(nullptr),

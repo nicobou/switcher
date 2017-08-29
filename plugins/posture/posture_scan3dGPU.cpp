@@ -21,7 +21,7 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(PostureScan3DGPU,
                                      "LGPL",
                                      "Emmanuel Durand");
 
-PostureScan3DGPU::PostureScan3DGPU(const std::string&) {
+PostureScan3DGPU::PostureScan3DGPU(QuiddityConfiguration&&) {
   calibration_reader_ = std::make_unique<CalibrationReader>("default.kvc");
   register_ = std::make_unique<Register>();
 }

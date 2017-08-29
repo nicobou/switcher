@@ -33,7 +33,8 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(PortMidiSource,
                                      "LGPL",
                                      "Nicolas Bouillot");
 
-PortMidiSource::PortMidiSource(const std::string&) {}
+PortMidiSource::PortMidiSource(QuiddityConfiguration&& conf)
+    : Quiddity(std::forward<QuiddityConfiguration>(conf)) {}
 
 bool PortMidiSource::init() {
   if (input_devices_enum_.empty()) {
