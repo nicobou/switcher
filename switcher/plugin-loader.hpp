@@ -24,12 +24,14 @@
 #include <memory>
 #include <string>
 
+#include "./quiddity-configuration.hpp"
+
 namespace switcher {
 class Quiddity;
 class QuiddityDocumentation;
 
 // the types of the class factories for quiddity plugins
-typedef Quiddity* create_t(const std::string&);
+typedef Quiddity* create_t(QuiddityConfiguration&&);
 typedef void destroy_t(switcher::Quiddity*);
 typedef const char* get_type_t();
 

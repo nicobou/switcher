@@ -29,6 +29,7 @@
 #include "./information-tree.hpp"
 #include "./logged.hpp"
 #include "./plugin-loader.hpp"
+#include "./quiddity-configuration.hpp"
 #include "./quiddity.hpp"
 
 namespace switcher {
@@ -67,17 +68,17 @@ class QuiddityContainer : public Logged {
   // doc
   std::string get_classes_doc();                                           // json formatted
   std::string get_class_doc(const std::string& class_name);                // json formatted
-  std::string get_quiddity_description(const std::string& quiddity_name);  // json formatted
+  std::string get_quiddity_description(const std::string& name);           // json formatted
   std::string get_quiddities_description();                                // json formatted
   bool class_exists(const std::string& class_name);
 
   // **** creation/remove/get and notification
   std::string create(const std::string& quiddity_class, bool call_creation_cb = true);
   std::string create(const std::string& quiddity_class,
-                     const std::string& nick_name,
+                     const std::string& name,
                      bool call_creation_cb = true);
-  bool remove(const std::string& quiddity_name, bool call_removal_cb = true);
-  std::shared_ptr<Quiddity> get_quiddity(const std::string& quiddity_nick_name);
+  bool remove(const std::string& name, bool call_removal_cb = true);
+  std::shared_ptr<Quiddity> get_quiddity(const std::string& name);
 
   unsigned int register_creation_cb(OnCreateRemoveCb cb);
   unsigned int register_removal_cb(OnCreateRemoveCb cb);
@@ -153,7 +154,7 @@ class QuiddityContainer : public Logged {
   InfoTree::ptr configurations_{};
   std::unordered_map<std::string, PluginLoader::ptr> plugins_{};
   std::string name_{};
-  AbstractFactory<Quiddity, std::string, const std::string&> abstract_factory_{};
+  AbstractFactory<Quiddity, std::string, QuiddityConfiguration&&> abstract_factory_{};
   static const int kMaxConfigurationFileSize{100000000};  // 100Mo
 
   bool load_plugin(const char* filename);

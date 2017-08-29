@@ -230,11 +230,11 @@ std::string QuiddityContainer::create(const std::string& quiddity_class, bool ca
 std::string QuiddityContainer::create(const std::string& quiddity_class,
                                       const std::string& raw_nick_name,
                                       bool call_creation_cb) {
+  // checks before creation
   if (!class_exists(quiddity_class)) {
     warning("cannot create quiddity: class % is unknown", quiddity_class);
     return std::string();
   }
-
   std::string name;
   if (raw_nick_name.empty()) {
     name = quiddity_class + std::to_string(counters_.get_count(quiddity_class));
@@ -243,29 +243,35 @@ std::string QuiddityContainer::create(const std::string& quiddity_class,
   } else {
     name = Quiddity::string_to_quiddity_name(raw_nick_name);
   }
-
   auto it = quiddities_.find(name);
   if (quiddities_.end() != it) {
     warning("cannot create a quiddity named %, name is already taken", name);
     return std::string();
   }
 
-  Quiddity::ptr quiddity = abstract_factory_.create(quiddity_class, name);
+  // building configuration for quiddity creation
+  InfoTree::ptr tree;
+  if (configurations_) {
+    tree = configurations_->get_tree(quiddity_class);
+    if (!tree->branch_has_data("")) tree = configurations_->get_tree("bundle." + quiddity_class);
+  }
+
+  // creation
+  Quiddity::ptr quiddity =
+      abstract_factory_.create(quiddity_class, QuiddityConfiguration(name, tree, get_log_ptr()));
   if (!quiddity) {
     warning("abstract factory failed to create % (class %)", name, quiddity_class);
     return std::string();
   }
 
-  if (configurations_) {
-    auto tree = configurations_->get_tree(quiddity_class);
-    if (!tree->branch_has_data("")) tree = configurations_->get_tree("bundle." + quiddity_class);
-    if (tree) quiddity->set_configuration(tree);
-  }
-
+  // TODO remove post creation initialisation, using the configuration
+  if (tree) quiddity->set_configuration(tree);
   quiddity->set_name(name);
   name = quiddity->get_name();
+
+  // creation callback TODO invoke callback directly (async ?)
   if (!call_creation_cb) {
-    if (!quiddity->init()) return "{\"error\":\"cannot init quiddity class\"}";
+    if (!quiddity->init()) return std::string();
     quiddities_[name] = quiddity;
   } else {
     if (!init_quiddity(quiddity)) {
@@ -274,6 +280,7 @@ std::string QuiddityContainer::create(const std::string& quiddity_class,
     }
   }
 
+  // register name/type in Documentation registry
   DocumentationRegistry::get()->register_quiddity_type_from_quiddity(name, quiddity_class);
 
   return name;

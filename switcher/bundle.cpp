@@ -19,17 +19,22 @@
 
 #include "./bundle.hpp"
 #include <regex>
+#include "./logger-forwarder.hpp"
 #include "./scope-exit.hpp"
 
 namespace switcher {
 
 namespace bundle {
-Quiddity* create(const std::string& name) { return new Bundle(name); }
+Quiddity* create(QuiddityConfiguration&& conf) {
+  return new Bundle(std::forward<QuiddityConfiguration>(conf));
+}
 void destroy(Quiddity* quiddity) { delete quiddity; }
 }  // namespace bundle
 
-Bundle::Bundle(const std::string& name)
-    : shmcntr_(static_cast<Quiddity*>(this)), manager_(Switcher::make_switcher(name)) {}
+Bundle::Bundle(QuiddityConfiguration&& conf)
+    : conf_(conf),
+      shmcntr_(static_cast<Quiddity*>(this)),
+      manager_(Switcher::make_switcher<LoggerForwarder>(conf_.name_, conf_.log_)) {}
 
 Bundle::~Bundle() { quitting_ = true; }
 
@@ -117,6 +122,7 @@ bool Bundle::make_quiddities(const std::vector<bundle::quiddity_spec_t>& quids) 
   // create quiddities and set properties
   for (auto& quid : quids) {
     std::string name;
+
     name = manager_->create(quid.type, quid.name);
 
     if (name.empty()) {

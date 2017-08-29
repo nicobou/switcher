@@ -25,17 +25,17 @@
 namespace switcher {
 
 class Logged {
- public:
-  Logged() = delete;
-  Logged(BaseLogger* bl) : log_(bl) {}
 
  protected:
+  Logged() = delete;
+  Logged(BaseLogger* bl) : log_(bl) {}
   MakeSwitcherLoggedMember(error);
   MakeSwitcherLoggedMember(critical);
   MakeSwitcherLoggedMember(warning);
   MakeSwitcherLoggedMember(message);
   MakeSwitcherLoggedMember(info);
   MakeSwitcherLoggedMember(debug);
+  BaseLogger* get_log_ptr() { return log_; };
 
  private:
   mutable BaseLogger* log_{nullptr};
