@@ -52,7 +52,7 @@ void notify_success() {
 
 int main() {
   {
-    switcher::Switcher::ptr manager = switcher::Switcher::make_manager("ltcdifftest");
+    switcher::Switcher::ptr manager = switcher::Switcher::make_switcher("ltcdifftest");
 
     manager->scan_directory_for_plugins("./");
 

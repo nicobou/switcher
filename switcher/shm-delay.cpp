@@ -30,7 +30,8 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(ShmDelay,
                                      "LGPL",
                                      "Jérémie Soria");
 
-ShmDelay::ShmDelay(const std::string&) : shmcntr_(static_cast<Quiddity*>(this)) {
+ShmDelay::ShmDelay(QuiddityConfiguration&& conf)
+    : Quiddity(std::forward<QuiddityConfiguration>(conf)), shmcntr_(static_cast<Quiddity*>(this)) {
   time_delay_id_ =
       pmanage<MPtr(&PContainer::make_double)>("time_delay",
                                               [this](const double& val) {

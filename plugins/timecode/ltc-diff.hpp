@@ -51,7 +51,7 @@ class LTCDiff : public Quiddity {
     bool ltc_first_zero_detected{false};  //!< Used during FPS detection to detect start of cycle
   };
 
-  LTCDiff(const std::string&);
+  LTCDiff(QuiddityConfiguration&& conf);
   ~LTCDiff() = default;
 
  private:

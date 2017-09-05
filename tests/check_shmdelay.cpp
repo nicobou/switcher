@@ -52,7 +52,7 @@ void notify_success() {
 
 int main() {
   {
-    switcher::Switcher::ptr manager = switcher::Switcher::make_manager("shmdelaytest");
+    switcher::Switcher::ptr manager = switcher::Switcher::make_switcher("shmdelaytest");
 
     if (!switcher::QuiddityBasicTest::test_full(manager, "shmdelay")) return 1;
 
