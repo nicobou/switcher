@@ -195,6 +195,7 @@ ShmDelay::ShmContent ShmDelay::ShmBuffer::find_closest(double target_timestamp) 
   bool getting_closer = false;
 
   std::lock_guard<std::mutex> lock(buffer_m_);
+  if (buffer_.empty()) return ShmContent();
   auto closest = buffer_.front();
   for (auto& item : buffer_) {
     // We take the absolute value of the difference with the

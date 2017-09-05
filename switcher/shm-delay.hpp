@@ -40,6 +40,7 @@ class ShmDelay : public Quiddity {
  private:
   struct ShmContent {
     ShmContent(double timestamp, void* content, size_t data_size);
+    ShmContent() = default;
     ~ShmContent() = default;
     /** Get physical size of the shmdata
     * content (overhead not accounted for because not relevant in size compared to the data)
