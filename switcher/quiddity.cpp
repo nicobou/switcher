@@ -66,7 +66,8 @@ Quiddity::Quiddity(QuiddityConfiguration&& conf)
       on_nicknamed_id_(smanage<MPtr(&SContainer::make)>(
           "on-nicknamed", "A nickname has been given to the quiddity")),
       methods_description_(std::make_shared<JSONBuilder>()),
-      name_(conf.name_) {
+      name_(string_to_quiddity_name(conf.name_)),
+      nickname_(name_) {
   configuration_tree_->graft(".", InfoTree::make());
 }
 

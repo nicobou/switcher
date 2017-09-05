@@ -64,6 +64,7 @@ QuiddityContainer::QuiddityContainer(const std::string& name, BaseLogger* log)
 }
 
 QuiddityContainer::~QuiddityContainer() {
+  // TODO remove logger
   Quiddity::ptr logger;
   std::find_if(quiddities_.begin(),
                quiddities_.end(),
@@ -304,6 +305,8 @@ std::string QuiddityContainer::get_quiddities_description() {
     if (quid) {
       auto name = quid->get_name();
       subtree->graft(name + ".id", InfoTree::make(name));
+      // TODO get information from quiddity tree (key ".type") and remove
+      // get_quiddity_type_from_quiddity
       subtree->graft(
           name + ".class",
           InfoTree::make(DocumentationRegistry::get()->get_quiddity_type_from_quiddity(name)));

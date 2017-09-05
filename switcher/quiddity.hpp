@@ -134,7 +134,6 @@ class Quiddity : public Logged {
   std::string get_file_name_prefix() const;
 
  private:
-  std::string nickname_{};
   // tree used by quiddity to communicate info to user,
   // read-only by user, read/write by quiddity
   InfoTree::ptr information_tree_;
@@ -172,7 +171,8 @@ class Quiddity : public Logged {
   gint position_weight_counter_{0};
 
   // naming
-  std::string name_{};
+  std::string name_;
+  std::string nickname_;
 
   // life management
   std::mutex self_destruct_mtx_{};
