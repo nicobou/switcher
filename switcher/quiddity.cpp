@@ -67,7 +67,8 @@ Quiddity::Quiddity(QuiddityConfiguration&& conf)
           "on-nicknamed", "A nickname has been given to the quiddity")),
       methods_description_(std::make_shared<JSONBuilder>()),
       name_(string_to_quiddity_name(conf.name_)),
-      nickname_(name_) {
+      nickname_(name_),
+      qcontainer_(conf.qc_) {
   configuration_tree_->graft(".", InfoTree::make());
   information_tree_->graft(".type", InfoTree::make(conf.type_));
 }
@@ -172,8 +173,9 @@ std::string Quiddity::get_method_description(const std::string& method_name) {
 }
 
 std::string Quiddity::make_file_name(const std::string& suffix) const {
-  if (manager_name_.empty()) return std::string();
-  auto name = std::string(get_file_name_prefix() + manager_name_ + "_" + name_ + "_" + suffix);
+  if (qcontainer_->get_name().empty()) return std::string();
+  auto name =
+      std::string(get_file_name_prefix() + qcontainer_->get_name() + "_" + name_ + "_" + suffix);
 
   // Done this way for OSX portability, there is a maximum socket path length in UNIX systems and
   // shmdata use sockets.
@@ -186,7 +188,7 @@ std::string Quiddity::make_file_name(const std::string& suffix) const {
   if (overflow > 0) {
     int quiddity_overflow = static_cast<int>(name_.length() - overflow);
     if (quiddity_overflow < 10) {
-      name = std::string(get_file_name_prefix() + manager_name_ + "_name_error");
+      name = std::string(get_file_name_prefix() + qcontainer_->get_name() + "_name_error");
       g_warning(
           "BUG: shmdata name cannot be created properly because it is too long, there is less than "
           "10 characters remaining for the quiddity name, investigate and fix this!");
@@ -196,7 +198,8 @@ std::string Quiddity::make_file_name(const std::string& suffix) const {
       // and the end of the quiddity name.
       auto new_name = std::string(name_.begin(), name_.begin() + chunks_size) +
                       std::string(name_.end() - chunks_size, name_.end());
-      name = std::string(get_file_name_prefix() + manager_name_ + "_" + new_name + "_" + suffix);
+      name = std::string(get_file_name_prefix() + qcontainer_->get_name() + "_" + new_name + "_" +
+                         suffix);
     }
   }
 
@@ -235,7 +238,7 @@ std::string Quiddity::get_quiddity_name_from_file_name(const std::string& path) 
   // handling bundle: they use there own internal manager named with their actual quiddity name
   auto manager_name =
       std::string(filename, underscores[0] + 1, underscores[1] - (underscores[0] + 1));
-  if (manager_name_ != manager_name) return manager_name;
+  if (qcontainer_->get_name() != manager_name) return manager_name;
   return std::string(filename, underscores[1] + 1, underscores[2] - (underscores[1] + 1));
 }
 
@@ -256,16 +259,11 @@ std::string Quiddity::get_shmdata_name_from_file_name(const std::string& path) c
   return pos != std::string::npos ? std::string(path, pos + 1) : path;
 }
 
-std::string Quiddity::get_manager_name() { return manager_name_; }
+std::string Quiddity::get_manager_name() { return qcontainer_->get_name(); }
 
 std::string Quiddity::get_socket_name_prefix() { return "switcher_"; }
 
 std::string Quiddity::get_socket_dir() { return "/tmp"; }
-
-void Quiddity::set_manager_impl(QuiddityContainer::ptr manager_impl) {
-  qcontainer_ = manager_impl;
-  manager_name_ = manager_impl->get_name();
-}
 
 // methods
 bool Quiddity::install_method(const std::string& long_name,
@@ -343,15 +341,12 @@ InfoTree::ptr Quiddity::user_data_prune_hook(const std::string& path) {
   return res;
 }
 
-
 void Quiddity::self_destruct() {
   std::unique_lock<std::mutex> lock(self_destruct_mtx_);
   auto thread = std::thread([ this, th_lock = std::move(lock) ]() mutable {
-    auto manager = qcontainer_.lock();
     auto self_name = get_name();
     th_lock.unlock();
-    if (!manager) return;
-    if (!manager->get_switcher()->remove(self_name))
+    if (!qcontainer_->get_switcher()->remove(self_name))
       g_warning("%s did not self destruct", get_name().c_str());
   });
   thread.detach();

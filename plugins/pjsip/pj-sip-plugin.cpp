@@ -97,8 +97,7 @@ SIPPlugin::SIPPlugin(QuiddityConfiguration&& conf)
 SIPPlugin::~SIPPlugin() {
   if (!i_m_the_one_) return;
 
-  auto manager = qcontainer_.lock();
-  if (manager) manager->unregister_removal_cb(quiddity_removal_cb_id_);
+  qcontainer_->unregister_removal_cb(quiddity_removal_cb_id_);
 
   sip_calls_->finalize_calls();
 
@@ -141,21 +140,18 @@ bool SIPPlugin::init() {
 
   if (!pjsip_->invoke<MPtr(&PJSIP::safe_bool_idiom)>()) return false;
   apply_configuration();
-  auto manager = qcontainer_.lock();
-  if (!manager) {
-    g_warning("bug in SIPPLugin, line %d", __LINE__);
-    return false;
-  }
-  quiddity_removal_cb_id_ = manager->register_removal_cb([this](const std::string& quiddity_name) {
-    std::lock_guard<std::mutex> lock(exposed_quiddities_mutex_);
-    for (auto& peer : exposed_quiddities_) {
-      auto& exposed_quids = peer.second;
-      auto it = std::find(exposed_quids.begin(), exposed_quids.end(), quiddity_name);
-      if (it != exposed_quids.end()) {
-        exposed_quids.erase(it);
-      }
-    }
-  });
+
+  quiddity_removal_cb_id_ =
+      qcontainer_->register_removal_cb([this](const std::string& quiddity_name) {
+        std::lock_guard<std::mutex> lock(exposed_quiddities_mutex_);
+        for (auto& peer : exposed_quiddities_) {
+          auto& exposed_quids = peer.second;
+          auto it = std::find(exposed_quids.begin(), exposed_quids.end(), quiddity_name);
+          if (it != exposed_quids.end()) {
+            exposed_quids.erase(it);
+          }
+        }
+      });
   return true;
 }
 
@@ -229,11 +225,6 @@ bool SIPPlugin::start_sip_transport() {
 }
 
 void SIPPlugin::create_quiddity_stream(const std::string& peer_uri, const std::string& quid_name) {
-  auto manager = qcontainer_.lock();
-  if (!manager) {
-    g_warning("bug in SIPPLugin, line %d", __LINE__);
-    return;
-  }
   auto quid = Quiddity::string_to_quiddity_name(quid_name);
   {
     std::lock_guard<std::mutex> lock(exposed_quiddities_mutex_);
@@ -241,7 +232,7 @@ void SIPPlugin::create_quiddity_stream(const std::string& peer_uri, const std::s
     if (std::find(exposed_quids.begin(), exposed_quids.end(), quid) != exposed_quids.end()) return;
     exposed_quids.push_back(quid);
   }
-  quid = manager->create("extshmsrc", quid);
+  quid = qcontainer_->create("extshmsrc", quid);
   if (quid.empty()) {
     g_warning("Failed to create external shmdata quiddity for pjsip incoming stream.");
     return;
@@ -250,23 +241,12 @@ void SIPPlugin::create_quiddity_stream(const std::string& peer_uri, const std::s
 
 void SIPPlugin::expose_stream_to_quiddity(const std::string& quid_name,
                                           const std::string& shmpath) {
-  auto manager = qcontainer_.lock();
-  if (!manager) {
-    g_warning("bug in SIPPLugin, line %d", __LINE__);
-    return;
-  }
-  manager->props<MPtr(&PContainer::set_str_str)>(
+  qcontainer_->props<MPtr(&PContainer::set_str_str)>(
       Quiddity::string_to_quiddity_name(quid_name), "shmdata-path", shmpath);
 }
 
 void SIPPlugin::remove_exposed_quiddity(const std::string& peer_uri, const std::string& quid_name) {
-  auto manager = qcontainer_.lock();
-  if (!manager) {
-    g_warning("bug in SIPPLugin, line %d", __LINE__);
-    return;
-  }
   auto quid = string_to_quiddity_name(quid_name);
-
   {
     std::lock_guard<std::mutex> lock(exposed_quiddities_mutex_);
     auto& exposed_quids = exposed_quiddities_[peer_uri];
@@ -275,15 +255,9 @@ void SIPPlugin::remove_exposed_quiddity(const std::string& peer_uri, const std::
     exposed_quids.erase(it);
   }
 
-  manager->remove(quid);
+  qcontainer_->remove(quid);
 }
 void SIPPlugin::remove_exposed_quiddities(const std::string& peer_uri) {
-  auto manager = qcontainer_.lock();
-  if (!manager) {
-    g_warning("bug in SIPPLugin, line %d", __LINE__);
-    return;
-  }
-
   std::vector<std::string> quids_to_remove;
   {
     std::lock_guard<std::mutex> lock(exposed_quiddities_mutex_);
@@ -291,7 +265,7 @@ void SIPPlugin::remove_exposed_quiddities(const std::string& peer_uri) {
     exposed_quiddities_.erase(peer_uri);
   }
   for (auto& it : quids_to_remove) {
-    manager->remove(it);
+    qcontainer_->remove(it);
   }
 }
 

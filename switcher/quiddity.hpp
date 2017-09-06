@@ -117,9 +117,6 @@ class Quiddity : public Logged {
   static std::string get_socket_name_prefix();
   static std::string get_socket_dir();
 
-  // manager_impl initialization
-  void set_manager_impl(std::shared_ptr<QuiddityContainer> manager_impl);
-
   // use a consistent naming for shmdatas
   std::string make_file_name(const std::string& suffix) const;
   std::string get_manager_name();
@@ -223,8 +220,7 @@ class Quiddity : public Logged {
 
   // used in order to dynamically create other quiddity, weak_ptr is used in
   // order to avoid circular references to the qcontainer
-  std::weak_ptr<QuiddityContainer> qcontainer_{};
-  std::string manager_name_{};  // FIXME ??
+  QuiddityContainer* qcontainer_;
 };
 
 #define SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(                                                 \

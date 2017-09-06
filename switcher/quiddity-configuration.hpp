@@ -26,16 +26,20 @@
 #include "./information-tree.hpp"
 
 namespace switcher {
+class QuiddityContainer;
+
 struct QuiddityConfiguration {
   QuiddityConfiguration() = delete;
   QuiddityConfiguration(const std::string& name,
                         const std::string& type,
                         const InfoTree::ptr& tree_config,
+                        QuiddityContainer* qc,
                         BaseLogger* log)
-      : name_(name), type_(type), tree_config_(tree_config), log_(log) {}
+      : name_(name), type_(type), tree_config_(tree_config), qc_(qc), log_(log) {}
   std::string name_;
   std::string type_;
   InfoTree::ptr tree_config_;
+  QuiddityContainer* qc_;
   BaseLogger* log_;
 };
 

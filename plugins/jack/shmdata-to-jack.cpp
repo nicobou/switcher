@@ -45,9 +45,7 @@ ShmdataToJack::ShmdataToJack(QuiddityConfiguration&& conf)
                    [this]() {
                      if (!is_constructed_) return;
                      auto thread = std::thread([this]() {
-                       auto manager = qcontainer_.lock();
-                       if (!manager) return;
-                       if (!manager->remove(get_name()))
+                       if (!qcontainer_->remove(get_name()))
                          g_warning("%s did not self destruct after jack shutdown",
                                    get_name().c_str());
                      });

@@ -331,11 +331,7 @@ void GTKVideo::delete_event_cb(GtkWidget* /*widget */, GdkEvent* /*event */, voi
   context->gst_pipeline_.reset();
   gtk_widget_destroy(context->main_window_);
   context->main_window_ = nullptr;
-  QuiddityContainer::ptr manager = context->qcontainer_.lock();
-  if ((bool)manager)
-    manager->remove(context->get_name());
-  else
-    g_debug("GTKVideo::delete_event_cb cannot remove quiddity");
+  context->qcontainer_->remove(context->get_name());
 }
 
 gboolean GTKVideo::create_ui(void* user_data) {

@@ -40,16 +40,11 @@ Bundle::Bundle(QuiddityConfiguration&& conf)
 Bundle::~Bundle() { quitting_ = true; }
 
 bool Bundle::init() {
-  auto manager = qcontainer_.lock();
-  if (!manager) {
-    g_warning("no manager in bundle");
-  } else {
-    for (auto& it : manager->get_plugin_dirs()) {
-      manager_->scan_directory_for_plugins(it);
-    }
+  for (auto& it : qcontainer_->get_plugin_dirs()) {
+    manager_->scan_directory_for_plugins(it);
   }
 
-  manager_->qcontainer_->configurations_ = manager->configurations_;
+  manager_->qcontainer_->configurations_ = qcontainer_->configurations_;
 
   if (!config<MPtr(&InfoTree::branch_has_data)>("pipeline")) {
     g_warning("bundle description is missing the pipeline description");

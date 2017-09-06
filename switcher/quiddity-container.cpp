@@ -206,7 +206,6 @@ bool QuiddityContainer::class_exists(const std::string& class_name) {
 }
 
 bool QuiddityContainer::init_quiddity(Quiddity::ptr quiddity) {
-  quiddity->set_manager_impl(me_.lock());
   if (!quiddity->init()) return false;
 
   quiddities_[quiddity->get_name()] = quiddity;
@@ -256,7 +255,7 @@ std::string QuiddityContainer::create(const std::string& quiddity_class,
 
   // creation
   Quiddity::ptr quiddity = abstract_factory_.create(
-      quiddity_class, QuiddityConfiguration(name, quiddity_class, tree, get_log_ptr()));
+      quiddity_class, QuiddityConfiguration(name, quiddity_class, tree, this, get_log_ptr()));
   if (!quiddity) {
     warning("abstract factory failed to create % (class %)", name, quiddity_class);
     return std::string();

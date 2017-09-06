@@ -107,12 +107,7 @@ gboolean PropertyMapper::set_source_property_method(gchar* quiddity_name,
                                                     gchar* property_name,
                                                     void* user_data) {
   PropertyMapper* context = static_cast<PropertyMapper*>(user_data);
-  QuiddityContainer::ptr manager = context->qcontainer_.lock();
-  if (!(bool)manager) {
-    g_debug("manager not found");
-    return FALSE;
-  }
-  Quiddity::ptr quid = manager->get_quiddity(quiddity_name);
+  Quiddity::ptr quid = context->qcontainer_->get_quiddity(quiddity_name);
   if (!(bool)quid) {
     g_debug("quiddity %s not found", quiddity_name);
     return FALSE;
@@ -230,12 +225,7 @@ gboolean PropertyMapper::set_sink_property_method(gchar* quiddity_name,
                                                   gchar* property_name,
                                                   void* user_data) {
   PropertyMapper* context = static_cast<PropertyMapper*>(user_data);
-  QuiddityContainer::ptr manager = context->qcontainer_.lock();
-  if (!(bool)manager) {
-    g_debug("manager not found");
-    return FALSE;
-  }
-  Quiddity::ptr quid = manager->get_quiddity(quiddity_name);
+  Quiddity::ptr quid = context->qcontainer_->get_quiddity(quiddity_name);
   if (!(bool)quid) {
     g_debug("quiddity %s not found", quiddity_name);
     return FALSE;
