@@ -24,7 +24,6 @@
 #ifndef __SWITCHER_QUIDDITY_H__
 #define __SWITCHER_QUIDDITY_H__
 
-#include <gst/gst.h>
 #include <string.h>
 #include <map>
 #include <memory>

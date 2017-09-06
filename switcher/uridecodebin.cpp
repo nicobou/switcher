@@ -169,10 +169,11 @@ int Uridecodebin::autoplug_select_cb(GstElement* /*bin */,
                                      GstPad* /*pad */,
                                      GstCaps* caps,
                                      GstElementFactory* factory,
-                                     gpointer /*user_data */) {
-  g_debug("uridecodebin autoplug select %s, (factory %s)",
-          gst_caps_to_string(caps),
-          GST_OBJECT_NAME(factory));
+                                     gpointer user_data) {
+  auto context = static_cast<Uridecodebin*>(user_data);
+  context->debug("uridecodebin autoplug select %, (factory %)",
+                 std::string(gst_caps_to_string(caps)),
+                 std::string(GST_OBJECT_NAME(factory)));
   if (g_strcmp0(GST_OBJECT_NAME(factory), "rtpgstdepay") == 0) return 1;  // expose
   return 0;                                                               // try
 }
@@ -234,7 +235,7 @@ void Uridecodebin::pad_to_shmdata_writer(GstElement* bin, GstPad* pad) {
   On_scope_exit { g_strfreev(padname_split); };
   stream_is_image = pad_is_image(padname);
 
-  g_debug("uridecodebin new pad name is %s", padname.c_str());
+  debug("uridecodebin new pad name is %", padname);
   GstElement* shmdatasink = nullptr;
   GstUtils::make_element("shmdatasink", &shmdatasink);
 
@@ -265,7 +266,7 @@ void Uridecodebin::pad_to_shmdata_writer(GstElement* bin, GstPad* pad) {
   // counting
   auto count = counter_.get_count(padname_split[0]);
   std::string media_name = std::string(padname_split[0]) + "-" + std::to_string(count);
-  g_debug("uridecodebin: new media %s\n", media_name.c_str());
+  debug("uridecodebin: new media %", media_name);
   std::string shmpath = make_file_name(media_name);
   g_object_set(G_OBJECT(shmdatasink), "socket-path", shmpath.c_str(), nullptr);
 
@@ -287,7 +288,7 @@ void Uridecodebin::uridecodebin_pad_added_cb(GstElement* object, GstPad* pad, gp
   if (gst_caps_can_intersect(context->rtpgstcaps_, newcaps)) {
     // asking rtpbin to send an event when a packet is lost (do-lost property)
     GstUtils::set_element_property_in_bin(object, "gstrtpbin", "do-lost", TRUE);
-    g_debug("custom rtp stream found");
+    context->debug("custom rtp stream found");
     GstElement* rtpgstdepay = nullptr;
     GstUtils::make_element("rtpgstdepay", &rtpgstdepay);
 
@@ -321,7 +322,7 @@ bool Uridecodebin::to_shmdata() {
     return false;
   }
   init_uridecodebin();
-  g_debug("to_shmdata set uri %s", uri_.c_str());
+  debug("to_shmdata set uri %", uri_);
   g_object_set(G_OBJECT(uridecodebin_), "uri", uri_.c_str(), nullptr);
   gst_bin_add(GST_BIN(gst_pipeline_->get_pipeline()), uridecodebin_);
   gst_pipeline_->play(true);

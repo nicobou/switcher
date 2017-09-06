@@ -93,13 +93,13 @@ bool Quiddity::invoke_method(const std::string& method_name,
                              const std::vector<std::string>& args) {
   auto it = methods_.find(method_name);
   if (methods_.end() == it) {
-    g_debug("Quiddity::invoke_method error: method %s not found", method_name.c_str());
+    debug("Quiddity::invoke_method error: method % not found", method_name);
     return false;
   }
 
   GValue res = G_VALUE_INIT;
   if (false == it->second->invoke(args, &res)) {
-    g_debug("invokation of %s failed (missing argments ?)", method_name.c_str());
+    debug("invokation of % failed (missing argments ?)", method_name);
     return false;
   }
 
@@ -123,12 +123,12 @@ bool Quiddity::register_method(const std::string& method_name,
                                Method::args_types arg_types,
                                gpointer user_data) {
   if (method == nullptr) {
-    g_debug("fail registering %s (method is nullptr)", method_name.c_str());
+    debug("fail registering % (method is nullptr)", method_name);
     return false;
   }
 
   if (method_is_registered(method_name)) {
-    g_debug("registering name %s already exists", method_name.c_str());
+    debug("registering name % already exists", method_name);
     return false;
   }
 
