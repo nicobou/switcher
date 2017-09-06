@@ -166,7 +166,6 @@ class QuiddityContainer : public Logged {
   std::map<unsigned int, OnCreateRemoveCb> on_removed_cbs_{};
   std::unordered_map<std::string, std::shared_ptr<Quiddity>> quiddities_{};
   std::unordered_map<std::string, std::shared_ptr<QuidditySignalSubscriber>> signal_subscribers_{};
-  bool init_quiddity(std::shared_ptr<Quiddity> quiddity);
   void remove_shmdata_sockets();
 
   InfoTree::ptr classes_doc_{};

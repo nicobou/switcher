@@ -193,21 +193,6 @@ bool QuiddityContainer::class_exists(const std::string& class_name) {
   return abstract_factory_.key_exists(class_name);
 }
 
-bool QuiddityContainer::init_quiddity(Quiddity::ptr quiddity) {
-  if (!quiddity->init()) return false;
-
-  quiddities_[quiddity->get_name()] = quiddity;
-
-  // We work on a copy in case a callback modifies the map of registered callbacks
-  auto tmp_created_cbs = on_created_cbs_;
-  for (auto& cb : tmp_created_cbs) {
-    cb.second(quiddity->get_name());
-    if (on_created_cbs_.empty()) break;  // In case the map gets reset in the callback, e.g bundle
-  }
-
-  return true;
-}
-
 std::string QuiddityContainer::create(const std::string& quiddity_class, bool call_creation_cb) {
   return create(quiddity_class, std::string(), call_creation_cb);
 }
@@ -251,17 +236,20 @@ std::string QuiddityContainer::create(const std::string& quiddity_class,
 
   name = quiddity->get_name();
 
-  // creation callback FIXME invoke callback directly (async ?)
-  if (!call_creation_cb) {
-    if (!quiddity->init()) return std::string();
-    quiddities_[name] = quiddity;
-  } else {
-    if (!init_quiddity(quiddity)) {
-      debug("initialization of % with name % failed", quiddity_class, quiddity->get_name());
-      return std::string();
+  if (!quiddity->init()) {
+    debug("initialization of % with name % failed", quiddity_class, quiddity->get_name());
+    return std::string();
+  }
+  quiddities_[name] = quiddity;
+
+  if (call_creation_cb) {
+    // We work on a copy in case a callback modifies the map of registered callbacks
+    auto tmp_created_cbs = on_created_cbs_;
+    for (auto& cb : tmp_created_cbs) {
+      cb.second(quiddity->get_name());
+      if (on_created_cbs_.empty()) break;  // In case the map gets reset in the callback, e.g bundle
     }
   }
-
   return name;
 }
 
