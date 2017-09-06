@@ -210,7 +210,7 @@ std::string RtpSession::make_rtp_payloader(GstElement* shmdatasrc, const std::st
     pay = gst_element_factory_create(factory, nullptr);
   else
     GstUtils::make_element("rtpgstpay", &pay);
-  g_debug("using %s payloader for %s", GST_ELEMENT_NAME(pay), caps_str.c_str());
+  debug("using % payloader for %", std::string(GST_ELEMENT_NAME(pay)), caps_str);
   g_object_set(G_OBJECT(pay), "mtu", (guint)mtu_at_add_data_stream_, nullptr);
   // add capture and payloading to the pipeline and link
   gst_bin_add(GST_BIN(gst_pipeline_->get_pipeline()), pay);
@@ -248,7 +248,7 @@ gboolean RtpSession::add_destination_wrapped(gpointer nick_name,
 
 bool RtpSession::add_destination(std::string nick_name, std::string host_name) {
   if (destinations_.end() != destinations_.find(nick_name)) {
-    g_debug("RtpSession: a destination named %s already exists, cannot add", nick_name.c_str());
+    debug("RtpSession: a destination named % already exists, cannot add", nick_name);
     return false;
   }
   RtpDestination::ptr dest = std::make_shared<RtpDestination>(this);
@@ -424,13 +424,13 @@ bool RtpSession::remove_data_stream(const std::string& shmpath) {
   }
   auto ds_it = data_streams_.find(shmpath);
   if (data_streams_.end() == ds_it) {
-    g_debug("RTP remove_data_stream: %s not present", shmpath.c_str());
+    debug("RTP remove_data_stream: % not present", shmpath);
     return false;
   }
   prune_tree("rtp_caps." + shmpath);
   prune_tree("shmdata.reader." + shmpath);
   data_streams_.erase(ds_it);
-  g_debug("data_stream %s removed", shmpath.c_str());
+  debug("data_stream % removed", shmpath);
   return true;
 }
 
@@ -439,7 +439,7 @@ void RtpSession::on_bye_ssrc(GstElement* /*rtpbin */,
                              guint /*ssrc */,
                              gpointer /*user_data */) {
   // RtpSession *context = static_cast<RtpSession *>(user_data);
-  // g_debug("on_bye_ssrc");
+  // debug("on_bye_ssrc");
 }
 
 void RtpSession::on_bye_timeout(GstElement* /*rtpbin */,
@@ -447,7 +447,7 @@ void RtpSession::on_bye_timeout(GstElement* /*rtpbin */,
                                 guint /*ssrc */,
                                 gpointer /*user_data */) {
   // RtpSession *context = static_cast<RtpSession *>(user_data);
-  // g_debug("on_bye_timeout");
+  // debug("on_bye_timeout");
 }
 
 void RtpSession::on_new_ssrc(GstElement* /*rtpbin */,
@@ -455,7 +455,7 @@ void RtpSession::on_new_ssrc(GstElement* /*rtpbin */,
                              guint /*ssrc */,
                              gpointer /*user_data */) {
   // RtpSession *context = static_cast<RtpSession *>(user_data);
-  g_debug("on_new_ssrc");
+  // debug("on_new_ssrc");
 }
 
 void RtpSession::on_npt_stop(GstElement* /*rtpbin */,
@@ -463,7 +463,7 @@ void RtpSession::on_npt_stop(GstElement* /*rtpbin */,
                              guint /*ssrc */,
                              gpointer /*user_data */) {
   // RtpSession *context = static_cast<RtpSession *>(user_data);
-  // g_debug("on_npt_stop");
+  // debug("on_npt_stop");
 }
 
 void RtpSession::on_sender_timeout(GstElement* /*rtpbin */,
@@ -471,7 +471,7 @@ void RtpSession::on_sender_timeout(GstElement* /*rtpbin */,
                                    guint /*ssrc */,
                                    gpointer /*user_data */) {
   // RtpSession *context = static_cast<RtpSession *>(user_data);
-  // g_debug("on_sender_timeout");
+  // debug("on_sender_timeout");
 }
 
 void RtpSession::on_ssrc_active(GstElement* /*rtpbin */,
@@ -479,7 +479,7 @@ void RtpSession::on_ssrc_active(GstElement* /*rtpbin */,
                                 guint /*ssrc */,
                                 gpointer /*user_data */) {
   // RtpSession *context = static_cast<RtpSession *>(user_data);
-  // g_debug("on_ssrc_active");
+  // debug("on_ssrc_active");
 }
 
 void RtpSession::on_ssrc_collision(GstElement* /*rtpbin */,
@@ -487,7 +487,7 @@ void RtpSession::on_ssrc_collision(GstElement* /*rtpbin */,
                                    guint /*ssrc */,
                                    gpointer /*user_data */) {
   // RtpSession *context = static_cast<RtpSession *>(user_data);
-  g_debug("on_ssrc_active");
+  // debug("on_ssrc_active");
 }
 
 void RtpSession::on_ssrc_sdes(GstElement* /*rtpbin */,
@@ -495,7 +495,7 @@ void RtpSession::on_ssrc_sdes(GstElement* /*rtpbin */,
                               guint /*ssrc */,
                               gpointer /*user_data */) {
   // RtpSession *context = static_cast<RtpSession *>(user_data);
-  // g_debug("on_ssrc_sdes");
+  // debug("on_ssrc_sdes");
 }
 
 void RtpSession::on_ssrc_validated(GstElement* /*rtpbin */,
@@ -503,7 +503,7 @@ void RtpSession::on_ssrc_validated(GstElement* /*rtpbin */,
                                    guint /*ssrc */,
                                    gpointer /*user_data */) {
   // RtpSession *context = static_cast<RtpSession *>(user_data);
-  // g_debug("on_ssrc_validated");
+  // debug("on_ssrc_validated");
 }
 
 void RtpSession::on_timeout(GstElement* /*rtpbin */,
@@ -511,28 +511,24 @@ void RtpSession::on_timeout(GstElement* /*rtpbin */,
                             guint /*ssrc */,
                             gpointer /*user_data */) {
   // RtpSession *context = static_cast<RtpSession *>(user_data);
-  // g_debug("on_timeout");
+  // debug("on_timeout");
 }
 
-void RtpSession::on_pad_added(GstElement* /*gstelement */,
-                              GstPad* new_pad,
-                              gpointer /*user_data*/) {
-  // RtpSession *context = static_cast<RtpSession *>(user_data);
-  g_debug("on_pad_added, name: %s, direction: %d",
-          gst_pad_get_name(new_pad),
-          gst_pad_get_direction(new_pad));
+void RtpSession::on_pad_added(GstElement* /*gstelement */, GstPad* new_pad, gpointer user_data) {
+  RtpSession* context = static_cast<RtpSession*>(user_data);
+  context->debug("on_pad_added, name: %", std::string(gst_pad_get_name(new_pad)));
 }
 
 void RtpSession::on_pad_removed(GstElement* /*gstelement */,
                                 GstPad* /*new_pad*/,
                                 gpointer /*user_data */) {
   // RtpSession *context = static_cast<RtpSession *>(user_data);
-  // g_debug("on_pad_removed");
+  // debug("on_pad_removed");
 }
 
 void RtpSession::on_no_more_pad(GstElement* /*gstelement */, gpointer /*user_data */) {
   // RtpSession *context = static_cast<RtpSession *>(user_data);
-  // g_debug("on_no_more_pad");
+  // debug("on_no_more_pad");
 }
 
 std::string RtpSession::get_destinations_json() {

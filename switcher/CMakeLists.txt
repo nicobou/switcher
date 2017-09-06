@@ -76,6 +76,7 @@ add_library(${SWITCHER_LIBRARY} SHARED
 
 set(HEADER_INCLUDES
     base-logger.hpp
+    bool-log.hpp
     abstract-factory.hpp
     abstract-factory_spec.hpp
     any.hpp

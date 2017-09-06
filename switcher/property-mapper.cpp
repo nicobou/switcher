@@ -82,17 +82,17 @@ gboolean PropertyMapper::set_source_property_method(gchar* quiddity_name,
   PropertyMapper* context = static_cast<PropertyMapper*>(user_data);
   Quiddity::ptr quid = context->qcontainer_->get_quiddity(quiddity_name);
   if (!(bool)quid) {
-    g_debug("quiddity %s not found", quiddity_name);
+    context->debug("quiddity % not found", std::string(quiddity_name));
     return FALSE;
   }
   context->source_prop_id_ = quid->prop<MPtr(&PContainer::get_id)>(property_name);
   if (0 == context->source_prop_id_) {
-    g_debug("property %s not found", property_name);
+    context->debug("property % not found", std::string(property_name));
     return FALSE;
   }
   if (!quid->tree<MPtr(&InfoTree::branch_has_data)>(std::string("property.") + property_name +
                                                     ".min")) {
-    g_debug("property %s has no min/max defined", property_name);
+    context->debug("property % has no min/max defined", std::string(property_name));
     return FALSE;
   }
   // unsubscribing previously registered property
@@ -200,17 +200,17 @@ gboolean PropertyMapper::set_sink_property_method(gchar* quiddity_name,
   PropertyMapper* context = static_cast<PropertyMapper*>(user_data);
   Quiddity::ptr quid = context->qcontainer_->get_quiddity(quiddity_name);
   if (!(bool)quid) {
-    g_debug("quiddity %s not found", quiddity_name);
+    context->debug("quiddity % not found", std::string(quiddity_name));
     return FALSE;
   }
   context->sink_prop_id_ = quid->prop<MPtr(&PContainer::get_id)>(property_name);
   if (0 == context->sink_prop_id_) {
-    g_debug("property %s not found", property_name);
+    context->debug("property % not found", std::string(property_name));
     return FALSE;
   }
   if (!quid->tree<MPtr(&InfoTree::branch_has_data)>(std::string("property.") + property_name +
                                                     ".min")) {
-    g_debug("property %s has no min/max defined", property_name);
+    context->debug("property % has no min/max defined", std::string(property_name));
     return FALSE;
   }
   context->sink_min_ = quid->tree<MPtr(&InfoTree::branch_read_data<double>)>(

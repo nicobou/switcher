@@ -17,17 +17,16 @@
  * Boston, MA 02111-1307, USA.
  */
 
-//#include <unistd.h>  // sleep
 #include "./gst-utils.hpp"
 #include <algorithm>
 #include <string>
 #include "./scope-exit.hpp"
+#include "bool-log.hpp"
 
 namespace switcher {
 GstElement* GstUtils::make_element(const gchar* class_name, GstElement** target_element) {
   GstElement* res = gst_element_factory_make(class_name, nullptr);
   if (res == nullptr) {
-    g_debug("gstreamer element class %s cannot be instanciated", class_name);
     return nullptr;
   }
   if (target_element) *target_element = res;
@@ -40,12 +39,11 @@ bool GstUtils::link_static_to_request(GstElement* src, GstElement* sink) {
       gst_element_get_compatible_pad(sink,
                                      srcpad,
                                      nullptr);  // const GstCaps *caps to use as a filter
-  bool res = GstUtils::check_pad_link_return(gst_pad_link(srcpad, sinkpad));
-  if (GST_IS_PAD(src)) gst_object_unref(srcpad);
-
-  if (GST_IS_PAD(sinkpad)) gst_object_unref(sinkpad);
-
-  return res;
+  On_scope_exit {
+    if (GST_IS_PAD(src)) gst_object_unref(srcpad);
+    if (GST_IS_PAD(sinkpad)) gst_object_unref(sinkpad);
+  };
+  return (bool)GstUtils::check_pad_link_return(gst_pad_link(srcpad, sinkpad));
 }
 
 bool GstUtils::link_static_to_request(GstPad* srcpad, GstElement* sink) {
@@ -53,39 +51,39 @@ bool GstUtils::link_static_to_request(GstPad* srcpad, GstElement* sink) {
       gst_element_get_compatible_pad(sink,
                                      srcpad,
                                      nullptr);  // const GstCaps *caps to use as a filter
-  bool res = GstUtils::check_pad_link_return(gst_pad_link(srcpad, sinkpad));
+  On_scope_exit {
+    if (GST_IS_PAD(sinkpad)) gst_object_unref(sinkpad);
+  };
 
-  if (GST_IS_PAD(sinkpad)) gst_object_unref(sinkpad);
-
-  return res;
+  return (bool)GstUtils::check_pad_link_return(gst_pad_link(srcpad, sinkpad));
 }
 
-bool GstUtils::check_pad_link_return(GstPadLinkReturn res) {
-  if (res == GST_PAD_LINK_OK) return true;
-
+BoolLog GstUtils::check_pad_link_return(GstPadLinkReturn res) {
+  if (res == GST_PAD_LINK_OK) return BoolLog(true);
+  std::string log;
   switch (res) {
     case GST_PAD_LINK_WRONG_HIERARCHY:
-      g_debug("GstUtils::check_pad_link_return - GST_PAD_LINK_WRONG_HIERARCHY");
+      log = "GstUtils::check_pad_link_return - GST_PAD_LINK_WRONG_HIERARCHY";
       break;
     case GST_PAD_LINK_WAS_LINKED:
-      g_debug("GstUtils::check_pad_link_return - GST_PAD_LINK_WAS_LINKED");
+      log = "GstUtils::check_pad_link_return - GST_PAD_LINK_WAS_LINKED";
       break;
     case GST_PAD_LINK_WRONG_DIRECTION:
-      g_debug("GstUtils::check_pad_link_return - GST_PAD_LINK_WRONG_DIRECTION");
+      log = "GstUtils::check_pad_link_return - GST_PAD_LINK_WRONG_DIRECTION";
       break;
     case GST_PAD_LINK_NOFORMAT:
-      g_debug("GstUtils::check_pad_link_return - GST_PAD_LINK_NOFORMAT");
+      log = "GstUtils::check_pad_link_return - GST_PAD_LINK_NOFORMAT";
       break;
     case GST_PAD_LINK_NOSCHED:
-      g_debug("GstUtils::check_pad_link_return - GST_PAD_LINK_NOSCHED");
+      log = "GstUtils::check_pad_link_return - GST_PAD_LINK_NOSCHED";
       break;
     case GST_PAD_LINK_REFUSED:
-      g_debug("GstUtils::check_pad_link_return - GST_PAD_LINK_REFUSED");
+      log = "GstUtils::check_pad_link_return - GST_PAD_LINK_REFUSED";
       break;
     default:
-      g_debug("GstUtils::check_pad_link_return - UNKNOWN ERROR");
+      log = "GstUtils::check_pad_link_return - UNKNOWN ERROR";
   }
-  return false;
+  return BoolLog(false, log);
 }
 
 void GstUtils::unlink_pad(GstPad* pad) {
@@ -121,41 +119,6 @@ void GstUtils::clean_element(GstElement* element) {
     g_warning("%s failed (state error)", __FUNCTION__);
     return;
   }
-  // if (GST_IS_BIN(element))
-  //   g_debug("%d, %d, %d, state return %d", GST_STATE(element),
-  //           GST_STATE_TARGET(element), GST_STATE_PENDING(element),
-  //           GST_STATE_RETURN(element));
-
-  // FIXME {  // unlinking pads
-  //   GstIterator *pad_iter;
-  //   pad_iter = gst_element_iterate_pads(element);
-  //   gst_iterator_foreach(pad_iter, (GFunc) GstUtils::unlink_pad, nullptr);
-  //   gst_iterator_free(pad_iter);
-  // }
-
-  // FIXME {  // releasing request pads
-  //   GstIterator *pad_iter;
-  //   pad_iter = gst_element_iterate_pads(element);
-  //   gst_iterator_foreach(pad_iter, (GFunc) GstUtils::release_request_pad,
-  //   element);
-  //   gst_iterator_free(pad_iter);
-  // }
-
-  // GstState state = GST_STATE_TARGET(element);
-  // if (state != GST_STATE_NULL) {
-  //   if (GST_STATE_CHANGE_ASYNC ==
-  //       gst_element_set_state(element, GST_STATE_NULL)) {
-  //     while (GST_STATE(element) != GST_STATE_NULL) {
-  //       // warning this may be blocking
-  //       gst_element_get_state(element, nullptr, nullptr,
-  //                             GST_CLOCK_TIME_NONE);
-  //     }
-  //   }
-  // }
-  // if (GST_IS_BIN(gst_element_get_parent(element)))
-  //   gst_bin_remove(GST_BIN(gst_element_get_parent(element)), element);
-  // else
-
   gst_element_set_state(element, GST_STATE_NULL);
   GstObject* parent = gst_element_get_parent(element);
   On_scope_exit {
@@ -180,9 +143,6 @@ void GstUtils::wait_state_changed(GstElement* bin) {
 
   if (g_value_get_boolean(&val) == FALSE)
     while (GST_STATE(bin) != GST_STATE_TARGET(bin)) {
-      g_debug("GstUtils::wait_state_changed, from %s to %s",
-              gst_element_state_get_name(GST_STATE(bin)),
-              gst_element_state_get_name(GST_STATE_TARGET(bin)));
       // warning this may be blocking
       gst_element_get_state(bin, nullptr, nullptr, GST_CLOCK_TIME_NONE);
     }
@@ -190,10 +150,9 @@ void GstUtils::wait_state_changed(GstElement* bin) {
   return;
 }
 
-void GstUtils::sync_state_with_parent(GstElement* element) {
+BoolLog GstUtils::sync_state_with_parent(GstElement* element) {
   if (!GST_IS_ELEMENT(element)) {
-    g_debug("GstUtils::sync_state_with_parent, arg is not an element");
-    return;
+    return BoolLog(false, "GstUtils::sync_state_with_parent, arg is not an element");
   }
 
   GstElement* parent = GST_ELEMENT(GST_ELEMENT_PARENT(element));
@@ -203,7 +162,8 @@ void GstUtils::sync_state_with_parent(GstElement* element) {
     else
       gst_element_sync_state_with_parent(element);
   } else
-    g_warning("GstUtils::sync_state_with_parent, cannot sync an orphan element");
+    return BoolLog(false, "GstUtils::sync_state_with_parent, cannot sync an orphan element");
+  return BoolLog(true);
 }
 
 void GstUtils::set_element_property_in_bin(GstElement* bin,
@@ -223,7 +183,6 @@ void GstUtils::set_element_property_in_bin(GstElement* bin,
       //  gst_element_factory_get_klass (sub_factory),
       //  gst_element_factory_get_description (sub_factory));
       if (g_strcmp0(factory_name, gst_plugin_feature_get_name(GST_PLUGIN_FEATURE(factory))) == 0) {
-        g_debug("GstUtils: setting property for %s", factory_name);
         g_object_set(G_OBJECT(current_element), property_name, property_value, nullptr);
       }
 
@@ -297,30 +256,29 @@ GSource* GstUtils::g_timeout_add_to_context(guint interval,
   return source;
 }
 
-bool GstUtils::apply_property_value(GObject* g_object_master,
-                                    GObject* g_object_slave,
-                                    const char* property_name) {
-  if (g_object_master == nullptr || g_object_slave == nullptr) return false;
+BoolLog GstUtils::apply_property_value(GObject* g_object_master,
+                                       GObject* g_object_slave,
+                                       const char* property_name) {
+  if (g_object_master == nullptr || g_object_slave == nullptr)
+    return BoolLog(false, "g_object_master or g_object_slave is nullptr");
 
-  if (!G_IS_OBJECT(g_object_master) || !G_IS_OBJECT(g_object_slave)) return false;
+  if (!G_IS_OBJECT(g_object_master) || !G_IS_OBJECT(g_object_slave))
+    return BoolLog(false, "_object_master or g_object_slave is not a glib object");
 
   GParamSpec* pspec_master = g_object_class_find_property(
       G_OBJECT_CLASS(G_OBJECT_GET_CLASS(g_object_master)), property_name);
   if (pspec_master == nullptr) {
-    g_debug("property %s not found for master ", property_name);
-    return false;
+    return BoolLog(false, std::string(property_name) + ": property not found for master");
   }
 
   GParamSpec* pspec_slave = g_object_class_find_property(
       G_OBJECT_CLASS(G_OBJECT_GET_CLASS(g_object_slave)), property_name);
   if (pspec_slave == nullptr) {
-    g_debug("property %s, not found for slave", property_name);
-    return false;
+    return BoolLog(false, std::string(property_name) + ": property not found for slave");
   }
 
   if (pspec_master->value_type != pspec_slave->value_type) {
-    g_debug("master and slave properties has different type, canont apply");
-    return false;
+    return BoolLog(false, "master and slave properties has different type, canont apply");
   }
 
   GValue val = G_VALUE_INIT;
@@ -330,14 +288,11 @@ bool GstUtils::apply_property_value(GObject* g_object_master,
 
   g_object_set_property(g_object_slave, property_name, &val);
   g_value_unset(&val);
-  return true;
+  return BoolLog(true);
 }
 
 void GstUtils::free_g_enum_values(GEnumValue* target_enum) {
-  if (nullptr == target_enum) {
-    g_warning("cannot free a nullptr enum");
-    return;
-  }
+  if (nullptr == target_enum) return;
   gint i = 0;
   while (nullptr != target_enum[i].value_name) {
     g_free((gpointer)target_enum[i].value_name);
