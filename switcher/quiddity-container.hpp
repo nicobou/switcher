@@ -48,7 +48,7 @@ class QuiddityContainer : public Logged {
                                                BaseLogger* log,
                                                const std::string& name = "default");
   QuiddityContainer() = delete;
-  virtual ~QuiddityContainer();
+  virtual ~QuiddityContainer() = default;
   QuiddityContainer(const QuiddityContainer&) = delete;
   QuiddityContainer& operator=(const QuiddityContainer&) = delete;
 
@@ -150,28 +150,12 @@ class QuiddityContainer : public Logged {
   Switcher* get_switcher() { return switcher_; };
 
  private:
-  std::vector<std::string> plugin_dirs_{};
-  InfoTree::ptr configurations_{};
-  std::unordered_map<std::string, PluginLoader::ptr> plugins_{};
-  std::string name_{};
-  AbstractFactory<Quiddity, std::string, QuiddityConfiguration&&> abstract_factory_{};
-  static const int kMaxConfigurationFileSize{100000000};  // 100Mo
-
   bool load_plugin(const char* filename);
   void close_plugin(const std::string& class_name);
   QuiddityContainer(const std::string&, BaseLogger* log);
   void make_classes_doc();
   void register_classes();
-  std::map<unsigned int, OnCreateRemoveCb> on_created_cbs_{};
-  std::map<unsigned int, OnCreateRemoveCb> on_removed_cbs_{};
-  std::unordered_map<std::string, std::shared_ptr<Quiddity>> quiddities_{};
-  std::unordered_map<std::string, std::shared_ptr<QuidditySignalSubscriber>> signal_subscribers_{};
   void remove_shmdata_sockets();
-
-  InfoTree::ptr classes_doc_{};
-  CounterMap counters_{};
-  std::weak_ptr<QuiddityContainer> me_{};
-  Switcher* switcher_{nullptr};
   void release_g_error(GError* error);
 
   // forwarding accessor and return constructor on error
@@ -188,6 +172,22 @@ class QuiddityContainer : public Logged {
     warning("quiddity % not found", name);
     return ReturnType();
   }
+
+  std::vector<std::string> plugin_dirs_{};
+  InfoTree::ptr configurations_{};
+  std::unordered_map<std::string, PluginLoader::ptr> plugins_{};
+  std::string name_{};
+  AbstractFactory<Quiddity, std::string, QuiddityConfiguration&&> abstract_factory_{};
+  static const int kMaxConfigurationFileSize{100000000};  // 100Mo
+
+  std::map<unsigned int, OnCreateRemoveCb> on_created_cbs_{};
+  std::map<unsigned int, OnCreateRemoveCb> on_removed_cbs_{};
+  std::unordered_map<std::string, std::shared_ptr<QuidditySignalSubscriber>> signal_subscribers_{};
+  InfoTree::ptr classes_doc_{};
+  CounterMap counters_{};
+  std::weak_ptr<QuiddityContainer> me_{};
+  Switcher* switcher_{nullptr};
+  std::unordered_map<std::string, std::shared_ptr<Quiddity>> quiddities_{};
 };
 
 }  // namespace switcher

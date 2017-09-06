@@ -63,11 +63,6 @@ QuiddityContainer::QuiddityContainer(const std::string& name, BaseLogger* log)
   make_classes_doc();
 }
 
-QuiddityContainer::~QuiddityContainer() {
-  // FIXME remove this dtor (check member order)
-  quiddities_.clear();
-}
-
 void QuiddityContainer::release_g_error(GError* error) {
   if (nullptr != error) {
     debug("GError message: %", std::string(error->message));

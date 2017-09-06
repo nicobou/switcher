@@ -154,6 +154,7 @@ set(HEADER_INCLUDES
     shmdata-writer.hpp
     sig.hpp
     signal-container.hpp
+    silent-logger.hpp
     startable-quiddity.hpp
     string-utils.hpp
     templated-sequence.hpp
