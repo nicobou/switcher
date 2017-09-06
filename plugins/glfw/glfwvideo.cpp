@@ -492,7 +492,10 @@ GLFWVideo::GLFWVideo(QuiddityConfiguration&& conf)
                                         "Enable/Disable keybord shortcuts",
                                         keyb_interaction_);
 
-  if (!remake_elements()) return;
+  if (!remake_elements()) {
+    is_valid_ = false;
+    return;
+  }
 
   std::lock_guard<std::mutex> lock(RendererSingleton::creation_window_mutex_);
 
@@ -506,17 +509,24 @@ GLFWVideo::GLFWVideo(QuiddityConfiguration&& conf)
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
   window_ = create_window();
-  if (!window_) return;
+  if (!window_) {
+    is_valid_ = false;
+    return;
+  }
 
   glfwMakeContextCurrent(window_);
   if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
     g_warning("BUG: glad could not load openGL functionalities.");
+    is_valid_ = false;
     return;
   }
 
   g_debug("OpenGL Version %d.%d loaded", GLVersion.major, GLVersion.minor);
 
-  if (!setup_shaders()) return;
+  if (!setup_shaders()) {
+    is_valid_ = false;
+    return;
+  }
   glGenTextures(1, &drawing_texture_);
   setup_vertex_array();
 
@@ -537,17 +547,11 @@ GLFWVideo::GLFWVideo(QuiddityConfiguration&& conf)
   ++instance_counter_;
   RendererSingleton::get()->subscribe_to_render_loop(this);
 
-  is_valid_ = true;
-}
-
-bool GLFWVideo::init() {
   // We need the quiddity config to be loaded so we cannot do it in the constructor.
   if (is_valid_) {
     load_icon();
     setup_icon();
   }
-
-  return is_valid_;
 }
 
 GLFWVideo::~GLFWVideo() {

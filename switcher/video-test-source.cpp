@@ -104,10 +104,11 @@ VideoTestSource::VideoTestSource(QuiddityConfiguration&& conf)
   pmanage<MPtr(&PContainer::set_to_current)>(resolutions_id_);
 
   init_startable(this);
-}
 
-bool VideoTestSource::init() {
-  if (!videotestsrc_ || !capsfilter_ || !shmdatasink_) return false;
+  if (!videotestsrc_ || !capsfilter_ || !shmdatasink_) {
+    is_valid_ = false;
+    return;
+  }
   shmpath_ = make_file_name("video");
   g_object_set(G_OBJECT(videotestsrc_.get_raw()), "is-live", TRUE, nullptr);
   g_object_set(G_OBJECT(shmdatasink_.get_raw()), "socket-path", shmpath_.c_str(), nullptr);
@@ -121,7 +122,6 @@ bool VideoTestSource::init() {
       videotestsrc_.get_raw(), capsfilter_.get_raw(), shmdatasink_.get_raw(), nullptr);
   pmanage<MPtr(&PContainer::push)>(
       "pattern", GPropToProp::to_prop(G_OBJECT(videotestsrc_.get_raw()), "pattern"));
-  return true;
 }
 
 void VideoTestSource::update_caps() {

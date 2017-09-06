@@ -75,7 +75,6 @@ class ShmdataToJack : public Quiddity {
   // shmsubscriber (publishing to the information-tree):
   std::unique_ptr<GstShmdataSubscriber> shm_sub_{nullptr};
 
-  bool init() final;
   bool start();
   bool stop();
   void update_port_to_connect();

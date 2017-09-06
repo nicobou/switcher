@@ -61,7 +61,6 @@ class AudioTestSource : public Quiddity, public StartableQuiddity {
   UGstElem shmdatasink_{"shmdatasink"};
   bool start() final;
   bool stop() final;
-  bool init() final;
   void update_caps();
 };
 

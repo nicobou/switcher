@@ -26,11 +26,6 @@ namespace switcher {
 class EmptyQuiddity : public Quiddity {
  public:
   EmptyQuiddity(QuiddityConfiguration&&);
-  ~EmptyQuiddity() = default;
-  EmptyQuiddity(const EmptyQuiddity&) = delete;
-  EmptyQuiddity& operator=(const EmptyQuiddity&) = delete;
-
-  bool init();
 };
 
 }  // namespace switcher

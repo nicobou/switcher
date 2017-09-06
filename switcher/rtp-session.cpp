@@ -46,10 +46,11 @@ RtpSession::RtpSession(QuiddityConfiguration&& conf)
                                                   [this]() { return get_destinations_json(); },
                                                   "Destinations",
                                                   "json formated description of destinations",
-                                                  "")) {}
-
-bool RtpSession::init() {
-  if (!GstUtils::make_element("rtpbin", &rtpsession_)) return false;
+                                                  "")) {
+  if (!GstUtils::make_element("rtpbin", &rtpsession_)) {
+    is_valid_ = false;
+    return;
+  }
   g_object_set(G_OBJECT(rtpsession_), "ntp-sync", TRUE, "async-handling", TRUE, nullptr);
   // g_object_set(G_OBJECT(get_bin()), "async-handling", TRUE, nullptr);
   g_signal_connect(G_OBJECT(rtpsession_), "on-bye-ssrc", (GCallback)on_bye_ssrc, (gpointer) this);
@@ -177,7 +178,6 @@ bool RtpSession::init() {
                                        1400,
                                        1,
                                        15000);
-  return true;
 }
 
 gboolean RtpSession::write_sdp_file_wrapped(gpointer nick_name, gpointer user_data) {

@@ -40,10 +40,11 @@ PulseSink::PulseSink(QuiddityConfiguration&& conf)
     : Quiddity(std::forward<QuiddityConfiguration>(conf)),
       mainloop_(std::make_unique<GlibMainLoop>()),
       shmcntr_(static_cast<Quiddity*>(this)),
-      gst_pipeline_(std::make_unique<GstPipeliner>(nullptr, nullptr)) {}
-
-bool PulseSink::init() {
-  if (!shmsrc_ || !audioconvert_ || !pulsesink_) return false;
+      gst_pipeline_(std::make_unique<GstPipeliner>(nullptr, nullptr)) {
+  if (!shmsrc_ || !audioconvert_ || !pulsesink_) {
+    is_valid_ = false;
+    return;
+  }
   g_object_set(G_OBJECT(pulsesink_.get_raw()),
                "slave-method",
                0,  // resample
@@ -66,13 +67,13 @@ bool PulseSink::init() {
   devices_cond_.wait(lock);
   if (!connected_to_pulse_) {
     g_message("ERROR:Not connected to pulse, cannot initialize.");
-    return false;
+    is_valid_ = false;
+    return;
   }
   volume_id_ = pmanage<MPtr(&PContainer::push)>(
       "volume", GPropToProp::to_prop(G_OBJECT(pulsesink_.get_raw()), "volume"));
   mute_id_ = pmanage<MPtr(&PContainer::push)>(
       "mute", GPropToProp::to_prop(G_OBJECT(pulsesink_.get_raw()), "mute"));
-  return true;
 }
 
 PulseSink::~PulseSink() {

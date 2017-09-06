@@ -231,8 +231,8 @@ std::string QuiddityContainer::create(const std::string& quiddity_class,
 
   name = quiddity->get_name();
 
-  if (!quiddity->init()) {
-    debug("initialization of % with name % failed", quiddity_class, quiddity->get_name());
+  if (!(*quiddity.get())) {
+    debug("creation of % with name % failed", quiddity_class, quiddity->get_name());
     return std::string();
   }
   quiddities_[name] = quiddity;

@@ -43,8 +43,6 @@ SignalQuid::SignalQuid(QuiddityConfiguration&& conf)
                  this);
 }
 
-bool SignalQuid::init() { return true; }
-
 gboolean SignalQuid::my_signal_method(void*, void* user_data) {
   SignalQuid* context = static_cast<SignalQuid*>(user_data);
   auto tree = InfoTree::make();

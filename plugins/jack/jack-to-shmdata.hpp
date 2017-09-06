@@ -56,7 +56,6 @@ class JackToShmdata : public Quiddity, public StartableQuiddity {
   JackClient jack_client_;
   std::vector<JackPort> input_ports_{};
 
-  bool init() final;
   bool start() final;
   bool stop() final;
   void update_port_to_connect();

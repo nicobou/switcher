@@ -70,12 +70,10 @@ class ShmDelay : public Quiddity {
     size_t max_size_{0};    //!< Maximum size in bytes of the buffer.
   };
 
-  bool init() final;
 
   bool on_shmdata_connect(const std::string& shmpath);
   bool on_shmdata_disconnect(const std::string& shmpath);
 
-  bool is_valid_{false};
   ShmBuffer delay_content_{1 << 10};   //!< Size limit for the buffer (~1GB)
   ShmdataConnector shmcntr_{nullptr};  //!< Shmdata connector for ltc and shmdata inputs
   std::unique_ptr<ShmdataFollower> shm_follower_{nullptr};   //!< Shmdata to be delayed

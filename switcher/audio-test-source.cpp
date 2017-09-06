@@ -97,11 +97,10 @@ AudioTestSource::AudioTestSource(QuiddityConfiguration&& conf)
                                                               "List of supported sound formats",
                                                               format_)) {
   init_startable(this);
-}
 
-bool AudioTestSource::init() {
   if (!audiotestsrc_ || !capsfilter_ || !shmdatasink_) {
-    return false;
+    is_valid_ = false;
+    return;
   }
 
   shmpath_ = make_file_name("audio");
@@ -110,8 +109,6 @@ bool AudioTestSource::init() {
   g_object_set(G_OBJECT(shmdatasink_.get_raw()), "socket-path", shmpath_.c_str(), nullptr);
   waveforms_id_ = pmanage<MPtr(&PContainer::push)>(
       "wave", GPropToProp::to_prop(G_OBJECT(audiotestsrc_.get_raw()), "wave"));
-
-  return true;
 }
 
 bool AudioTestSource::start() {

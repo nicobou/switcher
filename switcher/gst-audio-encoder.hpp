@@ -37,7 +37,6 @@ class GstAudioEncoder : public Quiddity {
   // registering connect/disconnect/can_sink_caps:
   ShmdataConnector shmcntr_;
   std::unique_ptr<GstAudioCodec> codecs_{nullptr};
-  bool init() final;
   bool on_shmdata_disconnect();
   bool on_shmdata_connect(const std::string& shmdata_sochet_path);
   bool can_sink_caps(const std::string& caps);

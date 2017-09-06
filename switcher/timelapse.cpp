@@ -171,16 +171,13 @@ Timelapse::Timelapse(QuiddityConfiguration&& conf)
           },
           std::chrono::milliseconds(200)),
       shmcntr_(static_cast<Quiddity*>(this)),
-      timelapse_config_{std::string(), std::string()} {}  // end ctor
-
-bool Timelapse::init() {
+      timelapse_config_{std::string(), std::string()} {
   shmcntr_.install_connect_method(
       [this](const std::string& shmpath) { return this->on_shmdata_connect(shmpath); },
       [this](const std::string& shmpath) { return this->on_shmdata_disconnect(shmpath); },
       [this]() { return this->on_shmdata_disconnect_all(); },
       [this](const std::string& caps) { return this->can_sink_caps(caps); },
       std::numeric_limits<unsigned int>::max());
-  return true;
 }
 
 bool Timelapse::on_shmdata_disconnect(const std::string& shmpath) {

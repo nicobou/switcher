@@ -154,7 +154,6 @@ class V4L2Src : public Quiddity, public StartableQuiddity {
 
   bool start() final;
   bool stop() final;
-  bool init() final;
   InfoTree::ptr on_saving() final;
   void on_loading(InfoTree::ptr&& tree) final;
   void on_loaded() final;

@@ -29,7 +29,6 @@ class ProtocolMapper : public Quiddity {
   ~ProtocolMapper() = default;
 
  private:
-  bool init() final { return true; }
 
   // Protocol configuration
   std::string config_file_{};

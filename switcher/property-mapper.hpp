@@ -29,7 +29,6 @@ class PropertyMapper : public Quiddity {
   ~PropertyMapper();
   PropertyMapper(const PropertyMapper&);
   PropertyMapper& operator=(const PropertyMapper&);
-  bool init();
 
  private:
   std::weak_ptr<Quiddity> source_quiddity_{};

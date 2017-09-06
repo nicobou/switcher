@@ -35,18 +35,17 @@ GstDecodebin::GstDecodebin(QuiddityConfiguration&& conf)
     : Quiddity(std::forward<QuiddityConfiguration>(conf)),
       gst_pipeline_(std::make_unique<GstPipeliner>(nullptr, nullptr)),
       shmsrc_("shmdatasrc"),
-      shmcntr_(static_cast<Quiddity*>(this)) {}
-
-bool GstDecodebin::init() {
-  if (!shmsrc_) return false;
-
+      shmcntr_(static_cast<Quiddity*>(this)) {
+  if (!shmsrc_) {
+    is_valid_ = false;
+    return;
+  }
   shmcntr_.install_connect_method(
       [this](const std::string& shmpath) { return this->on_shmdata_connect(shmpath); },
       [this](const std::string&) { return this->on_shmdata_disconnect(); },
       [this]() { return this->on_shmdata_disconnect(); },
       [this](const std::string& caps) { return this->can_sink_caps(caps); },
       1);
-  return true;
 }
 
 bool GstDecodebin::on_shmdata_disconnect() {

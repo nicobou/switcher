@@ -53,6 +53,7 @@ AVRecorder::AVRecorder(QuiddityConfiguration&& conf)
   if (!mux_factories || g_list_length(mux_factories) == 0) {
     g_warning("ERROR: Could not find any gstreamer muxer (avrec)");
     g_message("ERROR: Could not find any gstreamer muxer (avrec)");
+    is_valid_ = false;
     return;
   }
 
@@ -116,13 +117,7 @@ AVRecorder::AVRecorder(QuiddityConfiguration&& conf)
       nullptr,
       [this](const std::string& caps) { return can_sink_caps(caps); },
       std::numeric_limits<unsigned int>::max());
-
-  is_valid_ = true;
-}
-
-bool AVRecorder::init() {
   init_startable(this);
-  return is_valid_;
 }
 
 std::string AVRecorder::generate_pipeline_description() {

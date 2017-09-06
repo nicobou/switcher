@@ -65,11 +65,7 @@ ShmDelay::ShmDelay(QuiddityConfiguration&& conf)
       nullptr,
       [this](const std::string&) { return true; },
       2);
-
-  is_valid_ = true;
 }
-
-bool ShmDelay::init() { return is_valid_; }
 
 bool ShmDelay::on_shmdata_connect(const std::string& shmpath) {
   // Get the value of the delay from a shmdata

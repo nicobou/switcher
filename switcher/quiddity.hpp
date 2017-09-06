@@ -41,12 +41,13 @@
 #include "./property-container.hpp"
 #include "./quiddity-configuration.hpp"
 #include "./quiddity-documentation.hpp"
+#include "./safe-bool-idiom.hpp"
 #include "./signal-container.hpp"
 
 namespace switcher {
 class QuiddityContainer;
 
-class Quiddity : public Logged {
+class Quiddity : public Logged, public SafeBoolIdiom {
   friend class Bundle;  // access to props_ in order to forward properties
   // FIXME do something for this (to many friend class in quiddity.hpp):
   friend class ProtocolCurl;
@@ -68,9 +69,6 @@ class Quiddity : public Logged {
   Quiddity(const Quiddity&) = delete;
   Quiddity& operator=(const Quiddity&) = delete;
   virtual ~Quiddity();
-
-  // class initialisation
-  virtual bool init() = 0;
 
   // save/load quiddity state
   virtual InfoTree::ptr on_saving();
@@ -126,6 +124,25 @@ class Quiddity : public Logged {
   std::string get_file_name_prefix() const;
 
  private:
+  // safe bool idiom implementation
+  bool safe_bool_idiom() const { return is_valid_; }
+  // user data hooks
+  bool user_data_graft_hook(const std::string& path, InfoTree::ptr tree);
+  InfoTree::ptr user_data_prune_hook(const std::string& path);
+
+  // method
+  bool method_is_registered(const std::string& method_name);
+  bool register_method(const std::string& method_name,
+                       Method::method_ptr method,
+                       Method::return_type return_type,
+                       Method::args_types arg_types,
+                       gpointer user_data);
+  bool set_method_description(const std::string& long_name,
+                              const std::string& method_name,
+                              const std::string& short_description,
+                              const std::string& return_description,
+                              const Method::args_doc& arg_description);
+
   // tree used by quiddity to communicate info to user,
   // read-only by user, read/write by quiddity
   InfoTree::ptr information_tree_;
@@ -170,22 +187,6 @@ class Quiddity : public Logged {
   // life management
   std::mutex self_destruct_mtx_{};
 
-  // user data hooks
-  bool user_data_graft_hook(const std::string& path, InfoTree::ptr tree);
-  InfoTree::ptr user_data_prune_hook(const std::string& path);
-
-  // method
-  bool method_is_registered(const std::string& method_name);
-  bool register_method(const std::string& method_name,
-                       Method::method_ptr method,
-                       Method::return_type return_type,
-                       Method::args_types arg_types,
-                       gpointer user_data);
-  bool set_method_description(const std::string& long_name,
-                              const std::string& method_name,
-                              const std::string& short_description,
-                              const std::string& return_description,
-                              const Method::args_doc& arg_description);
 
  protected:
   // information
@@ -219,6 +220,11 @@ class Quiddity : public Logged {
   void self_destruct();
 
   bool toggle_property_saving(const std::string&);
+
+  // safe bool idiom implementation, default to valid
+  // if you are writing a quiddity, you need to set this to false in order to invalidate the
+  // creation of the Quiddity instance
+  bool is_valid_{true};
 
   // access to the quiddity Container
   QuiddityContainer* qcontainer_;

@@ -40,6 +40,14 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(V4L2Src,
                                      "GPL",
                                      "Nicolas Bouillot");
 
+void V4L2Src::set_shm_suffix() {
+  if (is_current_pixel_format_raw_video())
+    shmpath_ = make_file_name(raw_suffix_);
+  else
+    shmpath_ = make_file_name(enc_suffix_);
+  g_object_set(G_OBJECT(shmsink_.get_raw()), "socket-path", shmpath_.c_str(), nullptr);
+}
+
 V4L2Src::V4L2Src(QuiddityConfiguration&& conf)
     : Quiddity(std::forward<QuiddityConfiguration>(conf)),
       gst_pipeline_(
@@ -59,25 +67,18 @@ V4L2Src::V4L2Src(QuiddityConfiguration&& conf)
       force_framerate_);
 
   init_startable(this);
-}
-
-void V4L2Src::set_shm_suffix() {
-  if (is_current_pixel_format_raw_video())
-    shmpath_ = make_file_name(raw_suffix_);
-  else
-    shmpath_ = make_file_name(enc_suffix_);
-  g_object_set(G_OBJECT(shmsink_.get_raw()), "socket-path", shmpath_.c_str(), nullptr);
-}
-
-bool V4L2Src::init() {
-  if (!v4l2src_ || !capsfilter_ || !videorate_ || !shmsink_) return false;
+  if (!v4l2src_ || !capsfilter_ || !videorate_ || !shmsink_) {
+    is_valid_ = false;
+    return;
+  }
   // device inspector
   check_folder_for_v4l2_devices();
   update_capture_device();
 
   if (capture_devices_.empty()) {
     g_message("ERROR:No video4linux device detected.");
-    return false;
+    is_valid_ = false;
+    return;
   }
   devices_id_ =
       pmanage<MPtr(&PContainer::make_selection<>)>("device",
@@ -108,7 +109,6 @@ bool V4L2Src::init() {
       "Save Capture Device by",
       save_device_enum_);
   set_shm_suffix();
-  return true;
 }
 
 bool V4L2Src::fetch_available_resolutions() {

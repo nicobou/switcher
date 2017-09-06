@@ -54,7 +54,6 @@ class PostureMeshSerialization : public Quiddity {
   double compression_level_{1};
   double compression_precision_{0.001};
 
-  bool init() final;
 
   bool connect(std::string shmdata_socket_path);
   bool disconnect(std::string shmName);

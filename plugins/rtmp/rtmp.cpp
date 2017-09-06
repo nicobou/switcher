@@ -77,10 +77,7 @@ RTMP::RTMP(QuiddityConfiguration&& conf)
       [this](const std::string& caps) { return can_sink_caps(caps); },
       std::numeric_limits<unsigned int>::max());
 
-  is_valid_ = true;
 }
-
-bool RTMP::init() { return is_valid_; }
 
 bool RTMP::create_gst_pipeline() {
   shmaudio_sub_.reset();

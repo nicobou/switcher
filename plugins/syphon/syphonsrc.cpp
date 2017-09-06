@@ -37,9 +37,7 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(SyphonSrc,
                                      "LGPL",
                                      "Emmanuel Durand");
 
-SyphonSrc::SyphonSrc(QuiddityConfiguration&&) {}
-
-bool SyphonSrc::init() {
+SyphonSrc::SyphonSrc(QuiddityConfiguration&&) {
   init_startable(this);
 
   reader_.reset(new SyphonReader(frameCallback, (void*)this));
@@ -63,7 +61,6 @@ bool SyphonSrc::init() {
                                           "App name",
                                           "The name of the Syphon application",
                                           syphon_appname_);
-  return true;
 }
 
 bool SyphonSrc::start() {

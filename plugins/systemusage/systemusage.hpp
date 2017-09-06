@@ -66,7 +66,6 @@ class SystemUsage : public Quiddity {
   std::map<std::string, Net> _net{};
   std::unique_ptr<PeriodicTask<>> pollStateTask_;
 
-  bool init() final;
   bool init_tree();
   void pollState();
 };

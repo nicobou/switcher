@@ -32,6 +32,4 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(EmptyQuiddity,
 EmptyQuiddity::EmptyQuiddity(QuiddityConfiguration&& conf)
     : Quiddity(std::forward<QuiddityConfiguration>(conf)) {}
 
-bool EmptyQuiddity::init() { return true; }
-
 }  // namespace switcher

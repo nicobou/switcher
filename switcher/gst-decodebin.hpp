@@ -46,7 +46,6 @@ class GstDecodebin : public Quiddity {
   std::unique_ptr<DecodebinToShmdata> decoder_{nullptr};
   std::unique_ptr<GstShmdataSubscriber> shmw_sub_{};
   std::unique_ptr<GstShmdataSubscriber> shmr_sub_{};
-  bool init() final;
   bool on_shmdata_disconnect();
   bool on_shmdata_connect(const std::string& shmdata_sochet_path);
   bool can_sink_caps(const std::string& caps);

@@ -44,7 +44,6 @@ class OscCtrlServer : public SwitcherWrapper {
   std::map<std::string, std::pair<std::string, std::string>> osc_subscribers_;  //(host + port)
   lo_server_thread osc_thread_;
 
-  bool init() final;
 
   void start();
   void stop();

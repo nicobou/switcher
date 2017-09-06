@@ -78,7 +78,6 @@ class PostureColorize : public Quiddity, public StartableQuiddity {
   // Used to check the texture size did not change:
   unsigned int prev_width_{0}, prev_height_{0};
 
-  bool init() final;
   bool connect(std::string shmdata_socket_path);
   bool disconnect(std::string /*unused*/);
   bool disconnect_all();

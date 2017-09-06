@@ -107,7 +107,10 @@ GTKVideo::GTKVideo(QuiddityConfiguration&& conf)
                                                 "Always On Top",
                                                 "Toggle Window Always On Top",
                                                 true)) {
-  if (!remake_elements()) return;
+  if (!remake_elements()) {
+    is_valid_ = false;
+    return;
+  }
 
   if (instances_counter_ == 0) {
     if (0 == gtk_main_level()) {
@@ -153,6 +156,7 @@ GTKVideo::GTKVideo(QuiddityConfiguration&& conf)
 
   if (nullptr == display_) {
     g_message("ERROR:GDK could not find a display (is the server running in ssh?)");
+    is_valid_ = false;
     return;
   }
 
@@ -219,10 +223,7 @@ GTKVideo::GTKVideo(QuiddityConfiguration&& conf)
 
   install_gst_properties();
 
-  is_valid_ = true;
 }
-
-bool GTKVideo::init() { return is_valid_; }
 
 GTKVideo::~GTKVideo() {
   keyb_shm_.reset();

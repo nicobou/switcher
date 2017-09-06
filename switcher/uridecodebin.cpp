@@ -33,21 +33,22 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(Uridecodebin,
                                      "LGPL",
                                      "Nicolas Bouillot");
 
+void Uridecodebin::bus_async(GstMessage* msg) {
+  if (GST_MESSAGE_TYPE(msg) != GST_MESSAGE_EOS) return;
+  if (loop_) gst_pipeline_->seek(0);
+}
+
 Uridecodebin::Uridecodebin(QuiddityConfiguration&& conf)
     : Quiddity(std::forward<QuiddityConfiguration>(conf)),
       on_msg_async_cb_([this](GstMessage* msg) { this->bus_async(msg); }),
       on_msg_sync_cb_(nullptr),
       on_error_cb_([this](GstObject*, GError*) { this->error_ = true; }),
       gst_pipeline_(
-          std::make_unique<GstPipeliner>(on_msg_async_cb_, on_msg_sync_cb_, on_error_cb_)) {}
-
-void Uridecodebin::bus_async(GstMessage* msg) {
-  if (GST_MESSAGE_TYPE(msg) != GST_MESSAGE_EOS) return;
-  if (loop_) gst_pipeline_->seek(0);
-}
-
-bool Uridecodebin::init() {
-  if (!GstUtils::make_element("uridecodebin", &uridecodebin_)) return false;
+          std::make_unique<GstPipeliner>(on_msg_async_cb_, on_msg_sync_cb_, on_error_cb_)) {
+  if (!GstUtils::make_element("uridecodebin", &uridecodebin_)) {
+    is_valid_ = false;
+    return;
+  }
 
   pmanage<MPtr(&PContainer::make_string)>("uri",
                                           [this](const std::string& val) {
@@ -68,7 +69,6 @@ bool Uridecodebin::init() {
                                         "Looping",
                                         "Loop media",
                                         loop_);
-  return true;
 }
 
 void Uridecodebin::init_uridecodebin() {

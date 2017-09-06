@@ -35,7 +35,6 @@ class NVdecPlugin : public Quiddity {
   NVdecPlugin(const NVdecPlugin&) = delete;
   NVdecPlugin& operator=(const NVdecPlugin&) = delete;
 
-  bool init() final;
 
  private:
   static const std::array<const char*, 5> kSupportedCodecs;

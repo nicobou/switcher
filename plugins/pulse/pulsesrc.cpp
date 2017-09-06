@@ -50,11 +50,11 @@ PulseSrc::PulseSrc(QuiddityConfiguration&& conf)
       "Save Mode",
       "Save Audio Capture Device by device or by port.",
       save_device_enum_);
-}
-
-bool PulseSrc::init() {
   init_startable(this);
-  if (!pulsesrc_ || !shmsink_) return false;
+  if (!pulsesrc_ || !shmsink_) {
+    is_valid_ = false;
+    return;
+  }
   shmpath_ = make_file_name("audio");
   g_object_set(G_OBJECT(pulsesrc_.get_raw()), "client-name", get_name().c_str(), nullptr);
   g_object_set(G_OBJECT(shmsink_.get_raw()), "socket-path", shmpath_.c_str(), nullptr);
@@ -68,13 +68,13 @@ bool PulseSrc::init() {
   devices_cond_.wait(lock);
   if (!connected_to_pulse_) {
     g_message("ERROR:Not connected to pulse, cannot initialize.");
-    return false;
+    is_valid_ = false;
+    return;
   }
   volume_id_ = pmanage<MPtr(&PContainer::push)>(
       "volume", GPropToProp::to_prop(G_OBJECT(pulsesrc_.get_raw()), "volume"));
   mute_id_ = pmanage<MPtr(&PContainer::push)>(
       "mute", GPropToProp::to_prop(G_OBJECT(pulsesrc_.get_raw()), "mute"));
-  return true;
 }
 
 gboolean PulseSrc::async_get_pulse_devices(void* user_data) {

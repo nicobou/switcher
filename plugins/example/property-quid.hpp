@@ -93,7 +93,6 @@ class PropertyQuid : public Quiddity {
   std::string hello_{};
   static gchar* my_hello_world_method(gchar* first_arg, void* user_data);
 
-  bool init() final;
 };
 
 SWITCHER_DECLARE_PLUGIN(PropertyQuid);

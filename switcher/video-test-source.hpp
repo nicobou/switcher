@@ -82,7 +82,6 @@ class VideoTestSource : public Quiddity, public StartableQuiddity {
   std::unique_ptr<GstShmdataSubscriber> shm_sub_{nullptr};
   bool start() final;
   bool stop() final;
-  bool init() final;
   void update_caps();
 };
 

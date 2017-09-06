@@ -46,7 +46,6 @@ CustomSavePlugin::CustomSavePlugin(QuiddityConfiguration&& conf)
           "A custom state has been saved with success",
           has_loaded_custom_state_)) {}
 
-bool CustomSavePlugin::init() { return true; }
 
 InfoTree::ptr CustomSavePlugin::on_saving() {
   InfoTree::ptr precious_information = InfoTree::make();

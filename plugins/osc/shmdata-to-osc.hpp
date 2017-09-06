@@ -47,7 +47,6 @@ class ShmdataToOsc : public Quiddity, public StartableQuiddity {
   lo_address address_{nullptr};
   std::mutex address_mutex_{};
 
-  bool init() final;
   bool start() final;
   bool stop() final;
   bool connect(const std::string& shmdata_path);

@@ -267,9 +267,7 @@ PropertyQuid::PropertyQuid(QuiddityConfiguration&& conf)
   // std::cout << std::get<0>(tuple_) << " "      // 2
   //           << std::get<1>(tuple_) << " "      // 2.2
   //           << std::get<2>(tuple_) << "\n";    // a22
-}
 
-bool PropertyQuid::init() {
   // g_debug("uint property installation id is %lu", uint_id);
   // props_.install("int_", &int_prop_);
   install_method("Hello World",                                  // long name
@@ -294,7 +292,6 @@ bool PropertyQuid::init() {
   // attaching it to the quiddity (at the root)
   graft_tree(".custom.information.", tree);
   g_debug("hello from plugin");
-  return true;
 }
 
 gchar* PropertyQuid::my_hello_world_method(gchar* first_arg, void* user_data) {

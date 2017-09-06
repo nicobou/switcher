@@ -47,9 +47,7 @@ SystemUsage::SystemUsage(QuiddityConfiguration&& conf)
       period_(1.0),
       pollStateTask_(std::make_unique<PeriodicTask<>>(
           [this]() { this->pollState(); },
-          std::chrono::milliseconds(static_cast<int>(1000 * period_)))) {}
-
-bool SystemUsage::init() {
+          std::chrono::milliseconds(static_cast<int>(1000 * period_)))) {
   pmanage<MPtr(&PContainer::make_float)>(
       "period",
       [this](const float& val) {
@@ -66,7 +64,7 @@ bool SystemUsage::init() {
       period_,
       0.1,
       5.0);
-  return init_tree();
+  is_valid_ = init_tree();
 }
 
 bool SystemUsage::init_tree() {

@@ -70,7 +70,6 @@ class VncClientSrc : public Quiddity, public StartableQuiddity {
   std::map<int, std::string> shmdata_readers_caps_{};
   std::map<std::string, std::unique_ptr<ShmdataFollower>> events_readers_{};
 
-  bool init() final;
   bool connect(std::string shmdata_socket_path);
   bool disconnect(std::string shmName);
   bool disconnect_all();

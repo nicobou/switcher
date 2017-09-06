@@ -39,9 +39,7 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(SoapCtrlServer,
                                      "Nicolas Bouillot");
 
 SoapCtrlServer::SoapCtrlServer(QuiddityConfiguration&& conf)
-    : SwitcherWrapper(std::forward<QuiddityConfiguration>(conf)) {}
-
-bool SoapCtrlServer::init() {
+    : SwitcherWrapper(std::forward<QuiddityConfiguration>(conf)) {
   soap_init(&soap_);
   // release port
   soap_.connect_flags = SO_LINGER;
@@ -58,8 +56,6 @@ bool SoapCtrlServer::init() {
                  G_TYPE_BOOLEAN,
                  Method::make_arg_type_description(G_TYPE_INT, nullptr),
                  this);
-
-  return true;
 }
 
 SoapCtrlServer::~SoapCtrlServer() {

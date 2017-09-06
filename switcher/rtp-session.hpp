@@ -107,7 +107,6 @@ class RtpSession : public Quiddity {
   // destinations
   std::map<std::string, RtpDestination::ptr> destinations_{};
 
-  bool init() final;
   void on_rtp_caps(const std::string& shmdata_path, std::string caps);
   // return RTP internal pad
   std::string make_rtp_payloader(GstElement* shmdatasrc, const std::string& caps);

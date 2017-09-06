@@ -35,12 +35,10 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(
 // Have to define it here, otherwise symbol not found...
 const unsigned int VRPNSource::vrpnLoopInterval{16};
 
-VRPNSource::VRPNSource(QuiddityConfiguration&& conf)
-    : Quiddity(std::forward<QuiddityConfiguration>(conf)) {}
-
 VRPNSource::~VRPNSource() { destroyed_ = true; }
 
-bool VRPNSource::init() {
+VRPNSource::VRPNSource(QuiddityConfiguration&& conf)
+    : Quiddity(std::forward<QuiddityConfiguration>(conf)) {
   // Initialize startable quiddity
   init_startable(this);
 
@@ -84,7 +82,6 @@ bool VRPNSource::init() {
                                                  "Debug values to console",
                                                  debug_);
 
-  return true;
 }
 
 /**

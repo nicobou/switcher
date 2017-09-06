@@ -46,6 +46,7 @@ NVdecPlugin::NVdecPlugin(QuiddityConfiguration&& conf)
   }
   if (names.empty()) {
     g_message("ERROR:Could not find any CUDA-enabled GPU.");
+    is_valid_ = false;
     return;
   }
   devices_ = Selection<>(std::move(names), 0);
@@ -61,17 +62,16 @@ NVdecPlugin::NVdecPlugin(QuiddityConfiguration&& conf)
                                                    "decoder GPU",
                                                    "Selection of the GPU used for decoding",
                                                    devices_);
-}
-
-bool NVdecPlugin::init() {
-  if (devices_.empty()) return false;
+  if (devices_.empty()) {
+    is_valid_ = false;
+    return;
+  }
   shmcntr_.install_connect_method(
       [this](const std::string& shmpath) { return this->on_shmdata_connect(shmpath); },
       [this](const std::string&) { return this->on_shmdata_disconnect(); },
       [this]() { return this->on_shmdata_disconnect(); },
       [this](const std::string& caps) { return this->can_sink_caps(caps); },
       1);
-  return true;
 }
 
 bool NVdecPlugin::can_sink_caps(const std::string& strcaps) {

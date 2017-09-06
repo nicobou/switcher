@@ -38,9 +38,7 @@ OscCtrlServer::OscCtrlServer(QuiddityConfiguration&& conf)
     : SwitcherWrapper(std::forward<QuiddityConfiguration>(conf)),
       port_(),
       osc_subscribers_(),
-      osc_thread_(nullptr) {}
-
-bool OscCtrlServer::init() {
+      osc_thread_(nullptr) {
   osc_thread_ = nullptr;
   install_method("Set Port",
                  "set_port",
@@ -51,7 +49,6 @@ bool OscCtrlServer::init() {
                  G_TYPE_BOOLEAN,
                  Method::make_arg_type_description(G_TYPE_STRING, nullptr),
                  this);
-  return true;
 }
 
 OscCtrlServer::~OscCtrlServer() { stop(); }

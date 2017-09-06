@@ -31,7 +31,6 @@ class SoapCtrlServer : public SwitcherWrapper {
   ~SoapCtrlServer();
   SoapCtrlServer(const SoapCtrlServer&) = delete;
   SoapCtrlServer& operator=(const SoapCtrlServer&) = delete;
-  bool init() final;
 
   bool set_port(int port);
   bool start();

@@ -45,7 +45,6 @@ class PostureDisplay : public Quiddity {
   std::unique_ptr<posture::Display> display_{nullptr};
   std::mutex display_mutex_{};
 
-  bool init() final;
 
   bool connect(std::string shmdata_socket_path);
   bool disconnect(std::string /*unused*/);

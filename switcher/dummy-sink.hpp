@@ -32,8 +32,6 @@ class DummySink : public Quiddity {
   DummySink(const DummySink&) = delete;
   DummySink& operator=(const DummySink&) = delete;
 
-  bool init();
-
  private:
   bool frame_received_{false};
   PContainer::prop_id_t frame_received_id_;

@@ -57,7 +57,6 @@ class HTTPSDPDec : public Quiddity {
   void init_httpsdpdec();
   void destroy_httpsdpdec();
   void make_new_error_handler();
-  bool init() final;
   void uri_to_shmdata();
   void configure_shmdatasink(GstElement* element,
                              const std::string& media_type,

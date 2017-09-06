@@ -88,17 +88,18 @@ NVencPlugin::NVencPlugin(QuiddityConfiguration&& conf)
                                                    "Selection of the GPU used for encoding",
                                                    devices_);
   pmanage<MPtr(&PContainer::set_to_current)>(default_preset_id_);
-}
 
-bool NVencPlugin::init() {
-  if (!es_) return false;
+  if (!es_) {
+    is_valid_ = false;
+    return;
+  }
   shmcntr_.install_connect_method(
       [this](const std::string& shmpath) { return this->on_shmdata_connect(shmpath); },
       [this](const std::string&) { return this->on_shmdata_disconnect(); },
       [this]() { return this->on_shmdata_disconnect(); },
       [this](const std::string& caps) { return this->can_sink_caps(caps); },
       1);
-  return es_.get()->invoke<MPtr(&NVencES::safe_bool_idiom)>();
+  is_valid_ = es_.get()->invoke<MPtr(&NVencES::safe_bool_idiom)>();
 }
 
 void NVencPlugin::update_device() {

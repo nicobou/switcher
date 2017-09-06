@@ -55,7 +55,6 @@ class PostureDetect : public Quiddity, public StartableQuiddity {
   std::unique_ptr<ShmdataWriter> cloud_writer_{nullptr};
   std::unique_ptr<ShmdataWriter> mesh_writer_{nullptr};
 
-  bool init() final;
 
   bool connect(std::string shmdata_socket_path);
   bool disconnect(std::string shmName);

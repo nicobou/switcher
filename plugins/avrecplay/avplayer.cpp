@@ -83,16 +83,12 @@ AVPlayer::AVPlayer(QuiddityConfiguration&& conf)
       g_message(
           "ERROR: The shmdata destination folder does not exist and could not be created "
           "(avplayer).");
+      is_valid_ = false;
       return;
     }
   }
 
-  is_valid_ = true;
-}
-
-bool AVPlayer::init() {
   init_startable(this);
-  return is_valid_;
 }
 
 bool AVPlayer::start() {

@@ -49,12 +49,11 @@ JackToShmdata::JackToShmdata(QuiddityConfiguration&& conf)
                      thread.detach();
                    }) {
   if (jack_client_) client_name_ = jack_client_.get_name();
-}
 
-bool JackToShmdata::init() {
   if (!jack_client_) {
     g_message("ERROR:JackClient cannot be instanciated (is jack server running?)");
-    return false;
+    is_valid_ = false;
+    return;
   }
   init_startable(this);
   unsigned int max_number_of_channels = kMaxNumberOfChannels;
@@ -126,7 +125,6 @@ bool JackToShmdata::init() {
                                                           1,
                                                           max_number_of_channels);
   update_port_to_connect();
-  return true;
 }
 
 bool JackToShmdata::start() {

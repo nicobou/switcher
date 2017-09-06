@@ -36,11 +36,13 @@ LTCToJack::LTCToJack(QuiddityConfiguration&& conf)
 
   if (!jack_client_) {
     g_warning("Could not create jack client (ltctojack).");
+    is_valid_ = false;
     return;
   }
 
   if (jack_activate(jack_client_) != 0) {
     g_warning("Could not activate jack client (ltctojack).");
+    is_valid_ = false;
     return;
   }
 
@@ -64,11 +66,7 @@ LTCToJack::LTCToJack(QuiddityConfiguration&& conf)
       drift_threshold_,
       0.01,
       10.);
-
-  is_valid_ = true;
 }
-
-bool LTCToJack::init() { return is_valid_; }
 
 LTCToJack::~LTCToJack() {
   if (is_valid_) {

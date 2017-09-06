@@ -81,7 +81,6 @@ class PulseSink : public Quiddity {
   std::mutex quit_mutex_{};
   std::condition_variable quit_cond_{};
 
-  bool init() final;
   bool on_shmdata_connect(const std::string& shmpath);
   bool on_shmdata_disconnect();
   bool can_sink_caps(const std::string& caps);

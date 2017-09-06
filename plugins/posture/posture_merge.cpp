@@ -33,8 +33,6 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(PostureMerge,
                                      "LGPL",
                                      "Emmanuel Durand");
 
-PostureMerge::PostureMerge(QuiddityConfiguration&&) : shmcntr_(static_cast<Quiddity*>(this)) {}
-
 PostureMerge::~PostureMerge() { stop(); }
 
 bool PostureMerge::start() {
@@ -63,7 +61,7 @@ bool PostureMerge::stop() {
   return true;
 }
 
-bool PostureMerge::init() {
+PostureMerge::PostureMerge(QuiddityConfiguration&&) : shmcntr_(static_cast<Quiddity*>(this)) {
   init_startable(this);
 
   shmcntr_.install_connect_method([this](const std::string path) { return connect(path); },
@@ -147,7 +145,6 @@ bool PostureMerge::init() {
       "Downsample",
       "Activate the cloud downsampling",
       downsample_);
-  return true;
 }
 
 bool PostureMerge::connect(std::string shmdata_socket_path) {

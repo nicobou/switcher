@@ -44,36 +44,7 @@ PostureSc3::PostureSc3(QuiddityConfiguration&&) {
   sol_->setGridResolution(50);
   colorize_ = std::unique_ptr<Colorize>(new Colorize());
   intermediate_mesh_ = boost::make_shared<pcl::PolygonMesh>();
-}
 
-PostureSc3::~PostureSc3() { stop(); }
-
-bool PostureSc3::start() {
-  std::lock_guard<std::mutex> lock(mutex_);
-  for (index_ = 0; index_ < nbr_; index_++) {
-    cameras_[index_]->start();
-  }
-  merger_->start();
-
-  is_started_ = true;
-  return true;
-}
-
-bool PostureSc3::stop() {
-  std::lock_guard<std::mutex> lock(mutex_);
-  for (index_ = 0; index_ < nbr_; index_++) {
-    cameras_[index_]->stop();
-  }
-  merger_->stop();
-
-  mesh_writer_.reset();
-  rgb_writer_.reset();
-
-  is_started_ = false;
-  return true;
-}
-
-bool PostureSc3::init() {
   init_startable(this);
 
   auto cam_id = pmanage<MPtr(&PContainer::make_int)>(
@@ -161,6 +132,32 @@ bool PostureSc3::init() {
       "Colorize",
       "Check for a colorize mesh",
       colorize_or_not_);
+}
+
+PostureSc3::~PostureSc3() { stop(); }
+
+bool PostureSc3::start() {
+  std::lock_guard<std::mutex> lock(mutex_);
+  for (index_ = 0; index_ < nbr_; index_++) {
+    cameras_[index_]->start();
+  }
+  merger_->start();
+
+  is_started_ = true;
+  return true;
+}
+
+bool PostureSc3::stop() {
+  std::lock_guard<std::mutex> lock(mutex_);
+  for (index_ = 0; index_ < nbr_; index_++) {
+    cameras_[index_]->stop();
+  }
+  merger_->stop();
+
+  mesh_writer_.reset();
+  rgb_writer_.reset();
+
+  is_started_ = false;
   return true;
 }
 

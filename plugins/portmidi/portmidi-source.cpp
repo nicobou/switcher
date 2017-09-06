@@ -34,12 +34,11 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(PortMidiSource,
                                      "Nicolas Bouillot");
 
 PortMidiSource::PortMidiSource(QuiddityConfiguration&& conf)
-    : Quiddity(std::forward<QuiddityConfiguration>(conf)) {}
-
-bool PortMidiSource::init() {
+    : Quiddity(std::forward<QuiddityConfiguration>(conf)) {
   if (input_devices_enum_.empty()) {
     g_message("ERROR:No MIDI capture device detected.");
-    return false;
+    is_valid_ = false;
+    return;
   }
   init_startable(this);
   devices_id_ =
@@ -108,7 +107,6 @@ bool PortMidiSource::init() {
                  Method::make_arg_type_description(G_TYPE_STRING, G_TYPE_INT, G_TYPE_INT, nullptr),
                  this);
   disable_method("map_midi_to_property");
-  return true;
 }
 
 bool PortMidiSource::start() {

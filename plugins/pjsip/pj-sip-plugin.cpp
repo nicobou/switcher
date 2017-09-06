@@ -92,29 +92,11 @@ SIPPlugin::SIPPlugin(QuiddityConfiguration&& conf)
                                                 [this]() { return decompress_streams_; },
                                                 "Decompress",
                                                 "Decompress received streams",
-                                                decompress_streams_)) {}
-
-SIPPlugin::~SIPPlugin() {
-  if (!i_m_the_one_) return;
-
-  qcontainer_->unregister_removal_cb(quiddity_removal_cb_id_);
-
-  sip_calls_->finalize_calls();
-
-  pjsip_->run([this]() {
-    stun_turn_.reset(nullptr);
-    sip_presence_.reset(nullptr);
-  });
-
-  this_ = nullptr;
-  i_m_the_one_ = false;
-  sip_plugin_used_ = 0;
-}
-
-bool SIPPlugin::init() {
+                                                decompress_streams_)) {
   if (1 == sip_plugin_used_.fetch_or(1)) {
     g_warning("an other sip quiddity is instancied, cannot init");
-    return false;
+    is_valid_ = false;
+    return;
   }
   i_m_the_one_ = true;
   this_ = this;
@@ -138,7 +120,10 @@ bool SIPPlugin::init() {
         if (transport_id_ != -1) pjsua_transport_close(transport_id_, PJ_FALSE);
       });
 
-  if (!pjsip_->invoke<MPtr(&PJSIP::safe_bool_idiom)>()) return false;
+  if (!pjsip_->invoke<MPtr(&PJSIP::safe_bool_idiom)>()) {
+    is_valid_ = false;
+    return;
+  }
   apply_configuration();
 
   quiddity_removal_cb_id_ =
@@ -152,7 +137,23 @@ bool SIPPlugin::init() {
           }
         }
       });
-  return true;
+}
+
+SIPPlugin::~SIPPlugin() {
+  if (!i_m_the_one_) return;
+
+  qcontainer_->unregister_removal_cb(quiddity_removal_cb_id_);
+
+  sip_calls_->finalize_calls();
+
+  pjsip_->run([this]() {
+    stun_turn_.reset(nullptr);
+    sip_presence_.reset(nullptr);
+  });
+
+  this_ = nullptr;
+  i_m_the_one_ = false;
+  sip_plugin_used_ = 0;
 }
 
 void SIPPlugin::apply_configuration() {

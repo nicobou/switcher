@@ -63,11 +63,7 @@ LTCDiff::LTCDiff(QuiddityConfiguration&& conf)
       nullptr,
       [this](const std::string& caps) { return this->can_sink_caps(caps); },
       2);
-
-  is_valid_ = true;
 }
-
-bool LTCDiff::init() { return is_valid_; }
 
 bool LTCDiff::on_shmdata_connect(const std::string& shmpath) {
   ltc_readers_[shmpath] = std::make_unique<LTCReader>(this, shmpath, next_index_);

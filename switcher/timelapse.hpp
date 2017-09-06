@@ -81,7 +81,6 @@ class Timelapse : public Quiddity {
   GstVideoTimelapseConfig timelapse_config_;
   std::map<std::string, std::unique_ptr<GstVideoTimelapse>> timelapse_{};
 
-  bool init() final;
   bool on_shmdata_disconnect(const std::string& shmdata_sochet_path);
   bool on_shmdata_connect(const std::string& shmdata_sochet_path);
   bool on_shmdata_disconnect_all();

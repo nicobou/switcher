@@ -55,7 +55,6 @@ class LTCDiff : public Quiddity {
   ~LTCDiff() = default;
 
  private:
-  bool init() final;
 
   bool on_shmdata_connect(const std::string& shmpath);
   bool on_shmdata_disconnect(const std::string& shmpath);

@@ -34,9 +34,6 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(PostureColorize,
                                      "LGPL",
                                      "Emmanuel Durand");
 
-PostureColorize::PostureColorize(QuiddityConfiguration&&)
-    : shmcntr_(static_cast<Quiddity*>(this)) {}
-
 PostureColorize::~PostureColorize() { stop(); }
 
 bool PostureColorize::start() {
@@ -67,7 +64,7 @@ bool PostureColorize::stop() {
   return true;
 }
 
-bool PostureColorize::init() {
+PostureColorize::PostureColorize(QuiddityConfiguration&&) : shmcntr_(static_cast<Quiddity*>(this)) {
   init_startable(this);
 
   shmcntr_.install_connect_method([this](const std::string path) { return connect(path); },
@@ -105,8 +102,6 @@ bool PostureColorize::init() {
                                         "Compress the output mesh",
                                         "Compress the output mesh",
                                         compress_mesh_);
-
-  return true;
 }
 
 bool PostureColorize::connect(std::string shmdata_socket_path) {

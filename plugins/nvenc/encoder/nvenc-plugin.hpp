@@ -37,7 +37,6 @@ class NVencPlugin : public Quiddity {
   NVencPlugin(const NVencPlugin&) = delete;
   NVencPlugin& operator=(const NVencPlugin&) = delete;
 
-  bool init() final;
 
  private:
   std::unique_ptr<ThreadedWrapper<NVencES>> es_{};

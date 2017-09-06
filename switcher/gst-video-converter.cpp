@@ -51,11 +51,7 @@ GstVideoConverter::GstVideoConverter(QuiddityConfiguration&& conf)
       [this]() { return this->on_shmdata_disconnect(); },
       [this](const std::string& caps) { return this->can_sink_caps(caps); },
       1);
-}
-
-bool GstVideoConverter::init() {
   shmpath_converted_ = make_file_name("video");
-  return true;
 }
 
 bool GstVideoConverter::on_shmdata_disconnect() {

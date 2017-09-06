@@ -35,9 +35,7 @@ const unsigned int VRPNSink::vrpnLoopInterval{16};
 
 VRPNSink::VRPNSink(QuiddityConfiguration&& conf)
     : Quiddity(std::forward<QuiddityConfiguration>(conf)),
-      shmdataConnector_(static_cast<Quiddity*>(this)) {}
-
-bool VRPNSink::init() {
+      shmdataConnector_(static_cast<Quiddity*>(this)) {
   init_startable(this);
 
   shmdataConnector_.install_connect_method(
@@ -94,8 +92,6 @@ bool VRPNSink::init() {
       G_TYPE_BOOLEAN,
       Method::make_arg_type_description(G_TYPE_STRING, nullptr),
       this);
-
-  return true;
 }
 
 /**

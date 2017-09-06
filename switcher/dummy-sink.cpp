@@ -38,16 +38,13 @@ DummySink::DummySink(QuiddityConfiguration&& conf)
                                                 "Frame Received",
                                                 "A Frame has been receivedon the shmdata",
                                                 frame_received_)),
-      shmcntr_(static_cast<Quiddity*>(this)) {}
-
-bool DummySink::init() {
+      shmcntr_(static_cast<Quiddity*>(this)) {
   shmcntr_.install_connect_method(
       [this](const std::string& shmpath) { return this->connect(shmpath); },
       [this](const std::string&) { return this->disconnect(); },
       [this]() { return this->disconnect(); },
       [this](const std::string& caps) { return this->can_sink_caps(caps); },
       1);
-  return true;
 }
 
 bool DummySink::connect(const std::string& path) {

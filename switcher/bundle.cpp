@@ -31,15 +31,13 @@ Quiddity* create(QuiddityConfiguration&& conf) {
 void destroy(Quiddity* quiddity) { delete quiddity; }
 }  // namespace bundle
 
+Bundle::~Bundle() { quitting_ = true; }
+
 Bundle::Bundle(QuiddityConfiguration&& conf)
     : Quiddity(std::forward<QuiddityConfiguration>(conf)),
       conf_(conf),
       shmcntr_(static_cast<Quiddity*>(this)),
-      manager_(Switcher::make_switcher<LoggerForwarder>(conf_.name_, conf_.log_)) {}
-
-Bundle::~Bundle() { quitting_ = true; }
-
-bool Bundle::init() {
+      manager_(Switcher::make_switcher<LoggerForwarder>(conf_.name_, conf_.log_)) {
   for (auto& it : qcontainer_->get_plugin_dirs()) {
     manager_->scan_directory_for_plugins(it);
   }
@@ -48,7 +46,8 @@ bool Bundle::init() {
 
   if (!config<MPtr(&InfoTree::branch_has_data)>("pipeline")) {
     g_warning("bundle description is missing the pipeline description");
-    return false;
+    is_valid_ = false;
+    return;
   }
   pipeline_ = config<MPtr(&InfoTree::branch_get_value)>("pipeline").copy_as<std::string>();
   auto spec = bundle::DescriptionParser(pipeline_, std::vector<std::string>());
@@ -56,10 +55,12 @@ bool Bundle::init() {
     g_warning("%s : error parsing the pipeline (%s)",
               get_name().c_str(),
               spec.get_parsing_error().c_str());
-    return false;
+    is_valid_ = false;
+    return;
   }
   if (!make_quiddities(spec.get_quiddities())) {
-    return false;
+    is_valid_ = false;
+    return;
   }
   reader_quid_ = spec.get_reader_quid();
   if (!reader_quid_.empty()) {
@@ -104,7 +105,6 @@ bool Bundle::init() {
             ->tree<MPtr(&InfoTree::branch_get_value)>("shmdata.max_reader")
             .copy_as<unsigned int>());
   }
-  return true;
 }
 
 bool Bundle::make_quiddities(const std::vector<bundle::quiddity_spec_t>& quids) {

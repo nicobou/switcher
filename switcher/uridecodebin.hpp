@@ -53,7 +53,6 @@ class Uridecodebin : public Quiddity {
   CounterMap counter_{};
   std::vector<std::unique_ptr<GstShmdataSubscriber>> shm_subs_{};
 
-  bool init() final;
   void init_uridecodebin();
   void destroy_uridecodebin();
   void clean_on_error_command();

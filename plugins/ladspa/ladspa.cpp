@@ -93,11 +93,7 @@ LADSPA::LADSPA(QuiddityConfiguration&& conf)
 
   pmanage<MPtr(&PContainer::set_to_current)>(plugins_id_);
   pmanage<MPtr(&PContainer::set_to_current)>(global_settings_id_);
-
-  is_valid_ = true;
 }
-
-bool LADSPA::init() { return is_valid_; }
 
 LADSPA::PluginList LADSPA::get_ladspa_plugins() {
   PluginList plugins_list;

@@ -35,7 +35,6 @@ class Bundle : public Quiddity, public StartableQuiddity {
   ~Bundle();
   Bundle(const Bundle&) = delete;
   Bundle& operator=(const Bundle&) = delete;
-  bool init() final;
 
  private:
   struct on_tree_data_t {

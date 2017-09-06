@@ -76,7 +76,6 @@ class VRPNSource : public Quiddity, public StartableQuiddity {
   bool debug_{false};
 
   // SWITCHER
-  bool init() final;
   bool start() final;
   bool stop() final;
 

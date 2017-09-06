@@ -38,6 +38,7 @@ LTCSource::LTCSource(QuiddityConfiguration&& conf)
 
   if (!jack_client_) {
     g_warning("Could not create jack client (ltcsource).");
+    is_valid_ = false;
     return;
   }
 
@@ -45,6 +46,7 @@ LTCSource::LTCSource(QuiddityConfiguration&& conf)
   if (!sample_rate_) {
     g_warning("Could not get sample rate from jack server (ltcsource).");
     g_message("ERROR: Could not get sample rate from jack server (ltcsource).");
+    is_valid_ = false;
     return;
   }
 
@@ -90,13 +92,7 @@ LTCSource::LTCSource(QuiddityConfiguration&& conf)
       [this]() { return this->on_shmdata_disconnect(); },
       [this](const std::string& caps) { return this->can_sink_caps(caps); },
       1);
-
-  is_valid_ = true;
-}
-
-bool LTCSource::init() {
   init_startable(this);
-  return is_valid_;
 }
 
 LTCSource::~LTCSource() {

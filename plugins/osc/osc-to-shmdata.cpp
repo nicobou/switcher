@@ -30,9 +30,7 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(OscToShmdata,
                                      "Nicolas Bouillot");
 
 OscToShmdata::OscToShmdata(QuiddityConfiguration&& conf)
-    : Quiddity(std::forward<QuiddityConfiguration>(conf)), port_(1056) {}
-
-bool OscToShmdata::init() {
+    : Quiddity(std::forward<QuiddityConfiguration>(conf)), port_(1056) {
   init_startable(this);
   pmanage<MPtr(&PContainer::make_int)>("port",
                                        [this](const int& val) {
@@ -45,7 +43,6 @@ bool OscToShmdata::init() {
                                        port_,
                                        1,
                                        65536);
-  return true;
 }
 
 OscToShmdata::~OscToShmdata() { stop(); }

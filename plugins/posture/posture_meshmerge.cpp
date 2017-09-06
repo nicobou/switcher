@@ -33,9 +33,6 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(PostureMeshMerge,
                                      "LGPL",
                                      "Emmanuel Durand");
 
-PostureMeshMerge::PostureMeshMerge(QuiddityConfiguration&&)
-    : shmcntr_(static_cast<Quiddity*>(this)) {}
-
 PostureMeshMerge::~PostureMeshMerge() { stop(); }
 
 bool PostureMeshMerge::start() {
@@ -61,7 +58,8 @@ bool PostureMeshMerge::stop() {
   return true;
 }
 
-bool PostureMeshMerge::init() {
+PostureMeshMerge::PostureMeshMerge(QuiddityConfiguration&&)
+    : shmcntr_(static_cast<Quiddity*>(this)) {
   init_startable(this);
 
   shmcntr_.install_connect_method([this](const std::string path) { return connect(path); },
@@ -104,8 +102,6 @@ bool PostureMeshMerge::init() {
                                         "Apply calibration",
                                         "Apply loaded calibration to meshes",
                                         apply_calibration_);
-
-  return true;
 }
 
 bool PostureMeshMerge::connect(std::string shmdata_socket_path) {

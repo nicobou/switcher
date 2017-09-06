@@ -51,10 +51,11 @@ HTTPSDPDec::HTTPSDPDec(QuiddityConfiguration&& conf)
                                                 [this]() { return decompress_streams_; },
                                                 "Decompress",
                                                 "Decompress received streams",
-                                                decompress_streams_)) {}
-
-bool HTTPSDPDec::init() {
-  if (!souphttpsrc_ || !sdpdemux_) return false;
+                                                decompress_streams_)) {
+  if (!souphttpsrc_ || !sdpdemux_) {
+    is_valid_ = false;
+    return;
+  }
   install_method(
       "To Shmdata",
       "to_shmdata",
@@ -67,7 +68,6 @@ bool HTTPSDPDec::init() {
       G_TYPE_BOOLEAN,
       Method::make_arg_type_description(G_TYPE_STRING, nullptr),
       this);
-  return true;
 }
 
 void HTTPSDPDec::init_httpsdpdec() {

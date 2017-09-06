@@ -57,7 +57,6 @@ class PortMidiSource : public Quiddity, public StartableQuiddity, public PortMid
   // using property name instead of long name:
   std::map<std::string, PContainer::prop_id_t> unused_props_specs_{};
 
-  bool init() final;
   bool start() final;
   bool stop() final;
 

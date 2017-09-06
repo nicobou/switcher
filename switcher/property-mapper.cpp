@@ -33,9 +33,7 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(PropertyMapper,
                                      "Nicolas Bouillot");
 
 PropertyMapper::PropertyMapper(QuiddityConfiguration&& conf)
-    : Quiddity(std::forward<QuiddityConfiguration>(conf)) {}
-
-bool PropertyMapper::init() {
+    : Quiddity(std::forward<QuiddityConfiguration>(conf)) {
   install_method("Set Source Property",                                // long name
                  "set-source-property",                                // name
                  "set the master property",                            // description
@@ -67,31 +65,6 @@ bool PropertyMapper::init() {
                  G_TYPE_BOOLEAN,
                  Method::make_arg_type_description(G_TYPE_STRING, G_TYPE_STRING, nullptr),
                  this);
-
-#ifdef HAVE_PYTHON
-// Py_Initialize();
-// // PyRun_SimpleString("from time import time,ctime\n"
-// //        "print 'Today is',ctime(time())\n");
-// PyObject *numpy_name = PyString_FromString("numpy");
-// PyObject *numpy = PyImport_Import(numpy_name);
-// Py_DECREF(numpy_name);
-// if (numpy != nullptr)
-//   g_print ("got numpy !\n");
-// else
-//   g_print ("no numpy\n");
-
-// PyObject *numpey_name = PyString_FromString("numpey");
-// PyObject *numpey = PyImport_Import(numpey_name);
-// Py_DECREF(numpey_name);
-// if (numpey != nullptr)
-//   g_print ("got numpey !\n");
-// else
-//   g_print ("no numpey..\n");
-
-//   Py_Finalize();
-#endif
-
-  return true;
 }
 
 PropertyMapper::~PropertyMapper() { unsubscribe_source_property(); }

@@ -36,7 +36,35 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(VncClientSrc,
                                      "Emmanuel Durand");
 
 VncClientSrc::VncClientSrc(QuiddityConfiguration&& conf)
-    : Quiddity(std::forward<QuiddityConfiguration>(conf)), shmcntr_(static_cast<Quiddity*>(this)) {}
+    : Quiddity(std::forward<QuiddityConfiguration>(conf)), shmcntr_(static_cast<Quiddity*>(this)) {
+  init_startable(this);
+
+  shmcntr_.install_connect_method([this](const std::string path) { return connect(path); },
+                                  [this](const std::string path) { return disconnect(path); },
+                                  [this]() { return disconnect_all(); },
+                                  [this](const std::string caps) { return can_sink_caps(caps); },
+                                  2);
+  vnc_server_address_id_ =
+      pmanage<MPtr(&PContainer::make_string)>("vnc_server_address",
+                                              [this](const std::string& val) {
+                                                vnc_server_address_ = val;
+                                                return true;
+                                              },
+                                              [this]() { return vnc_server_address_; },
+                                              "IP address",
+                                              "Address of the VNC server",
+                                              vnc_server_address_);
+  capture_truecolor_id_ =
+      pmanage<MPtr(&PContainer::make_bool)>("capture_truecolor",
+                                            [this](const bool& val) {
+                                              capture_truecolor_ = val;
+                                              return true;
+                                            },
+                                            [this]() { return capture_truecolor_; },
+                                            "Capture color depth",
+                                            "Capture in 32bits if true, 16bits otherwise",
+                                            capture_truecolor_);
+}
 
 VncClientSrc::~VncClientSrc() { stop(); }
 
@@ -82,37 +110,6 @@ bool VncClientSrc::stop() {
   vnc_continue_update_ = false;
   if (vnc_update_thread_.joinable()) vnc_update_thread_.join();
 
-  return true;
-}
-
-bool VncClientSrc::init() {
-  init_startable(this);
-
-  shmcntr_.install_connect_method([this](const std::string path) { return connect(path); },
-                                  [this](const std::string path) { return disconnect(path); },
-                                  [this]() { return disconnect_all(); },
-                                  [this](const std::string caps) { return can_sink_caps(caps); },
-                                  2);
-  vnc_server_address_id_ =
-      pmanage<MPtr(&PContainer::make_string)>("vnc_server_address",
-                                              [this](const std::string& val) {
-                                                vnc_server_address_ = val;
-                                                return true;
-                                              },
-                                              [this]() { return vnc_server_address_; },
-                                              "IP address",
-                                              "Address of the VNC server",
-                                              vnc_server_address_);
-  capture_truecolor_id_ =
-      pmanage<MPtr(&PContainer::make_bool)>("capture_truecolor",
-                                            [this](const bool& val) {
-                                              capture_truecolor_ = val;
-                                              return true;
-                                            },
-                                            [this]() { return capture_truecolor_; },
-                                            "Capture color depth",
-                                            "Capture in 32bits if true, 16bits otherwise",
-                                            capture_truecolor_);
   return true;
 }
 

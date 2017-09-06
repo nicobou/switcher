@@ -55,14 +55,15 @@ ShmdataToJack::ShmdataToJack(QuiddityConfiguration&& conf)
       gst_pipeline_(std::make_unique<GstPipeliner>(nullptr, nullptr)) {
   // is_constructed_ is needed because of a cross reference among JackClient and JackPort
   is_constructed_ = true;
-}
-
-bool ShmdataToJack::init() {
   if (!jack_client_) {
     g_message("ERROR:JackClient cannot be instanciated (is jack server running?)");
-    return false;
+    is_valid_ = false;
+    return;
   }
-  if (!make_elements()) return false;
+  if (!make_elements()) {
+    is_valid_ = false;
+    return;
+  }
   shmcntr_.install_connect_method(
       [this](const std::string& shmpath) { return this->on_shmdata_connect(shmpath); },
       [this](const std::string&) { return this->on_shmdata_disconnect(); },
@@ -118,7 +119,6 @@ bool ShmdataToJack::init() {
       0,
       max_number_of_channels);
   update_port_to_connect();
-  return true;
 }
 
 int ShmdataToJack::jack_process(jack_nframes_t nframes, void* arg) {

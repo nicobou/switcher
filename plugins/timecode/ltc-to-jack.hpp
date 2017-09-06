@@ -40,13 +40,10 @@ class LTCToJack : public Quiddity {
   LTCToJack& operator=(const LTCToJack&) = delete;
 
  private:
-  bool init() final;
   bool on_shmdata_connect(const std::string& shmpath);
   bool on_shmdata_disconnect();
   void on_data(void* data, size_t data_size);
   bool can_sink_caps(std::string str_caps);
-
-  bool is_valid_{false};
 
   // Shmdata
   ShmdataConnector shmcntr_;  //!< Shmdata connector to connect into the quiddity.

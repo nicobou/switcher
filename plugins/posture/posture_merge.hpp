@@ -70,7 +70,6 @@ class PostureMerge : public Quiddity, public StartableQuiddity {
   std::map<int, std::vector<char>> stock_{};
   std::mutex stock_mutex_{};
 
-  bool init() final;
   bool connect(std::string shmdata_socket_path);
   bool disconnect(std::string shmName);
   bool disconnect_all();
