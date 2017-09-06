@@ -64,7 +64,7 @@ QuiddityContainer::QuiddityContainer(const std::string& name, BaseLogger* log)
 }
 
 QuiddityContainer::~QuiddityContainer() {
-  // TODO remove logger
+  // FIXME remove logger
   Quiddity::ptr logger;
   std::find_if(quiddities_.begin(),
                quiddities_.end(),
@@ -255,19 +255,16 @@ std::string QuiddityContainer::create(const std::string& quiddity_class,
   }
 
   // creation
-  Quiddity::ptr quiddity =
-      abstract_factory_.create(quiddity_class, QuiddityConfiguration(name, tree, get_log_ptr()));
+  Quiddity::ptr quiddity = abstract_factory_.create(
+      quiddity_class, QuiddityConfiguration(name, quiddity_class, tree, get_log_ptr()));
   if (!quiddity) {
     warning("abstract factory failed to create % (class %)", name, quiddity_class);
     return std::string();
   }
 
-  // TODO remove post creation initialisation, using the configuration
-  if (tree) quiddity->set_configuration(tree);
-  quiddity->set_name(name);
   name = quiddity->get_name();
 
-  // creation callback TODO invoke callback directly (async ?)
+  // creation callback FIXME invoke callback directly (async ?)
   if (!call_creation_cb) {
     if (!quiddity->init()) return std::string();
     quiddities_[name] = quiddity;

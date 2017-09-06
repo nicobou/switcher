@@ -85,12 +85,6 @@ class Quiddity : public Logged {
   bool set_nickname(const std::string& nickname);
   std::string get_nickname() const;
 
-  // FIXME name should be a ctor arg
-  bool set_name(const std::string& name);  // can be called once
-
-  // FIXME configuration should be a ctor arg
-  void set_configuration(InfoTree::ptr config);
-
   // properties
   Make_consultable(Quiddity, PContainer, &props_, prop);
 
@@ -228,8 +222,7 @@ class Quiddity : public Logged {
   bool toggle_property_saving(const std::string&);
 
   // used in order to dynamically create other quiddity, weak_ptr is used in
-  // order to
-  // avoid circular references to the manager_impl
+  // order to avoid circular references to the qcontainer
   std::weak_ptr<QuiddityContainer> qcontainer_{};
   std::string manager_name_{};  // FIXME ??
 };

@@ -69,6 +69,7 @@ Quiddity::Quiddity(QuiddityConfiguration&& conf)
       name_(string_to_quiddity_name(conf.name_)),
       nickname_(name_) {
   configuration_tree_->graft(".", InfoTree::make());
+  information_tree_->graft(".type", InfoTree::make(conf.type_));
 }
 
 Quiddity::~Quiddity() { std::lock_guard<std::mutex> lock(self_destruct_mtx_); }
@@ -77,16 +78,6 @@ std::string Quiddity::get_name() const { return name_; }
 
 std::string Quiddity::string_to_quiddity_name(const std::string& name) {
   return std::regex_replace(name, std::regex("[^[:alnum:]| ]"), "-");
-}
-
-bool Quiddity::set_name(const std::string& name) {
-  if (!name_.empty()) return false;
-
-  name_ = string_to_quiddity_name(name);
-  information_tree_->graft(
-      ".type", InfoTree::make(DocumentationRegistry::get()->get_quiddity_type_from_quiddity(name)));
-  nickname_ = name_;
-  return true;
 }
 
 bool Quiddity::has_method(const std::string& method_name) {
@@ -352,7 +343,6 @@ InfoTree::ptr Quiddity::user_data_prune_hook(const std::string& path) {
   return res;
 }
 
-void Quiddity::set_configuration(InfoTree::ptr config) { configuration_tree_ = config; }
 
 void Quiddity::self_destruct() {
   std::unique_lock<std::mutex> lock(self_destruct_mtx_);
