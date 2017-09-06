@@ -218,8 +218,7 @@ class Quiddity : public Logged {
 
   bool toggle_property_saving(const std::string&);
 
-  // used in order to dynamically create other quiddity, weak_ptr is used in
-  // order to avoid circular references to the qcontainer
+  // access to the quiddity Container
   QuiddityContainer* qcontainer_;
 };
 
