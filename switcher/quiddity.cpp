@@ -68,6 +68,7 @@ Quiddity::Quiddity(QuiddityConfiguration&& conf)
       methods_description_(std::make_shared<JSONBuilder>()),
       name_(string_to_quiddity_name(conf.name_)),
       nickname_(name_),
+      type_(conf.type_),
       qcontainer_(conf.qc_) {
   configuration_tree_->graft(".", InfoTree::make());
   information_tree_->graft(".type", InfoTree::make(conf.type_));
@@ -76,6 +77,8 @@ Quiddity::Quiddity(QuiddityConfiguration&& conf)
 Quiddity::~Quiddity() { std::lock_guard<std::mutex> lock(self_destruct_mtx_); }
 
 std::string Quiddity::get_name() const { return name_; }
+
+std::string Quiddity::get_type() const { return type_; }
 
 std::string Quiddity::string_to_quiddity_name(const std::string& name) {
   return std::regex_replace(name, std::regex("[^[:alnum:]| ]"), "-");

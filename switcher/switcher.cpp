@@ -212,8 +212,8 @@ InfoTree::ptr Switcher::get_state() const {
     // name and class
     if (quiddities_at_reset_.cend() ==
         std::find(quiddities_at_reset_.cbegin(), quiddities_at_reset_.cend(), quid_name)) {
-      auto quid_class = DocumentationRegistry::get()->get_quiddity_type_from_quiddity(quid_name);
-      tree->graft(".quiddities." + quid_name, InfoTree::make(quid_class));
+      tree->graft(".quiddities." + quid_name,
+                  InfoTree::make(qcontainer_->get_quiddity(quid_name)->get_type()));
     }
 
     // nicknames

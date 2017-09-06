@@ -54,7 +54,7 @@ bool Bundle::init() {
   auto spec = bundle::DescriptionParser(pipeline_, std::vector<std::string>());
   if (!spec) {
     g_warning("%s : error parsing the pipeline (%s)",
-              DocumentationRegistry::get()->get_quiddity_type_from_quiddity(get_name()).c_str(),
+              get_name().c_str(),
               spec.get_parsing_error().c_str());
     return false;
   }

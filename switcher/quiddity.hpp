@@ -81,6 +81,7 @@ class Quiddity : public Logged {
 
   // instance name
   std::string get_name() const;
+  std::string get_type() const;
   static std::string string_to_quiddity_name(const std::string& name);
   bool set_nickname(const std::string& nickname);
   std::string get_nickname() const;
@@ -164,6 +165,7 @@ class Quiddity : public Logged {
   // naming
   std::string name_;
   std::string nickname_;
+  std::string type_;
 
   // life management
   std::mutex self_destruct_mtx_{};

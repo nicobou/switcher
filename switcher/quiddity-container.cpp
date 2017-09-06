@@ -64,19 +64,7 @@ QuiddityContainer::QuiddityContainer(const std::string& name, BaseLogger* log)
 }
 
 QuiddityContainer::~QuiddityContainer() {
-  // FIXME remove logger
-  Quiddity::ptr logger;
-  std::find_if(quiddities_.begin(),
-               quiddities_.end(),
-               [&logger](const std::pair<std::string, std::shared_ptr<Quiddity>> quid) {
-                 if (DocumentationRegistry::get()->get_quiddity_type_from_quiddity(
-                         quid.second->get_name()) == "logger") {
-                   // We increment the logger ref count so it's not destroyed by clear().
-                   logger = quid.second;
-                   return true;
-                 }
-                 return false;
-               });
+  // FIXME remove this dtor (check member order)
   quiddities_.clear();
 }
 
@@ -274,9 +262,6 @@ std::string QuiddityContainer::create(const std::string& quiddity_class,
     }
   }
 
-  // register name/type in Documentation registry
-  DocumentationRegistry::get()->register_quiddity_type_from_quiddity(name, quiddity_class);
-
   return name;
 }
 
@@ -299,26 +284,20 @@ std::string QuiddityContainer::get_quiddities_description() {
   for (auto& it : quids) {
     std::shared_ptr<Quiddity> quid = get_quiddity(it);
     if (quid) {
-      auto name = quid->get_name();
+      std::string name = quid->get_name();
       subtree->graft(name + ".id", InfoTree::make(name));
-      // TODO get information from quiddity tree (key ".type") and remove
-      // get_quiddity_type_from_quiddity
-      subtree->graft(
-          name + ".class",
-          InfoTree::make(DocumentationRegistry::get()->get_quiddity_type_from_quiddity(name)));
+      subtree->graft(name + ".class", InfoTree::make(quid->get_type()));
     }
   }
   return JSONSerializer::serialize(tree.get());
 }
 
-std::string QuiddityContainer::get_quiddity_description(const std::string& nick_name) {
-  auto it = quiddities_.find(nick_name);
+std::string QuiddityContainer::get_quiddity_description(const std::string& name) {
+  auto it = quiddities_.find(name);
   if (quiddities_.end() == it) return JSONSerializer::serialize(InfoTree::make().get());
   auto tree = InfoTree::make();
-  tree->graft(".id", InfoTree::make(nick_name));
-  tree->graft(".class",
-              InfoTree::make(DocumentationRegistry::get()->get_quiddity_type_from_quiddity(
-                  it->second->get_name())));
+  tree->graft(".id", InfoTree::make(name));
+  tree->graft(".class", InfoTree::make(it->second->get_type()));
   return JSONSerializer::serialize(tree.get());
 }
 
