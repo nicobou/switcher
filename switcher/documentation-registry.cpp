@@ -29,14 +29,13 @@ bool DocumentationRegistry::register_doc(const std::string& quiddity_type,
   return true;
 }
 
-bool DocumentationRegistry::register_quiddity_type_from_class_name(
-    const std::string& class_name, const std::string& quiddity_type) {
+bool DocumentationRegistry::register_type_from_class_name(const std::string& class_name,
+                                                          const std::string& quiddity_type) {
   type_from_class_registry_.emplace(std::make_pair<>(class_name, quiddity_type));
   return true;
 }
 
-std::string DocumentationRegistry::get_quiddity_type_from_class_name(
-    const std::string& class_name) {
+std::string DocumentationRegistry::get_type_from_class_name(const std::string& class_name) {
   auto quiddity_type = type_from_class_registry_.find(class_name);
 
   if (quiddity_type != type_from_class_registry_.end()) return quiddity_type->second;

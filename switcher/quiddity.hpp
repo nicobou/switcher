@@ -230,21 +230,21 @@ class Quiddity : public Logged {
       class_name,                                                                             \
       QuiddityDocumentation(class_name, name, category, tags, description, license, author)); \
   bool cpp_quiddity_class##_class_registered =                                                \
-      DocumentationRegistry::get()->register_quiddity_type_from_class_name(                   \
+      DocumentationRegistry::get()->register_type_from_class_name(                            \
           std::string(#cpp_quiddity_class), class_name);
 
-#define SWITCHER_DECLARE_PLUGIN(cpp_quiddity_class)                                  \
-  extern "C" Quiddity* create(QuiddityConfiguration&& conf) {                        \
-    return new cpp_quiddity_class(std::forward<QuiddityConfiguration>(conf));        \
-  }                                                                                  \
-  extern "C" void destroy(Quiddity* quiddity) { delete quiddity; }                   \
-  extern "C" const char* get_quiddity_type() {                                       \
-    static char type[64];                                                            \
-    strcpy(type,                                                                     \
-           DocumentationRegistry::get()                                              \
-               ->get_quiddity_type_from_class_name(std::string(#cpp_quiddity_class)) \
-               .c_str());                                                            \
-    return static_cast<const char*>(type);                                           \
+#define SWITCHER_DECLARE_PLUGIN(cpp_quiddity_class)                           \
+  extern "C" Quiddity* create(QuiddityConfiguration&& conf) {                 \
+    return new cpp_quiddity_class(std::forward<QuiddityConfiguration>(conf)); \
+  }                                                                           \
+  extern "C" void destroy(Quiddity* quiddity) { delete quiddity; }            \
+  extern "C" const char* get_quiddity_type() {                                \
+    static char type[64];                                                     \
+    strcpy(type,                                                              \
+           DocumentationRegistry::get()                                       \
+               ->get_type_from_class_name(std::string(#cpp_quiddity_class))   \
+               .c_str());                                                     \
+    return static_cast<const char*>(type);                                    \
   }
 }  // namespace switcher
 #endif

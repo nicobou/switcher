@@ -124,35 +124,35 @@ std::string QuiddityContainer::get_name() const { return name_; }
 void QuiddityContainer::register_classes() {
   // registering quiddities
   abstract_factory_.register_class<AudioTestSource>(
-      DocumentationRegistry::get()->get_quiddity_type_from_class_name("AudioTestSource"));
+      DocumentationRegistry::get()->get_type_from_class_name("AudioTestSource"));
   abstract_factory_.register_class<DummySink>(
-      DocumentationRegistry::get()->get_quiddity_type_from_class_name("DummySink"));
+      DocumentationRegistry::get()->get_type_from_class_name("DummySink"));
   abstract_factory_.register_class<EmptyQuiddity>(
-      DocumentationRegistry::get()->get_quiddity_type_from_class_name("EmptyQuiddity"));
+      DocumentationRegistry::get()->get_type_from_class_name("EmptyQuiddity"));
   abstract_factory_.register_class<ExternalShmdataWriter>(
-      DocumentationRegistry::get()->get_quiddity_type_from_class_name("ExternalShmdataWriter"));
+      DocumentationRegistry::get()->get_type_from_class_name("ExternalShmdataWriter"));
   abstract_factory_.register_class<GstVideoConverter>(
-      DocumentationRegistry::get()->get_quiddity_type_from_class_name("GstVideoConverter"));
+      DocumentationRegistry::get()->get_type_from_class_name("GstVideoConverter"));
   abstract_factory_.register_class<GstVideoEncoder>(
-      DocumentationRegistry::get()->get_quiddity_type_from_class_name("GstVideoEncoder"));
+      DocumentationRegistry::get()->get_type_from_class_name("GstVideoEncoder"));
   abstract_factory_.register_class<GstAudioEncoder>(
-      DocumentationRegistry::get()->get_quiddity_type_from_class_name("GstAudioEncoder"));
+      DocumentationRegistry::get()->get_type_from_class_name("GstAudioEncoder"));
   abstract_factory_.register_class<GstDecodebin>(
-      DocumentationRegistry::get()->get_quiddity_type_from_class_name("GstDecodebin"));
+      DocumentationRegistry::get()->get_type_from_class_name("GstDecodebin"));
   abstract_factory_.register_class<HTTPSDPDec>(
-      DocumentationRegistry::get()->get_quiddity_type_from_class_name("HTTPSDPDec"));
+      DocumentationRegistry::get()->get_type_from_class_name("HTTPSDPDec"));
   abstract_factory_.register_class<PropertyMapper>(
-      DocumentationRegistry::get()->get_quiddity_type_from_class_name("PropertyMapper"));
+      DocumentationRegistry::get()->get_type_from_class_name("PropertyMapper"));
   abstract_factory_.register_class<RtpSession>(
-      DocumentationRegistry::get()->get_quiddity_type_from_class_name("RtpSession"));
+      DocumentationRegistry::get()->get_type_from_class_name("RtpSession"));
   abstract_factory_.register_class<ShmDelay>(
-      DocumentationRegistry::get()->get_quiddity_type_from_class_name("ShmDelay"));
+      DocumentationRegistry::get()->get_type_from_class_name("ShmDelay"));
   abstract_factory_.register_class<Timelapse>(
-      DocumentationRegistry::get()->get_quiddity_type_from_class_name("Timelapse"));
+      DocumentationRegistry::get()->get_type_from_class_name("Timelapse"));
   abstract_factory_.register_class<Uridecodebin>(
-      DocumentationRegistry::get()->get_quiddity_type_from_class_name("Uridecodebin"));
+      DocumentationRegistry::get()->get_type_from_class_name("Uridecodebin"));
   abstract_factory_.register_class<VideoTestSource>(
-      DocumentationRegistry::get()->get_quiddity_type_from_class_name("VideoTestSource"));
+      DocumentationRegistry::get()->get_type_from_class_name("VideoTestSource"));
 }
 
 std::vector<std::string> QuiddityContainer::get_classes() { return abstract_factory_.get_keys(); }
