@@ -52,7 +52,7 @@ BoolLog UGstElem::renew(UGstElem& element, const std::vector<std::string>& props
     element.register_notify_on_property_change(prop.first, prop.second);
   }
 
-  return BoolLog();
+  return BoolLog(true);
 }
 
 UGstElem::UGstElem(const gchar* class_name)
@@ -110,7 +110,7 @@ BoolLog UGstElem::register_notify_on_property_change(const std::string& gprop_na
   prop_notification.handler_id = handler_id;
   prop_notification.notification_cb = callback;
 
-  return BoolLog();
+  return BoolLog(true);
 }
 
 BoolLog UGstElem::unregister_notify_on_property_change(const std::string& gprop_name) {
@@ -123,6 +123,6 @@ BoolLog UGstElem::unregister_notify_on_property_change(const std::string& gprop_
   g_signal_handler_disconnect(G_OBJECT(element_->get()), notif->second.handler_id);
   property_notifications_.erase(notif);
 
-  return BoolLog();
+  return BoolLog(true);
 }
 }  // namespace switcher

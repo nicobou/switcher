@@ -43,7 +43,7 @@ bool GstUtils::link_static_to_request(GstElement* src, GstElement* sink) {
     if (GST_IS_PAD(src)) gst_object_unref(srcpad);
     if (GST_IS_PAD(sinkpad)) gst_object_unref(sinkpad);
   };
-  return (bool)GstUtils::check_pad_link_return(gst_pad_link(srcpad, sinkpad));
+  return GstUtils::check_pad_link_return(gst_pad_link(srcpad, sinkpad));
 }
 
 bool GstUtils::link_static_to_request(GstPad* srcpad, GstElement* sink) {
@@ -55,7 +55,7 @@ bool GstUtils::link_static_to_request(GstPad* srcpad, GstElement* sink) {
     if (GST_IS_PAD(sinkpad)) gst_object_unref(sinkpad);
   };
 
-  return (bool)GstUtils::check_pad_link_return(gst_pad_link(srcpad, sinkpad));
+  return GstUtils::check_pad_link_return(gst_pad_link(srcpad, sinkpad));
 }
 
 BoolLog GstUtils::check_pad_link_return(GstPadLinkReturn res) {
