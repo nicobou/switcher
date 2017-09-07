@@ -19,6 +19,8 @@
 
 #undef NDEBUG  // get assert in release mode
 
+#include <shmdata/console-logger.hpp>
+
 #include "switcher/quiddity-basic-test.hpp"
 #include "switcher/shmdata-follower.hpp"
 
@@ -79,7 +81,7 @@ int main() {
                           std::chrono::system_clock::now().time_since_epoch())
                           .count();
 
-    ShmdataGlibLogger logger{};
+    ::shmdata::ConsoleLogger logger;
     auto reader = std::make_unique<shmdata::Reader>(
         "/tmp/switcher_shmdelaytest_shmdelaytest_delayed-shm",
         [&start_time](void*, size_t data_size) {

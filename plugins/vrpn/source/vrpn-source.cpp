@@ -226,11 +226,11 @@ void VRPNSource::loop() {
 #ifdef DEBUG
   // Whatever that means
   if (!connection_->raw()->doing_okay()) {
-    g_debug("VRPN source connection is not doing okay.");
+    debug("VRPN source connection is not doing okay.");
   }
 
   if (!connection_->raw()->connected()) {
-    g_debug("VRPN source disconnected.");
+    debug("VRPN source disconnected.");
   }
 #endif
 
@@ -452,18 +452,18 @@ int VRPNSource::handleMessage(void* userData, vrpn_HANDLERPARAM p) {
 
   // DEBUG
   if (context->debug_) {
-    g_debug("VRPNSource >>> Sender: %s Type: %s Length: %lu Payload: %d",
-            senderName.c_str(),
-            typeName.c_str(),
-            buffer.size(),
-            p.payload_len);
+    context->debug("VRPNSource >>> Sender: % Type: % Length: % Payload: %",
+                   senderName,
+                   typeName,
+                   std::to_string(buffer.size()),
+                   std::to_string(p.payload_len));
 
     std::stringstream ss;
     ss << "VRPNSource >>> ";
     for (auto const& value : buffer) {
       ss << std::hex << std::setfill('0') << std::setw(2) << (int)value << " ";
     }
-    g_debug("%s", ss.str().c_str());
+    context->debug("%", ss.str());
   }
 
   // WRITE TO SHMDATA

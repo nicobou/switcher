@@ -17,30 +17,29 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "./rtp-session2.hpp"
+#ifndef __SWITCHER_SHMDATA_SWITCHER_LOGGER_H__
+#define __SWITCHER_SHMDATA_SWITCHER_LOGGER_H__
+
+#include "./base-logger.hpp"
+#include "shmdata/abstract-logger.hpp"
 
 namespace switcher {
 
-RtpSession2::RtpSession2()
-    : gst_pipeline_(std::make_unique<GstPipeliner>(nullptr, nullptr)),
-      rtpsession_(GstUtils::make_element("rtpbin", nullptr)) {
-  if (!gst_pipeline_ || !rtpsession_) {
-    if (rtpsession_) gst_object_unref(rtpsession_);
-    return;
-  }
-  g_object_set(G_OBJECT(rtpsession_),
-               //"ntp-sync", TRUE,
-               "async-handling",
-               TRUE,
-               "latency",
-               70,
-               "drop-on-latency",
-               TRUE,
-               //"do-lost", TRUE,
-               nullptr);
-  gst_bin_add(GST_BIN(gst_pipeline_->get_pipeline()), rtpsession_);
-  g_object_set(G_OBJECT(gst_pipeline_->get_pipeline()), "async-handling", TRUE, nullptr);
-  gst_pipeline_->play(true);
-}
+class ShmdataSwitcherLogger : public shmdata::AbstractLogger {
+ public:
+  ShmdataSwitcherLogger() = delete;
+  ShmdataSwitcherLogger(BaseLogger* log) : log_(log) {}
+
+ private:
+  void on_error(std::string&& str) final { log_->warning("ERROR: %", str); }
+  void on_critical(std::string&& str) final { log_->critical("%", str); }
+  void on_warning(std::string&& str) final { log_->warning("%", str); }
+  void on_message(std::string&& str) final { log_->message("%", str); }
+  void on_info(std::string&& str) final { log_->info("%", str); }
+  void on_debug(std::string&& str) final { log_->debug("%", str); }
+
+  BaseLogger* log_;
+};
 
 }  // namespace switcher
+#endif

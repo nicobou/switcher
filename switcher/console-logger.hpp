@@ -12,8 +12,8 @@
  * GNU Lesser General Public License for more details.
  */
 
-#ifndef _CONSOLE_LOGGER_H_
-#define _CONSOLE_LOGGER_H_
+#ifndef _SWITCHER_CONSOLE_LOGGER_H_
+#define _SWITCHER_CONSOLE_LOGGER_H_
 
 #include <iostream>
 #include "./base-logger.hpp"

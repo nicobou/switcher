@@ -17,23 +17,24 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef __SWITCHER_SHMDATA_GLIB_LOGGER_H__
-#define __SWITCHER_SHMDATA_GLIB_LOGGER_H__
+#ifndef __SWITCHER_BOOL_LOG_H__
+#define __SWITCHER_BOOL_LOG_H__
 
-#include <glib.h>
-#include "shmdata/abstract-logger.hpp"
+#include <string>
 
 namespace switcher {
+class BoolLog {
+ public:
+  BoolLog() = delete;
+  BoolLog(bool is_valid) : is_valid_(is_valid), msg_() {}
+  BoolLog(bool is_valid, const std::string& msg) : is_valid_(is_valid), msg_(msg) {}
+  operator bool() const { return is_valid_; };
+  std::string msg() const { return msg_; }
 
-class ShmdataGlibLogger : public shmdata::AbstractLogger {
  private:
-  void on_error(std::string&& str) final { g_warning("ERROR: %s", str.c_str()); }
-  void on_critical(std::string&& str) final { g_critical("%s", str.c_str()); }
-  void on_warning(std::string&& str) final { g_warning("%s", str.c_str()); }
-  void on_message(std::string&& str) final { g_message("%s", str.c_str()); }
-  void on_info(std::string&& str) final { g_info("%s", str.c_str()); }
-  void on_debug(std::string&& str) final { g_debug("%s", str.c_str()); }
+  bool is_valid_;
+  std::string msg_;
 };
-
 }  // namespace switcher
+
 #endif

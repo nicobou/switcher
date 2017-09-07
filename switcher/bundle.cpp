@@ -45,16 +45,14 @@ Bundle::Bundle(QuiddityConfiguration&& conf)
   manager_->qcontainer_->configurations_ = qcontainer_->configurations_;
 
   if (!config<MPtr(&InfoTree::branch_has_data)>("pipeline")) {
-    g_warning("bundle description is missing the pipeline description");
+    warning("bundle description is missing the pipeline description");
     is_valid_ = false;
     return;
   }
   pipeline_ = config<MPtr(&InfoTree::branch_get_value)>("pipeline").copy_as<std::string>();
   auto spec = bundle::DescriptionParser(pipeline_, std::vector<std::string>());
   if (!spec) {
-    g_warning("%s : error parsing the pipeline (%s)",
-              get_name().c_str(),
-              spec.get_parsing_error().c_str());
+    warning("% : error parsing the pipeline (s)", get_name(), spec.get_parsing_error());
     is_valid_ = false;
     return;
   }
@@ -122,20 +120,17 @@ bool Bundle::make_quiddities(const std::vector<bundle::quiddity_spec_t>& quids) 
     name = manager_->create(quid.type, quid.name);
 
     if (name.empty()) {
-      g_warning("internal manager failed to instantiate a quiddity of type %s", quid.type.c_str());
+      warning("internal manager failed to instantiate a quiddity of type %", quid.type);
       return false;
     }
     for (auto& param : quid.params) {
       if (param.first == "started") {
-        g_warning("ignoring started property when building bundle");
+        warning("ignoring started property when building bundle");
         continue;
       }
       if (!param.second.empty() &&
           !manager_->use_prop<MPtr(&PContainer::set_str_str)>(name, param.first, param.second)) {
-        g_warning("fail to set property %s to %s for quiddity %s",
-                  param.first.c_str(),
-                  param.second.c_str(),
-                  name.c_str());
+        warning("fail to set property % to % for quiddity %", param.first, param.second, name);
         return false;
       }
     }  // quiddity is created
@@ -185,9 +180,9 @@ bool Bundle::make_quiddities(const std::vector<bundle::quiddity_spec_t>& quids) 
 
     quiddity_removal_cb_ids_.push_back(
         manager_->register_removal_cb([this](const std::string& quid_name) {
-          g_debug("The bundle %s was destroyed because one of its quiddities (%s) was destroyed",
-                  name_.c_str(),
-                  quid_name.c_str());
+          debug("The bundle % was destroyed because one of its quiddities (%) was destroyed",
+                name_,
+                quid_name);
           // We only self destruct it once so we unregister all the removal callbacks.
           manager_->reset_create_remove_cb();
           self_destruct();
@@ -211,14 +206,16 @@ void Bundle::on_tree_grafted(const std::string& key, void* user_data) {
         for (auto& it : context->quid_spec_.connects_to_) {
           if (!context->self_->manager_->qcontainer_->get_quiddity(it)->invoke_method(
                   "can-sink-caps", nullptr, {caps})) {
-            g_message("ERROR: bundle specification error: %s cannot connect with %s (caps is %s)",
-                      context->quid_spec_.name.c_str(),
-                      it.c_str(),
-                      caps.c_str());
-            g_warning("ERROR: bundle specification error: %s cannot connect with %s (caps is %s)",
-                      context->quid_spec_.name.c_str(),
-                      it.c_str(),
-                      caps.c_str());
+            context->self_->message(
+                "ERROR: bundle specification error: % cannot connect with % (caps is %)",
+                context->quid_spec_.name,
+                it,
+                caps);
+            context->self_->warning(
+                "ERROR: bundle specification error: % cannot connect with % (caps is %)",
+                context->quid_spec_.name,
+                it,
+                caps);
             continue;
           }
           context->self_->manager_->qcontainer_->get_quiddity(it)->invoke_method(
@@ -316,10 +313,11 @@ void Bundle::on_tree_pruned(const std::string& key, void* user_data) {
       if (!context->self_->pmanage<MPtr(&PContainer::remove)>(
               context->self_->pmanage<MPtr(&PContainer::get_id)>(context->quid_name_ + "/" +
                                                                  prop_name))) {
-        g_warning("BUG removing property (%s) deleted from a quiddity (%s) in a bundle (%s)",
-                  prop_name.c_str(),
-                  context->quid_name_.c_str(),
-                  context->self_->get_name().c_str());
+        context->self_->warning(
+            "BUG removing property (%) deleted from a quiddity (%) in a bundle (%)",
+            prop_name,
+            context->quid_name_,
+            context->self_->get_name());
       }
     }
     static std::regex prop_rename("\\.?property\\.");
@@ -374,7 +372,7 @@ bool Bundle::start() {
   for (auto& it : start_quids_) {
     if (!manager_->qcontainer_->get_quiddity(it)->prop<MPtr(&PContainer::set_str_str)>("started",
                                                                                        "true")) {
-      g_warning("fail to set start %s", it.c_str());
+      warning("fail to set start %", it);
       return false;
     }
   }
@@ -385,7 +383,7 @@ bool Bundle::stop() {
   for (auto& it : start_quids_) {
     if (!manager_->qcontainer_->get_quiddity(it)->prop<MPtr(&PContainer::set_str_str)>("started",
                                                                                        "false")) {
-      g_warning("fail to set start %s", it.c_str());
+      warning("fail to set start %", it);
       return false;
     }
   }

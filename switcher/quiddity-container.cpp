@@ -413,7 +413,11 @@ void QuiddityContainer::reset_create_remove_cb() {
 
 bool QuiddityContainer::load_plugin(const char* filename) {
   PluginLoader::ptr plugin = std::make_shared<PluginLoader>();
-  if (!plugin->load(filename)) return false;
+  auto loaded = plugin->load(filename);
+  if (!loaded) {
+    warning("%", loaded.msg());
+    return false;
+  }
   std::string class_name = plugin->get_class_name();
   // close the old one if exists
   auto it = plugins_.find(class_name);

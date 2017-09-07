@@ -76,7 +76,7 @@ V4L2Src::V4L2Src(QuiddityConfiguration&& conf)
   update_capture_device();
 
   if (capture_devices_.empty()) {
-    g_message("ERROR:No video4linux device detected.");
+    message("ERROR:No video4linux device detected.");
     is_valid_ = false;
     return;
   }
@@ -116,7 +116,7 @@ bool V4L2Src::fetch_available_resolutions() {
   const char* file_path = description.absolute_path_.c_str();
   int fd = open(file_path, O_RDONLY);
   if (fd < 0) {
-    g_debug("V4L2Src: Could not open device %s", file_path);
+    debug("V4L2Src: Could not open device %", std::string(file_path));
     return false;
   }
 
@@ -171,7 +171,7 @@ bool V4L2Src::fetch_available_frame_intervals() {
   const char* file_path = description.absolute_path_.c_str();
   int fd = open(file_path, O_RDONLY);
   if (fd < 0) {
-    g_debug("V4L2Src: Could not open device %s", file_path);
+    debug("V4L2Src: Could not open device %", std::string(file_path));
     return false;
   }
 
@@ -342,7 +342,7 @@ void V4L2Src::update_pixel_format() {
       [this](const IndexOrName& val) {
         pixel_format_enum_.select(val);
         set_shm_suffix();
-        g_debug("pix selected");
+        debug("pix selected");
         fetch_available_resolutions();
         update_discrete_resolution();
         update_width_height();
@@ -492,12 +492,12 @@ void V4L2Src::update_tv_standard() {
 
 bool V4L2Src::remake_elements() {
   if (capture_devices_.empty()) {
-    g_debug("V4L2Src: no capture device available for starting capture");
+    debug("V4L2Src: no capture device available for starting capture");
     return false;
   }
   if (!UGstElem::renew(v4l2src_, {"device", "norm", "io-mode"}) || !UGstElem::renew(videorate_) ||
       !UGstElem::renew(capsfilter_, {"caps"}) || !UGstElem::renew(shmsink_, {"socket-path"})) {
-    g_warning("V4L2Src: issue when with elements for video capture");
+    warning("V4L2Src: issue when with elements for video capture");
     return false;
   }
   return true;
@@ -517,7 +517,7 @@ void V4L2Src::set_device_id(const std::string& file_path, const std::string& id)
   int fd = open(file_path.c_str(), O_RDONLY);
   if (fd < 0) {
     int err = errno;
-    g_warning("v4l2Src: error while trying to set device id (%s)", strerror(err));
+    warning("v4l2Src: error while trying to set device id (%)", std::string(strerror(err)));
     return;
   }
   On_scope_exit { close(fd); };
@@ -525,7 +525,7 @@ void V4L2Src::set_device_id(const std::string& file_path, const std::string& id)
   struct v4l2_capability vcap;
   if (-1 == ioctl(fd, VIDIOC_QUERYCAP, &vcap)) {
     int err = errno;
-    g_warning("error while trying to get video capture device id (%s)", strerror(err));
+    warning("error while trying to get video capture device id (%)", std::string(strerror(err)));
     return;
   }
   const auto bus_info = std::string((char*)vcap.bus_info);
@@ -534,10 +534,10 @@ void V4L2Src::set_device_id(const std::string& file_path, const std::string& id)
         return bus_info == desc.bus_info_;
       });
   if (capture_devices_.end() == it) {
-    g_warning(
-        "BUG: trying to set device id, the device at %s seems to be a video device, but not listed "
+    warning(
+        "BUG: trying to set device id, the device at % seems to be a video device, but not listed "
         "internally",
-        file_path.c_str());
+        file_path);
     return;
   }
   it->device_id_ = id;
@@ -546,7 +546,7 @@ void V4L2Src::set_device_id(const std::string& file_path, const std::string& id)
 bool V4L2Src::inspect_file_device(const std::string& file_path) {
   int fd = open(file_path.c_str(), O_RDONLY);
   if (fd < 0) {
-    g_debug("V4L2Src: inspecting file gets negative file descriptor");
+    debug("V4L2Src: inspecting file gets negative file descriptor");
     return false;
   }
   On_scope_exit { close(fd); };
@@ -556,7 +556,7 @@ bool V4L2Src::inspect_file_device(const std::string& file_path) {
   struct v4l2_capability vcap;
   if (-1 == ioctl(fd, VIDIOC_QUERYCAP, &vcap)) {
     int err = errno;
-    g_warning("error while trying to get video capture device id (%s)", strerror(err));
+    warning("error while trying to get video capture device id (%)", std::string(strerror(err)));
     return false;
   }
   description.file_device_ = file_path;
@@ -590,15 +590,14 @@ bool V4L2Src::inspect_file_device(const std::string& file_path) {
         description.pixel_formats_.push_back(
             std::make_tuple(fmt.pixelformat, tmp, reinterpret_cast<const char*>(fmt.description)));
       } else {
-        g_warning("v4l2: pixel format %s not suported",
-                  pixel_format_to_string(fmt.pixelformat).c_str());
+        warning("v4l2: pixel format % not suported", pixel_format_to_string(fmt.pixelformat));
       }
     }
     fmt.index++;
   }
 
   if (default_pixel_format == 0) {
-    g_debug("no default pixel format found for %s, returning", file_path.c_str());
+    debug("no default pixel format found for %, returning", file_path);
     return false;
   }
 
@@ -608,7 +607,6 @@ bool V4L2Src::inspect_file_device(const std::string& file_path) {
   description.tv_standards_.push_back("none");
   while (ioctl(fd, VIDIOC_ENUMSTD, &std) >= 0) {
     description.tv_standards_.push_back((char*)std.name);
-    // g_print ("TV standard %s\n", (char *)std.name);
     std.index++;
   }
 
@@ -619,6 +617,7 @@ bool V4L2Src::inspect_file_device(const std::string& file_path) {
 
 std::vector<std::string> V4L2Src::get_file_names_with_prefix(const std::string& dir_path,
                                                              const std::string& prefix) {
+  // FIXME move this to a file utils and reimplement without glib
   std::vector<std::string> res;
   GFile* inspected_dir = g_file_new_for_commandline_arg(dir_path.c_str());
   On_scope_exit { g_object_unref(inspected_dir); };
@@ -648,11 +647,8 @@ std::vector<std::string> V4L2Src::get_file_names_with_prefix(const std::string& 
     error = nullptr;
     info = g_file_enumerator_next_file(enumerator, nullptr, &error);
   }
-  if (error != nullptr) g_debug("error not nullptr");
   error = nullptr;
-  if (g_file_enumerator_close(enumerator, nullptr, &error) != TRUE)
-    g_debug("V4L2Src: file enumerator not properly closed");
-  if (error != nullptr) g_debug("V4L2Src: error not nullptr");
+  g_file_enumerator_close(enumerator, nullptr, &error);
   return res;
 }
 
@@ -750,7 +746,7 @@ bool V4L2Src::stop() {
 
 bool V4L2Src::configure_capture() {
   if (capture_devices_.empty()) {
-    g_debug("V4L2Src:: no capture device available for starting capture");
+    debug("V4L2Src:: no capture device available for starting capture");
     return false;
   }
   g_object_set(
@@ -789,7 +785,7 @@ bool V4L2Src::configure_capture() {
     caps = caps + ", framerate=(fraction)" + std::to_string(custom_framerate_.numerator()) + "/" +
            std::to_string(custom_framerate_.denominator());
   }
-  g_debug("caps for v4l2src %s", caps.c_str());
+  debug("caps for v4l2src %", caps);
   GstCaps* usercaps = gst_caps_from_string(caps.c_str());
   g_object_set(G_OBJECT(capsfilter_.get_raw()), "caps", usercaps, nullptr);
   gst_caps_unref(usercaps);
@@ -980,7 +976,7 @@ InfoTree::ptr V4L2Src::on_saving() {
 
 void V4L2Src::on_loading(InfoTree::ptr&& tree) {
   if (!tree || tree->empty()) {
-    g_warning("loading deprecated v4l2src device save: devices may swap");
+    warning("loading deprecated v4l2src device save: devices may swap");
     return;
   }
   std::string device_id = tree->branch_read_data<std::string>(".device_id");
@@ -993,7 +989,7 @@ void V4L2Src::on_loading(InfoTree::ptr&& tree) {
           return capt.bus_info_ == bus_id;
         });
     if (capture_devices_.end() == it)
-      g_warning("v4l2src; device not found at this port %s", bus_id.c_str());
+      warning("v4l2src; device not found at this port %", bus_id);
     else
       pmanage<MPtr(&PContainer::set<IndexOrName>)>(devices_id_,
                                                    IndexOrName(it - capture_devices_.begin()));
@@ -1003,7 +999,7 @@ void V4L2Src::on_loading(InfoTree::ptr&& tree) {
           return capt.device_id_ == device_id;
         });
     if (capture_devices_.end() == it)
-      g_warning("v4l2src; device not found (%s)", device_id.c_str());
+      warning("v4l2src; device not found (%)", device_id);
     else
       pmanage<MPtr(&PContainer::set<IndexOrName>)>(devices_id_,
                                                    IndexOrName(it - capture_devices_.begin()));

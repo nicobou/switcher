@@ -148,9 +148,9 @@ set(HEADER_INCLUDES
     serialize-string.hpp
     shm-delay.hpp
     shmdata-connector.hpp
-    shmdata-glib-logger.hpp
     shmdata-follower.hpp
     shmdata-stat.hpp
+    shmdata-switcher-logger.hpp
     shmdata-utils.hpp
     shmdata-writer.hpp
     sig.hpp
