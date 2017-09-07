@@ -49,7 +49,7 @@ PJCall::PJCall() {
   pj_status_t status;
   local_ips_ = NetUtils::get_ips();
   for (auto& it : local_ips_)
-    g_debug("local ip found %s for interface %s", it.first.c_str(), it.second.c_str());
+    SIPPlugin::this_->debug("local ip found % for interface %", it.first, it.second);
   for (auto& it : local_ips_) {
     if (0 != std::string(it.second, 0, 4).compare("127.")) pj_cstr(&local_addr_, it.second.c_str());
   }
@@ -166,10 +166,9 @@ pj_bool_t PJCall::on_rx_request(pjsip_rx_data* rdata) {
 }
 
 void PJCall::on_inv_state_disconnected(call_t* call, pjsip_inv_session* inv, pjsua_buddy_id id) {
-  g_debug("Call disconnected. Reason=%d (%.*s)",
-          inv->cause,
-          static_cast<int>(inv->cause_text.slen),
-          inv->cause_text.ptr);
+  SIPPlugin::this_->debug("Call disconnected. Reason=% (%)",
+                          std::to_string(inv->cause),
+                          std::string(inv->cause_text.ptr, static_cast<int>(inv->cause_text.slen)));
   if (!release_outgoing_call(call, id)) release_incoming_call(call, id);
 }
 
@@ -244,7 +243,7 @@ bool PJCall::release_outgoing_call(call_t* call, pjsua_buddy_id id) {
 }
 
 void PJCall::on_inv_state_confirmed(call_t* call, pjsip_inv_session* /*inv*/, pjsua_buddy_id id) {
-  g_debug("Call connected");
+  SIPPlugin::this_->debug("Call connected");
   // updating call status in the tree
   InfoTree::ptr tree =
       SIPPlugin::this_->prune_tree(std::string(".buddies." + std::to_string(id)),
@@ -338,32 +337,32 @@ void PJCall::call_on_state_changed(pjsip_inv_session* inv, pjsip_event* /*e*/) {
   }
   switch (inv->state) {
     case PJSIP_INV_STATE_DISCONNECTED:
-      g_debug("PJSIP_INV_STATE_DISCONNECTED");
+      SIPPlugin::this_->debug("PJSIP_INV_STATE_DISCONNECTED");
       PJCall::on_inv_state_disconnected(call, inv, id);
       break;
     case PJSIP_INV_STATE_CONFIRMED:
-      g_debug("PJSIP_INV_STATE_CONFIRMED");
+      SIPPlugin::this_->debug("PJSIP_INV_STATE_CONFIRMED");
       PJCall::on_inv_state_confirmed(call, inv, id);
       break;
     case PJSIP_INV_STATE_EARLY:
-      g_debug("PJSIP_INV_STATE_EARLY");
+      SIPPlugin::this_->debug("PJSIP_INV_STATE_EARLY");
       PJCall::on_inv_state_early(call, inv, id);
       break;
     case PJSIP_INV_STATE_CONNECTING:
-      g_debug("PJSIP_INV_STATE_CONNECTING");
+      SIPPlugin::this_->debug("PJSIP_INV_STATE_CONNECTING");
       PJCall::on_inv_state_connecting(call, inv, id);
       break;
     case PJSIP_INV_STATE_NULL:
-      g_debug("PJSIP_INV_STATE_NULL");
+      SIPPlugin::this_->debug("PJSIP_INV_STATE_NULL");
       break;
     case PJSIP_INV_STATE_CALLING:
-      g_debug("PJSIP_INV_STATE_CALLING");
+      SIPPlugin::this_->debug("PJSIP_INV_STATE_CALLING");
       break;
     case PJSIP_INV_STATE_INCOMING:
-      g_debug("PJSIP_INV_STATE_INCOMING");
+      SIPPlugin::this_->debug("PJSIP_INV_STATE_INCOMING");
       break;
     default:
-      g_debug("%s, unhandled invite state", __FUNCTION__);
+      SIPPlugin::this_->debug("%s, unhandled invite state", __FUNCTION__);
       break;
   }
 }
@@ -393,8 +392,9 @@ void PJCall::call_on_media_update(pjsip_inv_session* inv, pj_status_t status) {
   // sending streams
   for (uint i = 0; i < call->media.size(); i++) {
     if (PJCallUtils::is_send_media(local_sdp->media[i])) {
-      g_debug("sending data to %s",
-              std::string(remote_sdp->origin.addr.ptr, remote_sdp->origin.addr.slen).c_str());
+      SIPPlugin::this_->debug(
+          "sending data to %",
+          std::string(remote_sdp->origin.addr.ptr, remote_sdp->origin.addr.slen));
       auto it = SIPPlugin::this_->sip_calls_->readers_.find(call->media[i].shm_path_to_send);
       if (it == SIPPlugin::this_->sip_calls_->readers_.end()) {
         g_warning("no GstShmdataToCb found for sending %s (PJCall)",
@@ -412,7 +412,7 @@ void PJCall::call_on_media_update(pjsip_inv_session* inv, pj_status_t status) {
           SIPPlugin::this_->pjsip_->run([&]() {
             if (!call->ice_trans_send_->sendto(
                     comp_id, data, size, def_addr, pj_sockaddr_get_len(def_addr))) {
-              g_debug("issue sending data with ICE");
+              SIPPlugin::this_->debug("issue sending data with ICE");
             }
           });
         });
@@ -426,7 +426,7 @@ void PJCall::process_incoming_call(pjsip_rx_data* rdata) {
   std::lock_guard<std::mutex> lock(SIPPlugin::this_->sip_calls_->finalize_incoming_calls_m_);
   if (!SIPPlugin::this_ || !SIPPlugin::this_->sip_calls_.get() ||
       !SIPPlugin::this_->sip_calls_->can_create_calls_) {
-    g_warning("Trying to initiate a call after all calls are hung out.");
+    SIPPlugin::this_->warning("Trying to initiate a call after all calls are hung out.");
     return;
   }
 
@@ -434,7 +434,7 @@ void PJCall::process_incoming_call(pjsip_rx_data* rdata) {
   char uristr[PJSIP_MAX_URL_SIZE];
   int len = pjsip_uri_print(
       PJSIP_URI_IN_REQ_URI, rdata->msg_info.msg->line.req.uri, uristr, sizeof(uristr));
-  g_debug("incomimg call from %.*s", len, uristr);
+  SIPPlugin::this_->debug("incomimg call from %", std::string(uristr, len));
   len = pjsip_uri_print(PJSIP_URI_IN_FROMTO_HDR,
                         pjsip_uri_get_uri(rdata->msg_info.from->uri),
                         uristr,
@@ -446,8 +446,8 @@ void PJCall::process_incoming_call(pjsip_rx_data* rdata) {
   StringUtils::tolower(peer_uri_lower_case);
   if (!SIPPlugin::this_->white_list_->is_authorized(peer_uri) &&
       !SIPPlugin::this_->white_list_->is_authorized(peer_uri_lower_case)) {
-    g_message("ERROR:call refused from %s", peer_uri.c_str());
-    g_debug("call refused from %s", peer_uri.c_str());
+    SIPPlugin::this_->message("ERROR:call refused from %", peer_uri);
+    SIPPlugin::this_->debug("call refused from %", peer_uri);
     pjsip_endpt_respond_stateless(
         PJSIP::this_->sip_endpt_, rdata, PJSIP_SC_BUSY_HERE, nullptr, nullptr, nullptr);
     return;
@@ -636,7 +636,7 @@ void PJCall::process_incoming_call(pjsip_rx_data* rdata) {
   // Create UAS invite session
   status = pjsip_inv_create_uas(dlg, rdata, sdp, 0, &call->inv);
   if (status != PJ_SUCCESS) {
-    g_debug("error creating uas");
+    SIPPlugin::this_->debug("error creating uas");
     pjsip_dlg_create_response(dlg, rdata, 500, nullptr, &tdata);
     pjsip_dlg_send_response(dlg, pjsip_rdata_get_tsx(rdata), tdata);
     return;
@@ -736,7 +736,7 @@ void PJCall::print_sdp(const pjmedia_sdp_session* local_sdp) {
     return;
   }
   sdpbuf1[len1] = '\0';
-  g_debug("sdp : \n%s \n ", sdpbuf1);
+  SIPPlugin::this_->debug("sdp : \n% \n ", std::string(sdpbuf1));
 }
 
 bool PJCall::make_call(std::string dst_uri) {
@@ -755,8 +755,8 @@ bool PJCall::make_call(std::string dst_uri) {
   auto& sip_local_user = SIPPlugin::this_->sip_presence_->sip_local_user_;
   if (std::string("sip:") + dst_uri ==
       std::string(sip_local_user, 0, sip_local_user.find_last_of(':'))) {
-    g_message("ERROR:cannot self call");
-    g_warning("cannot self call");
+    SIPPlugin::this_->message("ERROR:cannot self call");
+    SIPPlugin::this_->warning("cannot self call");
     return false;
   }
 
@@ -951,7 +951,7 @@ gboolean PJCall::send_to(gchar* sip_url, void* user_data) {
   {
     std::unique_lock<std::mutex> lock(context->call_m_, std::defer_lock);
     if (!lock.try_lock()) {
-      g_debug("cancel SIP send_to because an operation is already pending");
+      SIPPlugin::this_->debug("cancel SIP send_to because an operation is already pending");
       return FALSE;
     }
     context->is_calling_ = true;
@@ -980,7 +980,7 @@ gboolean PJCall::hang_up(const gchar* sip_url, void* user_data) {
     PJCall* context = static_cast<PJCall*>(user_data);
     std::unique_lock<std::mutex> lock(context->call_m_, std::defer_lock);
     if (!lock.try_lock()) {
-      g_debug("cancel SIP hang_up because an operation is already pending");
+      SIPPlugin::this_->debug("cancel SIP hang_up because an operation is already pending");
       return FALSE;
     }
     context->is_hanging_up_ = true;
@@ -1061,8 +1061,8 @@ void PJCall::make_attach_shmdata_to_contact(const std::string& shmpath,
   auto& sip_local_user = SIPPlugin::this_->sip_presence_->sip_local_user_;
   if (std::string("sip:") + contact_uri ==
       std::string(sip_local_user, 0, sip_local_user.find_last_of(':'))) {
-    g_message("ERROR:cannot attach shmdata to self");
-    g_warning("cannot attach shmdata to self");
+    SIPPlugin::this_->message("ERROR:cannot attach shmdata to self");
+    SIPPlugin::this_->warning("cannot attach shmdata to self");
     return;
   }
 
@@ -1118,11 +1118,12 @@ bool PJCall::negotiate_ice(PJICEStreamTrans* ice_trans,
   pjmedia_sdp_attr* ufrag =
       pjmedia_sdp_attr_find2(remote_sdp->attr_count, remote_sdp->attr, "ice-ufrag", nullptr);
   if (nullptr == ufrag) return false;
-  g_debug("ICE ufrag received: %s", std::string(ufrag->value.ptr, 0, ufrag->value.slen).c_str());
+  SIPPlugin::this_->debug("ICE ufrag received: %",
+                          std::string(ufrag->value.ptr, 0, ufrag->value.slen));
   pjmedia_sdp_attr* pwd =
       pjmedia_sdp_attr_find2(remote_sdp->attr_count, remote_sdp->attr, "ice-pwd", nullptr);
   if (nullptr == pwd) return false;
-  g_debug("ICE pwd received: %s", std::string(pwd->value.ptr, 0, pwd->value.slen).c_str());
+  SIPPlugin::this_->debug("ICE pwd received: %", std::string(pwd->value.ptr, 0, pwd->value.slen));
   // candidates
   unsigned cand_cnt = 0;
   pj_ice_sess_cand candidates[PJ_ICE_ST_MAX_CAND];
@@ -1136,11 +1137,10 @@ bool PJCall::negotiate_ice(PJICEStreamTrans* ice_trans,
         pj_ice_sess_cand* cand = &candidates[cand_cnt];
         pj_bzero(cand, sizeof(pj_ice_sess_cand));
         ++cand_cnt;
-        g_debug("ICE candidate received: %s",
-                std::string(remote_sdp->media[i]->attr[j]->value.ptr,
-                            0,
-                            remote_sdp->media[i]->attr[j]->value.slen)
-                    .c_str());
+        SIPPlugin::this_->debug("ICE candidate received: %",
+                                std::string(remote_sdp->media[i]->attr[j]->value.ptr,
+                                            0,
+                                            remote_sdp->media[i]->attr[j]->value.slen));
         int af;
         char foundation[32], transport[12], ipaddr[80], type[32];
         pj_str_t tmpaddr;
@@ -1158,7 +1158,7 @@ bool PJCall::negotiate_ice(PJICEStreamTrans* ice_trans,
                          &port,
                          type);
         if (cnt != 7) {
-          g_warning("error: Invalid ICE candidate line");
+          SIPPlugin::this_->warning("error: Invalid ICE candidate line");
           return false;
         }
         if (strcmp(type, "host") == 0)
@@ -1168,7 +1168,7 @@ bool PJCall::negotiate_ice(PJICEStreamTrans* ice_trans,
         else if (strcmp(type, "relay") == 0)
           cand->type = PJ_ICE_CAND_TYPE_RELAYED;
         else {
-          g_warning("Error: invalid candidate type '%s'", type);
+          SIPPlugin::this_->warning("Error: invalid candidate type '%'", std::string(type));
           return false;
         }
         cand->comp_id = (pj_uint8_t)comp_id;
@@ -1181,7 +1181,7 @@ bool PJCall::negotiate_ice(PJICEStreamTrans* ice_trans,
         tmpaddr = pj_str(ipaddr);
         pj_sockaddr_init(af, &cand->addr, NULL, 0);
         if (PJ_SUCCESS != pj_sockaddr_set_str_addr(af, &cand->addr, &tmpaddr)) {
-          g_warning("Error: invalid IP address '%s'", ipaddr);
+          SIPPlugin::this_->warning("Error: invalid IP address '%'", std::string(ipaddr));
         }
         pj_sockaddr_set_port(&cand->addr, (pj_uint16_t)port);
       }
@@ -1190,7 +1190,7 @@ bool PJCall::negotiate_ice(PJICEStreamTrans* ice_trans,
   if (0 == cand_cnt) return false;
 
   if (!ice_trans->start_nego(&ufrag->value, &pwd->value, cand_cnt, candidates)) {
-    g_warning("Error starting ICE negotiation");
+    SIPPlugin::this_->warning("Error starting ICE negotiation");
     return false;
   }
   return true;
