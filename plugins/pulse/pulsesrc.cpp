@@ -83,13 +83,14 @@ gboolean PulseSrc::async_get_pulse_devices(void* user_data) {
   context->pa_mainloop_api_ = pa_glib_mainloop_get_api(context->pa_glib_mainloop_);
   context->pa_context_ = pa_context_new(context->pa_mainloop_api_, nullptr);
   if (nullptr == context->pa_context_) {
-    g_debug("PulseSrc:: pa_context_new() failed.");
+    context->debug("PulseSrc:: pa_context_new() failed.");
     return FALSE;
   }
   pa_context_set_state_callback(context->pa_context_, pa_context_state_callback, context);
   if (pa_context_connect(context->pa_context_, context->server_, (pa_context_flags_t)0, nullptr) <
       0) {
-    g_debug("pa_context_connect() failed: %s", pa_strerror(pa_context_errno(context->pa_context_)));
+    context->debug("pa_context_connect() failed: %s",
+                   pa_strerror(pa_context_errno(context->pa_context_)));
     return FALSE;
   }
   context->connected_to_pulse_ = true;
@@ -152,13 +153,14 @@ void PulseSrc::pa_context_state_callback(pa_context* pulse_context, void* user_d
           nullptr));  // void *userdata);
       break;
     case PA_CONTEXT_TERMINATED: {
-      g_debug("PulseSrc: PA_CONTEXT_TERMINATED");
+      context->debug("PulseSrc: PA_CONTEXT_TERMINATED");
     } break;
     case PA_CONTEXT_FAILED:
-      g_debug("PA_CONTEXT_FAILED");
+      context->debug("PA_CONTEXT_FAILED");
       break;
     default:
-      g_debug("PulseSrc Context error: %s", pa_strerror(pa_context_errno(pulse_context)));
+      context->debug("PulseSrc Context error: %",
+                     std::string(pa_strerror(pa_context_errno(pulse_context))));
   }
 }
 
@@ -168,7 +170,8 @@ void PulseSrc::get_source_info_callback(pa_context* pulse_context,
                                         void* user_data) {
   PulseSrc* context = static_cast<PulseSrc*>(user_data);
   if (is_last < 0) {
-    g_debug("Failed to get source information: %s", pa_strerror(pa_context_errno(pulse_context)));
+    context->debug("Failed to get source information: %",
+                   std::string(pa_strerror(pa_context_errno(pulse_context))));
     return;
   }
   if (is_last) {

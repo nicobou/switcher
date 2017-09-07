@@ -167,7 +167,7 @@ bool AudioTestSource::stop() {
 void AudioTestSource::update_caps() {
   std::string str_caps = "audio/x-raw,format=" + format_.get_current() + ",channels=" +
                          std::to_string(channels_) + ",rate=" + sample_rate_.get_current();
-  g_debug("caps: %s", str_caps.c_str());
+  debug("caps: %", str_caps);
   GstCaps* caps = gst_caps_from_string(str_caps.c_str());
   On_scope_exit { gst_caps_unref(caps); };
   g_object_set(G_OBJECT(capsfilter_.get_raw()), "caps", caps, nullptr);

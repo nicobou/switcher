@@ -152,8 +152,8 @@ GstPadProbeReturn DecodebinToShmdata::gstrtpdepay_buffer_probe_cb(GstPad* /*pad 
 }
 
 GstPadProbeReturn DecodebinToShmdata::gstrtpdepay_event_probe_cb(GstPad* /*pad */,
-                                                                 GstPadProbeInfo* info,
-                                                                 gpointer user_data) {
+                                                                 GstPadProbeInfo* /*info*/,
+                                                                 gpointer /*user_data*/) {
   // DecodebinToShmdata* context = static_cast<DecodebinToShmdata*>(user_data);
   // std::unique_lock<std::mutex> lock(context->thread_safe_);
   // if (GST_EVENT_TYPE(GST_PAD_PROBE_INFO_EVENT(info)) ==
