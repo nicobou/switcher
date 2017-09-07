@@ -94,7 +94,7 @@ SIPPlugin::SIPPlugin(QuiddityConfiguration&& conf)
                                                 "Decompress received streams",
                                                 decompress_streams_)) {
   if (1 == sip_plugin_used_.fetch_or(1)) {
-    g_warning("an other sip quiddity is instancied, cannot init");
+    warning("an other sip quiddity is instancied, cannot init");
     is_valid_ = false;
     return;
   }
@@ -159,12 +159,12 @@ SIPPlugin::~SIPPlugin() {
 void SIPPlugin::apply_configuration() {
   // trying to set port if configuration found
   if (config<MPtr(&InfoTree::branch_has_data)>("port")) {
-    g_debug("SIP is trying to set port from configuration");
+    debug("SIP is trying to set port from configuration");
     auto port = config<MPtr(&InfoTree::branch_get_value)>("port");
     if (pmanage<MPtr(&PContainer::set<std::string>)>(port_id_, port.copy_as<std::string>())) {
-      g_debug("sip has set port from configuration");
+      debug("sip has set port from configuration");
     } else {
-      g_warning("sip failed setting port from configuration");
+      warning("sip failed setting port from configuration");
     }
   }
 
@@ -174,25 +174,25 @@ void SIPPlugin::apply_configuration() {
   std::string turn_user = config<MPtr(&InfoTree::branch_get_value)>("turn_user");
   std::string turn_pass = config<MPtr(&InfoTree::branch_get_value)>("turn_pass");
   if (!stun.empty()) {
-    g_debug("SIP is trying to set STUN/TURN from configuration");
+    debug("SIP is trying to set STUN/TURN from configuration");
     if (PJStunTurn::set_stun_turn(
             stun.c_str(), turn.c_str(), turn_user.c_str(), turn_pass.c_str(), stun_turn_.get())) {
-      g_debug("sip has set STUN/TURN from configuration");
+      debug("sip has set STUN/TURN from configuration");
     } else {
-      g_warning("sip failed setting STUN/TURN from configuration");
+      warning("sip failed setting STUN/TURN from configuration");
     }
   }
 
   // trying to register if a user is given
   std::string user = config<MPtr(&InfoTree::branch_get_value)>("user");
   if (!user.empty()) {
-    g_debug("SIP is trying to register from configuration");
+    debug("SIP is trying to register from configuration");
     std::string pass = config<MPtr(&InfoTree::branch_get_value)>("pass");
     pjsip_->run([&]() { sip_presence_->register_account(user, pass); });
     if (sip_presence_->registered_) {
-      g_debug("sip registered using configuration file");
+      debug("sip registered using configuration file");
     } else {
-      g_warning("sip failed registration from configuration");
+      warning("sip failed registration from configuration");
     }
   }
 }
@@ -201,15 +201,15 @@ bool SIPPlugin::start_sip_transport() {
   if (-1 != transport_id_) {
     On_scope_exit { transport_id_ = -1; };
     if (pjsua_transport_close(transport_id_, PJ_FALSE) != PJ_SUCCESS) {
-      g_warning("cannot close current transport");
-      g_message("ERROR: (bug) cannot close current transport");
+      warning("cannot close current transport");
+      message("ERROR: (bug) cannot close current transport");
       return false;
     }
   }
 
   if (NetUtils::is_used(sip_port_)) {
-    g_warning("SIP port cannot be bound (%u)", sip_port_);
-    g_message("ERROR: SIP port is not available (%u)", sip_port_);
+    warning("SIP port cannot be bound (%)", std::to_string(sip_port_));
+    message("ERROR: SIP port is not available (%)", std::to_string(sip_port_));
     return false;
   }
   pjsua_transport_config cfg;
@@ -217,8 +217,8 @@ bool SIPPlugin::start_sip_transport() {
   cfg.port = sip_port_;
   pj_status_t status = pjsua_transport_create(PJSIP_TRANSPORT_UDP, &cfg, &transport_id_);
   if (status != PJ_SUCCESS) {
-    g_warning("Error creating transport");
-    g_message("ERROR: SIP port is not available (%u)", sip_port_);
+    warning("Error creating transport");
+    message("ERROR: SIP port is not available (%)", std::to_string(sip_port_));
     transport_id_ = -1;
     return false;
   }
@@ -235,7 +235,7 @@ void SIPPlugin::create_quiddity_stream(const std::string& peer_uri, const std::s
   }
   quid = qcontainer_->create("extshmsrc", quid);
   if (quid.empty()) {
-    g_warning("Failed to create external shmdata quiddity for pjsip incoming stream.");
+    warning("Failed to create external shmdata quiddity for pjsip incoming stream.");
     return;
   }
 }

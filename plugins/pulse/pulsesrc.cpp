@@ -374,7 +374,7 @@ InfoTree::ptr PulseSrc::on_saving() {
 
 void PulseSrc::on_loading(InfoTree::ptr&& tree) {
   if (!tree || tree->empty()) {
-    g_warning("loading deprecated pulsesrc device save: devices may swap when reloading");
+    warning("loading deprecated pulsesrc device save: devices may swap when reloading");
     return;
   }
 
@@ -388,7 +388,7 @@ void PulseSrc::on_loading(InfoTree::ptr&& tree) {
           return capt.bus_path_ == bus_path;
         });
     if (capture_devices_.end() == it) {
-      g_warning("pulsesrc device not found at this port %s", bus_path.c_str());
+      warning("pulsesrc device not found at this port %", bus_path);
       g_message(
           "Audio capture device not found on its saved port when loading saved scenario, "
           "defaulting to first available device");
@@ -401,8 +401,8 @@ void PulseSrc::on_loading(InfoTree::ptr&& tree) {
                            capture_devices_.end(),
                            [&](const DeviceDescription& capt) { return capt.name_ == device_id; });
     if (capture_devices_.end() == it) {
-      g_warning("pulsesrc device not found (%s)", device_id.c_str());
-      g_message(
+      warning("pulsesrc device not found (%)", device_id);
+      message(
           "Saved audio capture not found when loading saved scenario, defaulting to first "
           "available device");
     } else {

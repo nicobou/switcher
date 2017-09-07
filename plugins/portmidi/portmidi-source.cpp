@@ -36,7 +36,7 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(PortMidiSource,
 PortMidiSource::PortMidiSource(QuiddityConfiguration&& conf)
     : Quiddity(std::forward<QuiddityConfiguration>(conf)) {
   if (input_devices_enum_.empty()) {
-    g_message("ERROR:No MIDI capture device detected.");
+    message("ERROR:No MIDI capture device detected.");
     is_valid_ = false;
     return;
   }
@@ -196,7 +196,7 @@ gboolean PortMidiSource::remove_property_method(gchar* long_name, void* user_dat
   PortMidiSource* context = static_cast<PortMidiSource*>(user_data);
 
   if (context->midi_property_contexts_.find(long_name) == context->midi_property_contexts_.end()) {
-    g_debug("property %s not found for removing", long_name);
+    context->debug("property %s not found for removing", long_name);
     return FALSE;
   }
 

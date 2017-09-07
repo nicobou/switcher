@@ -185,7 +185,7 @@ bool VRPNSource::start() {
   loopTask_ = std::make_unique<PeriodicTask<>>([this]() { this->loop(); },
                                                std::chrono::milliseconds(vrpnLoopInterval));
 
-  g_debug("Started VRPN source connection");
+  debug("Started VRPN source connection");
 
   return true;
 }
@@ -194,7 +194,7 @@ bool VRPNSource::start() {
  * @thread switcher
  */
 bool VRPNSource::stop() {
-  g_debug("Stopping VRPN source connection");
+  debug("Stopping VRPN source connection");
 
   loopTask_.reset(nullptr);
 
