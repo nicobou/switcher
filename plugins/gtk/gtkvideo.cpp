@@ -65,14 +65,14 @@ GTKVideo::GTKVideo(QuiddityConfiguration&& conf)
               keyb_shm_ = std::make_unique<ShmdataWriter>(
                   this, make_file_name("keyb"), sizeof(KeybEvent), "application/x-keyboard-events");
               if (!keyb_shm_.get()) {
-                g_warning("GTK keyboard event shmdata writer failed");
+                warning("GTK keyboard event shmdata writer failed");
                 keyb_shm_.reset(nullptr);
               }
 
               mouse_shm_ = std::make_unique<ShmdataWriter>(
                   this, make_file_name("mouse"), sizeof(MouseEvent), "application/x-mouse-events");
               if (!mouse_shm_.get()) {
-                g_warning("GTK mouse event shmdata writer failed");
+                warning("GTK mouse event shmdata writer failed");
                 mouse_shm_.reset(nullptr);
               }
             } else {
@@ -117,7 +117,7 @@ GTKVideo::GTKVideo(QuiddityConfiguration&& conf)
       gtk_main_thread_ = std::thread(&GTKVideo::gtk_main_loop_thread);
       gtk_main_thread_.detach();
     } else
-      g_debug("gtkvideosink: GTK main loop detected, using it");
+      debug("gtkvideosink: GTK main loop detected, using it");
   }
 
   instances_counter_++;
@@ -155,7 +155,7 @@ GTKVideo::GTKVideo(QuiddityConfiguration&& conf)
   wait_window_cond_.wait(lock);
 
   if (nullptr == display_) {
-    g_message("ERROR:GDK could not find a display (is the server running in ssh?)");
+    message("ERROR:GDK could not find a display (is the server running in ssh?)");
     is_valid_ = false;
     return;
   }
@@ -239,10 +239,7 @@ GTKVideo::~GTKVideo() {
 }
 
 void GTKVideo::gtk_main_loop_thread() {
-  if (!gtk_init_check(nullptr, nullptr)) {
-    g_debug("GTKVideo::init, cannot init gtk");
-  }
-  g_debug("GTKVideo::gtk_main_loop_thread starting");
+  gtk_init_check(nullptr, nullptr);
   gtk_main();
 }
 
@@ -312,7 +309,7 @@ void GTKVideo::realize_cb(GtkWidget* widget, void* user_data) {
   GTKVideo* context = static_cast<GTKVideo*>(user_data);
   GdkWindow* window = gtk_widget_get_window(widget);
   if (!gdk_window_ensure_native(window))
-    g_debug("Couldn't create native window needed for GstXOverlay!");
+    context->debug("Couldn't create native window needed for GstXOverlay!");
   gdk_display_sync(context->display_);
 /* Retrieve window handler from GDK */
 #if defined(GDK_WINDOWING_WIN32)
@@ -339,7 +336,7 @@ gboolean GTKVideo::create_ui(void* user_data) {
   GTKVideo* context = static_cast<GTKVideo*>(user_data);
   context->display_ = gdk_display_get_default();
   if (nullptr == context->display_) {
-    g_debug("gtkvideo: no default display, cannot create window");
+    context->debug("gtkvideo: no default display, cannot create window");
     std::unique_lock<std::mutex> lock(context->wait_window_mutex_);
     context->wait_window_cond_.notify_all();
     return FALSE;
@@ -402,7 +399,7 @@ bool GTKVideo::remake_elements() {
       !UGstElem::renew(videoflip_, {"method"}) || !UGstElem::renew(gamma_, {"gamma"}) ||
       !UGstElem::renew(videobalance_, {"contrast", "brightness", "hue", "saturation"}) ||
       !UGstElem::renew(xvimagesink_)) {
-    g_error("gtkvideo could not renew GStreamer elements");
+    error("gtkvideo could not renew GStreamer elements");
     return false;
   }
   g_object_set(G_OBJECT(xvimagesink_.get_raw()),

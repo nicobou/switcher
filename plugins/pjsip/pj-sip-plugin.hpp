@@ -37,6 +37,7 @@ class SIPPlugin : public Quiddity {
   friend PJSIP;
   friend PJStunTurn;
   friend PJWhiteList;
+  friend PJICEStreamTrans;
 
  public:
   SIPPlugin(QuiddityConfiguration&&);

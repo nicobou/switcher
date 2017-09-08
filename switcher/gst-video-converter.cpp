@@ -66,7 +66,7 @@ bool GstVideoConverter::on_shmdata_disconnect() {
 
 bool GstVideoConverter::on_shmdata_connect(const std::string& shmpath) {
   if (shmpath == shmpath_converted_) {
-    g_message("ERROR:videoconverter cannot connect to itself");
+    message("ERROR:videoconverter cannot connect to itself");
     return false;
   }
   shmpath_to_convert_ = shmpath;

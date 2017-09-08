@@ -268,7 +268,7 @@ PropertyQuid::PropertyQuid(QuiddityConfiguration&& conf)
   //           << std::get<1>(tuple_) << " "      // 2.2
   //           << std::get<2>(tuple_) << "\n";    // a22
 
-  // g_debug("uint property installation id is %lu", uint_id);
+  // debug("uint property installation id is %lu", uint_id);
   // props_.install("int_", &int_prop_);
   install_method("Hello World",                                  // long name
                  "hello-world",                                  // name
@@ -291,12 +291,12 @@ PropertyQuid::PropertyQuid(QuiddityConfiguration&& conf)
   tree->graft(".child1.child2.bla2", InfoTree::make("hub"));
   // attaching it to the quiddity (at the root)
   graft_tree(".custom.information.", tree);
-  g_debug("hello from plugin");
+  debug("hello from plugin");
 }
 
 gchar* PropertyQuid::my_hello_world_method(gchar* first_arg, void* user_data) {
   PropertyQuid* context = static_cast<PropertyQuid*>(user_data);
-  g_debug("hello world from myplugin");
+  context->debug("hello world from myplugin");
   context->hello_ = std::string("hello ") + first_arg;
   // the g_free will be invoked by the method system:
   return g_strdup(context->hello_.c_str());

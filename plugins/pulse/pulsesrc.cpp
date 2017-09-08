@@ -67,7 +67,7 @@ PulseSrc::PulseSrc(QuiddityConfiguration&& conf)
   // waiting for devices to be updated
   devices_cond_.wait(lock);
   if (!connected_to_pulse_) {
-    g_message("ERROR:Not connected to pulse, cannot initialize.");
+    message("ERROR:Not connected to pulse, cannot initialize.");
     is_valid_ = false;
     return;
   }
@@ -392,7 +392,7 @@ void PulseSrc::on_loading(InfoTree::ptr&& tree) {
         });
     if (capture_devices_.end() == it) {
       warning("pulsesrc device not found at this port %", bus_path);
-      g_message(
+      message(
           "Audio capture device not found on its saved port when loading saved scenario, "
           "defaulting to first available device");
     } else {

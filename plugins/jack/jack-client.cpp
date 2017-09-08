@@ -37,25 +37,14 @@ JackClient::JackClient(const char* name,
       xrun_cb_(xrun_cb),
       port_cb_(port_cb),
       shutdown_cb_(shutdown_cb) {
-  if ((client_ == NULL) && !(status_ & JackServerFailed)) {
-    g_warning(
-        "jack_client_open() failed, "
-        "status = 0x%2.0x",
-        status_);
-    return;
-  }
+  if ((client_ == NULL) && !(status_ & JackServerFailed)) return;
   jack_on_shutdown(client_.get(), &JackClient::on_jack_shutdown, this);
-  // if (status_ & JackServerStarted) {
-  //   g_warning("JACK server started\n");
-  // }
   // if (status_ & JackNameNotUnique) {
   // client_name = jack_get_client_name(client);
   // fprintf (stderr, "unique name `%s' assigned\n", client_name);
   // }
   sample_rate_ = jack_get_sample_rate(client_.get());
   buffer_size_ = jack_get_buffer_size(client_.get());
-  g_debug("jackd sample rate %" PRIu32, sample_rate_);
-  g_debug("jackd buffer size %" PRIu32, jack_get_buffer_size(client_.get()));
   jack_set_xrun_callback(client_.get(), on_xrun, this);
   jack_set_process_callback(client_.get(), jack_process, this);
   if (port_cb_) jack_set_port_registration_callback(client_.get(), port_callback, this);
@@ -116,7 +105,6 @@ bool JackClient::safe_bool_idiom() const { return static_cast<bool>(client_); }
 
 void JackClient::on_jack_shutdown(void* arg) {
   JackClient* context = static_cast<JackClient*>(arg);
-  g_message("ERROR:spurious jack shutdown");
   if (context->shutdown_cb_) context->shutdown_cb_();
 }
 
@@ -125,11 +113,6 @@ jack_client_t* JackClient::get_raw() { return client_.get(); }
 int JackClient::on_xrun(void* arg) {
   JackClient* context = static_cast<JackClient*>(arg);
   // computing the number of sample missed
-  // g_print("xrun delay %f ms\n num sample missed %f",
-  //         0.001 * jack_get_xrun_delayed_usecs(context->client_.get()),
-  //         (float)context->sample_rate_ * (1e-6 *
-  //         jack_get_xrun_delayed_usecs(context->client_.get())));
-  // g_print("--- XRUN ---\n");
   context->xrun_count_.fetch_add(std::ceil(
       (float)context->sample_rate_ * (1e-6 * jack_get_xrun_delayed_usecs(context->client_.get()))));
   return 0;

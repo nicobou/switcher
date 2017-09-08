@@ -108,7 +108,6 @@ bool GstDecodebin::on_shmdata_connect(const std::string& shmpath) {
   if (!decodebin->invoke_with_return<gboolean>([this](GstElement* el) {
         return gst_bin_add(GST_BIN(gst_pipeline_->get_pipeline()), el);
       })) {
-    g_warning("decodebin cannot be added to pipeline");
   }
   // get pads and link
   GstPad* pad = gst_element_get_static_pad(shmsrc_.get_raw(), "src");

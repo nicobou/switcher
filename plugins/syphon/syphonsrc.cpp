@@ -104,7 +104,7 @@ void SyphonSrc::frameCallback(void* context, const char* data, int& width, int& 
     ctx->width_ = width;
     ctx->height_ = height;
     if (!ctx->writer_.get()) {
-      g_warning("syphon to shmdata failed to start");
+      warning("syphon to shmdata failed to start");
       ctx->writer_.reset(nullptr);
     } else
       set = true;

@@ -113,7 +113,7 @@ AudioTestSource::AudioTestSource(QuiddityConfiguration&& conf)
 
 bool AudioTestSource::start() {
   if (!gst_pipeline_) {
-    g_warning("BUG: gst_pipeline failed to be created, something went very wrong! (audiotestsrc)");
+    warning("BUG: gst_pipeline failed to be created, something went very wrong! (audiotestsrc)");
     return false;
   }
 
@@ -152,7 +152,7 @@ bool AudioTestSource::stop() {
 
   if (!UGstElem::renew(audiotestsrc_, {"is-live", "samplesperbuffer"}) ||
       !UGstElem::renew(capsfilter_) || !UGstElem::renew(shmdatasink_, {"socket-path"})) {
-    g_warning("error initializing gst element for audiotestsrc");
+    warning("error initializing gst element for audiotestsrc");
     gst_pipeline_.reset();
     return false;
   }

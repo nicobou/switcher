@@ -39,7 +39,7 @@ class NVencPlugin : public Quiddity {
 
 
  private:
-  std::unique_ptr<ThreadedWrapper<NVencES>> es_{};
+  std::unique_ptr<ThreadedWrapper<NVencES>> es_;
   Selection<> devices_{{"none"}, 0};
   bool bitrate_from_preset_{false};
   PContainer::prop_id_t default_preset_id_;

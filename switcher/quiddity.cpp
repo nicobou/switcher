@@ -192,7 +192,7 @@ std::string Quiddity::make_file_name(const std::string& suffix) const {
     int quiddity_overflow = static_cast<int>(name_.length() - overflow);
     if (quiddity_overflow < 10) {
       name = std::string(get_file_name_prefix() + qcontainer_->get_name() + "_name_error");
-      g_warning(
+      warning(
           "BUG: shmdata name cannot be created properly because it is too long, there is less than "
           "10 characters remaining for the quiddity name, investigate and fix this!");
     } else {
@@ -214,7 +214,7 @@ std::string Quiddity::get_file_name_prefix() const { return "/tmp/switcher_"; }
 std::string Quiddity::get_quiddity_name_from_file_name(const std::string& path) const {
   auto file_begin = path.find("switcher_");
   if (std::string::npos == file_begin) {
-    g_warning("%s: not a switcher generated path", __FUNCTION__);
+    warning("%: not a switcher generated path", std::string(__FUNCTION__));
     return std::string();
   }
   std::string filename(path, file_begin);
@@ -235,7 +235,7 @@ std::string Quiddity::get_quiddity_name_from_file_name(const std::string& path) 
     }
   }
   if (3 != underscores.size()) {
-    g_warning("%s: wrong shmdata path format", __FUNCTION__);
+    warning("%: wrong shmdata path format", std::string(__FUNCTION__));
     return std::string();
   }
   // handling bundle: they use there own internal manager named with their actual quiddity name
@@ -325,7 +325,7 @@ InfoTree::ptr Quiddity::prune_tree(const std::string& path, bool do_signal) {
       smanage<MPtr(&SContainer::notify)>(on_tree_pruned_id_, InfoTree::make(path));
     }
   } else {
-    g_warning("cannot prune %s", path.c_str());
+    warning("cannot prune %", path);
   }
   return result;
 }
@@ -350,7 +350,7 @@ void Quiddity::self_destruct() {
     auto self_name = get_name();
     th_lock.unlock();
     if (!qcontainer_->get_switcher()->remove(self_name))
-      g_warning("%s did not self destruct", get_name().c_str());
+      warning("% did not self destruct", get_name());
   });
   thread.detach();
 }

@@ -112,11 +112,9 @@ void GstUtils::release_request_pad(GstPad* pad, gpointer user_data) {
 void GstUtils::clean_element(GstElement* element) {
   if (nullptr == element) return;
   if (!GST_IS_ELEMENT(element)) {
-    g_warning("%s failed (not a gst element)", __FUNCTION__);
     return;
   }
   if (GST_STATE_CHANGE_FAILURE == GST_STATE_RETURN(element)) {
-    g_warning("%s failed (state error)", __FUNCTION__);
     return;
   }
   gst_element_set_state(element, GST_STATE_NULL);
@@ -133,7 +131,6 @@ void GstUtils::clean_element(GstElement* element) {
 
 void GstUtils::wait_state_changed(GstElement* bin) {
   if (!GST_IS_BIN(bin)) {
-    g_warning("GstUtils::wait_state_changed not a bin");
     return;
   }
   GValue val = G_VALUE_INIT;
@@ -197,12 +194,10 @@ void GstUtils::set_element_property_in_bin(GstElement* bin,
 GstElement* GstUtils::get_first_element_from_factory_name(GstBin* bin,
                                                           const std::string& factory_name) {
   if (!GST_IS_BIN(bin)) {
-    g_warning("%s: first argument is not a bin", __FUNCTION__);
     return nullptr;
   }
 
   if (g_list_length(GST_BIN_CHILDREN(bin)) == 0) {
-    g_warning("%s: bin has no child", __FUNCTION__);
     return nullptr;
   }
 
@@ -214,7 +209,6 @@ GstElement* GstUtils::get_first_element_from_factory_name(GstBin* bin,
       return current_element;
     }
   }
-  g_warning("%s: no element found for %s", __FUNCTION__, factory_name.c_str());
   return nullptr;
 }
 
@@ -367,11 +361,9 @@ GstUtils::element_factory_list_to_pair_of_vectors(GstElementFactoryListType type
 
 void GstUtils::gst_element_deleter(GstElement* element) {
   if (nullptr == element) {
-    g_warning("%s is trying to delete a null element", __FUNCTION__);
     return;
   }
   if (!G_IS_OBJECT(element)) {
-    g_warning("%s is trying to delete something not a GObject", __FUNCTION__);
     return;
   }
   // unref if ownership has not been taken by a parent
@@ -390,7 +382,6 @@ gulong GstUtils::g_signal_connect_function(gpointer gobject,
 
 bool GstUtils::can_sink_caps(std::string factory_name, std::string caps) {
   if (caps.empty()) {
-    g_warning("%s: input caps string is empty, returning false", __FUNCTION__);
     return false;
   }
 
@@ -399,8 +390,6 @@ bool GstUtils::can_sink_caps(std::string factory_name, std::string caps) {
 
   GstElementFactory* factory = gst_element_factory_find(factory_name.c_str());
   if (nullptr == factory) {
-    g_warning(
-        "%s: factory %s cannot be found, returning false", __FUNCTION__, factory_name.c_str());
     return false;
   }
   On_scope_exit { gst_object_unref(factory); };
@@ -436,10 +425,6 @@ std::vector<std::string> GstUtils::get_gst_element_capability_as_list(
     for (guint j = 0; j < gst_value_list_get_size(value_list); ++j) {
       values.emplace_back(g_value_get_string(gst_value_list_get_value(value_list, j)));
     }
-  } else {
-    g_warning(
-        "Trying to get gstreamer capability by value and failing. Maybe try "
-        "GstUtils::get_gst_element_range()");
   }
   return values;
 }
@@ -452,10 +437,6 @@ std::pair<int, int> GstUtils::get_gst_element_capability_as_range(const std::str
   if (value && GST_VALUE_HOLDS_INT_RANGE(value)) {
     range.first = gst_value_get_int_range_min(value);
     range.second = gst_value_get_int_range_max(value);
-  } else {
-    g_warning(
-        "Trying to get gstreamer capability by range and failing. Maybe try "
-        "GstUtils::get_gst_element_values()");
   }
   return range;
 }

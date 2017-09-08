@@ -431,7 +431,7 @@ void PostureSrc::cb_frame_cloud(void* context, const vector<char>&& data) {
         ctx, ctx->make_file_name("cloud"), data.size() * 2, data_type);
 
     if (!ctx->cloud_writer_) {
-      g_warning("Unable to create mesh callback");
+      warning("Unable to create mesh callback");
       return;
     }
   }
@@ -460,7 +460,7 @@ void PostureSrc::cb_frame_mesh(void* context, vector<unsigned char>&& data) {
         ctx, ctx->make_file_name("mesh"), data.size() * 2, string(POLYGONMESH_TYPE_BASE));
 
     if (!ctx->mesh_writer_) {
-      g_warning("Unable to create mesh callback");
+      warning("Unable to create mesh callback");
       return;
     }
   }
@@ -492,7 +492,7 @@ void PostureSrc::cb_frame_depth(void* context,
         ctx, ctx->make_file_name("depth"), data.size(), string(buffer));
 
     if (!ctx->depth_writer_) {
-      g_warning("Unable to create mesh callback");
+      ctx->warning("Unable to create mesh callback");
       return;
     }
   }
@@ -543,7 +543,7 @@ void PostureSrc::cb_frame_rgb(void* context,
         ctx, ctx->make_file_name("rgb"), data.size(), string(buffer));
 
     if (!ctx->rgb_writer_) {
-      g_warning("Unable to create mesh callback");
+      ctx->warning("Unable to create mesh callback");
       return;
     }
   }
@@ -575,7 +575,7 @@ void PostureSrc::cb_frame_ir(void* context,
         ctx, ctx->make_file_name("ir"), data.size(), string(buffer));
 
     if (!ctx->ir_writer_) {
-      g_warning("Unable to create mesh callback");
+      ctx->warning("Unable to create mesh callback");
       return;
     }
   }
@@ -597,7 +597,7 @@ void PostureSrc::generateRandomData() {
       cloud_writer_ = std::make_unique<ShmdataWriter>(
           this, make_file_name("cloud"), cloud.size() * 2, string(POINTCLOUD_TYPE_BASE));
       if (!cloud_writer_) {
-        g_warning("Unable to create mesh shmdata writer");
+        ctx->warning("Unable to create mesh shmdata writer");
         return;
       }
     }
@@ -614,7 +614,7 @@ void PostureSrc::generateRandomData() {
       mesh_writer_ = std::make_unique<ShmdataWriter>(
           this, make_file_name("mesh"), mesh.size() * 2, string(POLYGONMESH_TYPE_BASE));
       if (!mesh_writer_) {
-        g_warning("Unable to create mesh shmdata writer");
+        ctx->warning("Unable to create mesh shmdata writer");
         return;
       }
     }

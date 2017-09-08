@@ -61,8 +61,7 @@ SIPPlugin::SIPPlugin(QuiddityConfiguration&& conf)
             if (val.empty()) return false;
             if ("default" == requested_val) val = default_dns_address_;
             if (!NetUtils::is_valid_IP(val)) {
-              g_message(
-                  "ERROR:Not a valid IP address, expected x.y.z.a with x, y, z, a in [0:255].");
+              message("ERROR:Not a valid IP address, expected x.y.z.a with x, y, z, a in [0:255].");
               return false;
             }
 
@@ -71,8 +70,8 @@ SIPPlugin::SIPPlugin(QuiddityConfiguration&& conf)
             dns_address_ = val;
             if (!pjsip_->invoke<MPtr(&PJSIP::create_resolver)>(dns_address_)) {
               dns_address_ = old_dns_address;
-              g_message("ERROR:Could not set the DNS address (PJSIP), setting the old one %s.",
-                        dns_address_.c_str());
+              message("ERROR:Could not set the DNS address (PJSIP), setting the old one %.",
+                      dns_address_);
               pjsip_->invoke<MPtr(&PJSIP::create_resolver)>(dns_address_);
               return false;
             }

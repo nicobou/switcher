@@ -67,7 +67,7 @@ bool ShmdataToFile::init_gpipe() {
 
 bool ShmdataToFile::connect(std::string shmdata_socket_path) {
   if (file_names_.find(shmdata_socket_path) != file_names_.end()) {
-    g_warning("ShmdataToFile::connect: %s is already added", shmdata_socket_path.c_str());
+    warning("ShmdataToFile::connect: % is already added", shmdata_socket_path);
     return false;
   }
 
@@ -123,7 +123,7 @@ bool ShmdataToFile::make_recorders() {
 
     GstElement* recorder_bin = gst_parse_bin_from_description(pipe, TRUE, &error);
     if (error != nullptr) {
-      g_warning("%s", error->message);
+      warning("%", error->message);
       g_error_free(error);
       return false;
     }

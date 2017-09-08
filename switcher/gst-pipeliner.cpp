@@ -61,7 +61,6 @@ GstPipeliner::GstPipeliner(GstPipe::on_msg_async_cb_t on_msg_async_cb,
           // }
           )) {
   if (!gst_pipeline_) {
-    g_warning("error initializing gstreamer pipeline");
     return;
   }
 
@@ -106,8 +105,6 @@ bool GstPipeliner::seek(gdouble position_in_ms) { return gst_pipeline_->seek(pos
 //     context->quids_to_remove_.clear();
 //     for (auto &it: tmp)
 //       manager->remove(it);
-//   } else {
-//     g_warning("cannot recover from error (no manager available)");
 //   }
 //   return FALSE;
 // }
@@ -155,7 +152,6 @@ GstBusSyncReply GstPipeliner::on_gst_error(GstMessage* msg) {
   GError* error = nullptr;
   gst_message_parse_error(msg, &error, &debug);
   g_free(debug);
-  g_warning("GStreamer error: %s (element %s)", error->message, GST_MESSAGE_SRC_NAME(msg));
   On_scope_exit {
     if (error) g_error_free(error);
   };
@@ -207,7 +203,6 @@ GstBusSyncReply GstPipeliner::bus_sync_handler(GstBus* /*bus*/,
     GError* error = nullptr;
     gst_message_parse_error(msg, &error, &debug);
     g_free(debug);
-    g_warning("GStreamer error: %s (element %s)", error->message, GST_MESSAGE_SRC_NAME(msg));
     g_error_free(error);
     res = GST_BUS_DROP;
   }

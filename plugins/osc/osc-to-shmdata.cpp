@@ -52,7 +52,7 @@ bool OscToShmdata::start() {
   shm_ = std::make_unique<ShmdataWriter>(
       this, make_file_name("osc"), 1, "application/x-libloserialized-osc");
   if (!shm_.get()) {
-    g_warning("OscToShmdata failed to start");
+    warning("OscToShmdata failed to start");
     shm_.reset(nullptr);
     return false;
   }
@@ -102,7 +102,6 @@ int OscToShmdata::osc_handler(const char* path,
   return 0;
 }
 
-void OscToShmdata::osc_error(int num, const char* msg, const char* path) {
-  g_debug("liblo server error %d in path %s: %s", num, path, msg);
-}
+void OscToShmdata::osc_error(int /*num*/, const char* /*msg*/, const char* /*path*/) {}
+
 }  // end of OscToShmdata class

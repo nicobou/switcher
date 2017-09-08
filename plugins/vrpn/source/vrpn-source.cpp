@@ -149,7 +149,7 @@ void VRPNSource::on_loading(InfoTree::ptr&& tree) {
  */
 bool VRPNSource::start() {
   if (host_.empty()) {
-    g_message("ERROR: Host is required.");
+    message("ERROR: Host is required.");
     return false;
   }
 
@@ -160,7 +160,7 @@ bool VRPNSource::start() {
   shmDataWriter_ =
       std::make_unique<ShmdataWriter>(this, make_file_name("vrpn"), 1, "application/vrpn");
   if (!shmDataWriter_.get()) {
-    g_message("ERROR: VRPN source failed to initialize its shmdata");
+    message("ERROR: VRPN source failed to initialize its shmdata");
     shmDataWriter_.reset(nullptr);
     return false;
   }
@@ -168,7 +168,7 @@ bool VRPNSource::start() {
   // Create the connection and check its "okay-ness"
   connection_ = std::make_unique<VRPNClientConnection>(host_ + ":" + std::to_string(port_));
   if (!connection_->raw()->doing_okay()) {
-    g_message("ERROR: VRPN source connection is not doing okay (whatever that means).");
+    message("ERROR: VRPN source connection is not doing okay (whatever that means).");
     return false;
   }
 

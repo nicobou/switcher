@@ -38,19 +38,19 @@ ProtocolMapper::ProtocolMapper(QuiddityConfiguration&& conf)
         config_file_ = val;
         auto file_content = FileUtils::get_file_content(val);
         if (file_content.first.empty()) {
-          g_message("ERROR: %s", file_content.second.c_str());
+          message("ERROR: %", file_content.second);
           return false;
         }
         auto tree = JSONSerializer::deserialize(file_content.first);
         if (!tree) {
-          g_message("ERROR: %s is not a valid json file", val.c_str());
+          message("ERROR: % is not a valid json file", val);
           return false;
         }
         protocol_reader_.reset();
         protocol_reader_ = ProtocolReader::create_protocol_reader(this, tree.get());
 
         if (!protocol_reader_) {
-          g_warning("Could not create protocol reader (protocol-mapper).");
+          warning("Could not create protocol reader (protocol-mapper).");
           return false;
         }
 

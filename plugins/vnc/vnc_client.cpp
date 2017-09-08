@@ -243,7 +243,6 @@ void VncClientSrc::update_vnc(rfbClient* client, int, int, int, int) {
     that->vnc_writer_ = std::make_unique<ShmdataWriter>(
         that, that->make_file_name("vnc"), that->framebuffer_size_, data_type);
     if (!that->vnc_writer_) {
-      g_warning("Unable to create VNC writer");
       return;
     }
   }

@@ -86,12 +86,12 @@ bool RTMP::create_gst_pipeline() {
 
   std::string dest = "rtmpsink";
   if (audio_shmpath_.empty() || video_shmpath_.empty()) {
-    g_warning("Could not send stream because no video or audio is connected (rtmp).");
+    warning("Could not send stream because no video or audio is connected (rtmp).");
     dest = "fakesink";
   }
 
   if (stream_app_url_.empty() || stream_key_.empty()) {
-    g_warning("Could not send stream because stream application URL or key is empty (rtmp).");
+    warning("Could not send stream because stream application URL or key is empty (rtmp).");
     dest = "fakesink";
   }
 
@@ -110,7 +110,8 @@ bool RTMP::create_gst_pipeline() {
   auto bin = gst_parse_bin_from_description(description.c_str(), FALSE, &error);
 
   if (error) {
-    g_warning("Failed to create GstBin from pipeline description (rtmp): %s", error->message);
+    warning("Failed to create GstBin from pipeline description (rtmp): %",
+            std::string(error->message));
     return false;
   }
 

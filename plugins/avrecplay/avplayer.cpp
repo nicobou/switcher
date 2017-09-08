@@ -44,15 +44,15 @@ AVPlayer::AVPlayer(QuiddityConfiguration&& conf)
       "playpath",
       [this](const std::string& val) {
         if (val.empty()) {
-          g_warning("Empty folder provided for shmdata recorder.");
-          g_message("ERROR: Empty folder provided for shmdata recorder.");
+          warning("Empty folder provided for shmdata recorder.");
+          message("ERROR: Empty folder provided for shmdata recorder.");
           return false;
         }
 
         struct stat st;
         if (stat(val.c_str(), &st) != 0 || !S_ISDIR(st.st_mode)) {
-          g_warning("The specified folder does not exist (avplayer).");
-          g_message("ERROR: The specified folder does not exist (avplayer).");
+          warning("The specified folder does not exist (avplayer).");
+          message("ERROR: The specified folder does not exist (avplayer).");
           return false;
         }
 
@@ -78,9 +78,8 @@ AVPlayer::AVPlayer(QuiddityConfiguration&& conf)
   struct stat st;
   if (stat(AVPlayer::kShmDestPath.c_str(), &st) != 0 || !S_ISDIR(st.st_mode)) {
     if (-1 == mkdir(AVPlayer::kShmDestPath.c_str(), S_IRWXU | S_IRUSR | S_IWUSR)) {
-      g_warning(
-          "The shmdata destination folder does not exist and could not be created (avplayer).");
-      g_message(
+      warning("The shmdata destination folder does not exist and could not be created (avplayer).");
+      message(
           "ERROR: The shmdata destination folder does not exist and could not be created "
           "(avplayer).");
       is_valid_ = false;
@@ -128,7 +127,7 @@ bool AVPlayer::start() {
   };
 
   if (error) {
-    g_warning("Could not create shmdata player: %s", error->message);
+    warning("Could not create shmdata player: %", std::string(error->message));
     g_error_free(error);
     return false;
   }

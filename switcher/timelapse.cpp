@@ -41,9 +41,7 @@ Timelapse::Timelapse(QuiddityConfiguration&& conf)
             if (!img_dir_.empty() && img_dir_.back() != '/') img_dir_ += '/';
             auto file_prepared = FileUtils::prepare_writable_dir(val);
             if (!file_prepared.first) {
-              g_warning("error preparing %s directory for writing: %s",
-                        val.c_str(),
-                        file_prepared.second.c_str());
+              warning("error preparing % directory for writing: %", val, file_prepared.second);
               return false;
             }
             updated_config_.store(true);

@@ -196,7 +196,7 @@ void PostureSc3::cb_frame_cloud(int index, pcl::PointCloud<pcl::PointXYZRGBNorma
     }
 
     if (!mesh_writer_) {
-      g_warning("Unable to create mesh callback");
+      warning("Unable to create mesh callback");
       return;
     }
   }
@@ -237,7 +237,7 @@ void PostureSc3::cb_frame_rgb(std::vector<unsigned char>& image, int width, int 
     }
 
     if (!mesh_writer_) {
-      g_warning("Unable to create rgb callback");
+      warning("Unable to create rgb callback");
       return;
     }
   }
@@ -257,7 +257,7 @@ void PostureSc3::cb_frame_rgb(std::vector<unsigned char>& image, int width, int 
     }
 
     if (!rgb_writer_) {
-      g_warning("Unable to create rgb callback");
+      warning("Unable to create rgb callback");
       return;
     }
   }

@@ -165,7 +165,7 @@ bool VideoTestSource::start() {
     prune_tree(".shmdata.writer." + shmpath_);
     if (!UGstElem::renew(videotestsrc_, {"is-live", "pattern"}) ||
         !UGstElem::renew(shmdatasink_, {"socket-path"}) || !UGstElem::renew(capsfilter_)) {
-      g_warning("error initializing gst element for videotestsrc");
+      warning("error initializing gst element for videotestsrc");
       gst_pipeline_.reset();
       return false;
     }

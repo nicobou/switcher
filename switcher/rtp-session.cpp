@@ -191,7 +191,7 @@ gboolean RtpSession::write_sdp_file_wrapped(gpointer nick_name, gpointer user_da
 bool RtpSession::write_sdp_file(std::string dest_name) {
   auto it = destinations_.find(dest_name);
   if (destinations_.end() == it) {
-    g_warning("%s does not exists, cannot write sdp file", dest_name.c_str());
+    warning("% does not exists, cannot write sdp file", dest_name);
     return false;
   }
   std::string sdp_file = make_file_name(dest_name);
@@ -223,7 +223,7 @@ std::string RtpSession::make_rtp_payloader(GstElement* shmdatasrc, const std::st
   GstPad* srcpad = gst_element_get_static_pad(pay, "src");
   On_scope_exit { gst_object_unref(srcpad); };
   if (gst_pad_link(srcpad, sinkpad) != GST_PAD_LINK_OK)
-    g_warning("failed to link payloader to rtpbin");
+    warning("failed to link payloader to rtpbin");
   // get name for the newly created pad
   gchar* rtp_sink_pad_name = gst_pad_get_name(sinkpad);
   On_scope_exit { g_free(rtp_sink_pad_name); };
@@ -270,7 +270,7 @@ gboolean RtpSession::remove_destination_wrapped(gpointer nick_name, gpointer use
 bool RtpSession::remove_destination(std::string nick_name) {
   auto it = destinations_.find(nick_name);
   if (destinations_.end() == it) {
-    g_warning("RtpSession: destination named %s does not exists, cannot remove", nick_name.c_str());
+    warning("RtpSession: destination named %s does not exists, cannot remove", nick_name.c_str());
     return false;
   }
   if (!it->second) return false;
@@ -297,17 +297,17 @@ bool RtpSession::add_udp_stream_to_dest(std::string shmpath,
                                         std::string port) {
   auto ds_it = data_streams_.find(shmpath);
   if (data_streams_.end() == ds_it) {
-    g_warning("RtpSession is not connected to %s", shmpath.c_str());
+    warning("RtpSession is not connected to %", std::string(shmpath));
     return false;
   }
   auto destination_it = destinations_.find(nick_name);
   if (destinations_.end() == destination_it) {
-    g_warning("RtpSession does not contain a destination named %s", nick_name.c_str());
+    warning("RtpSession does not contain a destination named %", std::string(nick_name));
     return false;
   }
   gint rtp_port = atoi(port.c_str());
   if (rtp_port % 2 != 0) {
-    g_warning("rtp destination port %s must be even, not odd", port.c_str());
+    warning("rtp destination port %s must be even, not odd", port.c_str());
     return false;
   }
   // rtp stream (sending)
@@ -333,13 +333,13 @@ gboolean RtpSession::remove_udp_stream_to_dest_wrapped(gpointer shmpath,
 bool RtpSession::remove_udp_stream_to_dest(std::string shmpath, std::string dest_name) {
   auto ds_it = data_streams_.find(shmpath);
   if (data_streams_.end() == ds_it) {
-    g_warning("RtpSession is not connected to %s", shmpath.c_str());
+    warning("RtpSession is not connected to %", shmpath);
     return false;
   }
 
   RtpDestination::ptr dest = destinations_[dest_name];
   if (!(bool)dest) {
-    g_warning("RTP: destination %s does not exist", dest_name.c_str());
+    warning("RTP: destination % does not exist", dest_name);
     return false;
   }
   std::string port = dest->get_port(shmpath);
@@ -347,7 +347,7 @@ bool RtpSession::remove_udp_stream_to_dest(std::string shmpath, std::string dest
 
   gint rtp_port = atoi(port.c_str());
   if (rtp_port % 2 != 0) {
-    g_warning("rtp destination port %s must be even, not odd", port.c_str());
+    warning("rtp destination port % must be even, not odd", port);
     return false;
   }
 
@@ -577,7 +577,7 @@ void RtpSession::on_rtppayloder_caps(GstElement* typefind,
 bool RtpSession::make_udp_sinks(const std::string& shmpath, const std::string& rtp_id) {
   auto it = data_streams_.find(shmpath);
   if (data_streams_.end() == it) {
-    g_warning("cannot make udp sink");
+    warning("cannot make udp sink");
     return false;
   }
   {  // RTP
@@ -610,7 +610,7 @@ bool RtpSession::make_udp_sinks(const std::string& shmpath, const std::string& r
     gst_element_add_pad(udpsink_bin, ghost_sinkpad);
     gst_object_unref(sink_pad);
     if (GST_PAD_LINK_OK != gst_pad_link(src_pad, ghost_sinkpad))
-      g_warning("linking with multiudpsink bin failed");
+      warning("linking with multiudpsink bin failed");
     GstUtils::sync_state_with_parent(udpsink_bin);
     GstUtils::wait_state_changed(udpsink_bin);
   }
@@ -628,7 +628,7 @@ bool RtpSession::make_udp_sinks(const std::string& shmpath, const std::string& r
     GstPad* sink_pad = gst_element_get_static_pad(udpsink, "sink");
     On_scope_exit { gst_object_unref(sink_pad); };
     if (GST_PAD_LINK_OK != gst_pad_link(rtcp_src_pad, sink_pad))
-      g_warning("linking with multiudpsink bin failed");
+      warning("linking with multiudpsink bin failed");
   }
   return true;
 }

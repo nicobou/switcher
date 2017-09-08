@@ -113,7 +113,7 @@ bool PortMidiSource::start() {
   shm_ =
       std::make_unique<ShmdataWriter>(this, make_file_name("midi"), sizeof(PmEvent), "audio/midi");
   if (!shm_.get()) {
-    g_message("ERROR:Midi failed to start");
+    message("ERROR:Midi failed to start");
     shm_.reset(nullptr);
     return false;
   }
@@ -231,12 +231,12 @@ bool PortMidiSource::make_property(std::string property_long_name,
                                    gint last_status,
                                    gint last_data1) {
   if (midi_channels_.find(std::make_pair(last_status, last_data1)) != midi_channels_.end()) {
-    g_message(
-        "ERROR:Midi Channels %u %u is already a property (is currently named "
-        "%s)",
-        last_status,
-        last_data1,
-        midi_channels_.find(std::make_pair(last_status, last_data1))->second.c_str());
+    message(
+        "ERROR:Midi Channels % % is already a property (is currently named "
+        "%)",
+        std::to_string(last_status),
+        std::to_string(last_data1),
+        midi_channels_.find(std::make_pair(last_status, last_data1))->second);
     return false;
   }
   midi_channels_[std::make_pair(last_status, last_data1)] = property_long_name;

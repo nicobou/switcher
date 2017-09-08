@@ -206,7 +206,7 @@ int main(int argc, char* argv[]) {
   if (osc_port_number != nullptr) {
     std::string osc_name = manager->create("OSCctl");
     if (osc_name.compare("") == 0)
-      g_warning("osc plugin not found");
+      std::cerr << "osc plugin not found" << '\n';
     else
       manager->invoke_va(osc_name.c_str(), "set_port", nullptr, osc_port_number, nullptr);
   }
@@ -215,7 +215,7 @@ int main(int argc, char* argv[]) {
 
   if (load_file &&
       !manager->load_state(JSONSerializer::deserialize(FileUtils::get_content(load_file)))) {
-    g_warning("could not load file %s", load_file);
+    std::cerr << "could not load file " << load_file << '\n';
   }
 
 #if HAVE_GTK

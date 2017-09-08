@@ -35,13 +35,13 @@ LTCToJack::LTCToJack(QuiddityConfiguration&& conf)
       std::string(std::string("clockLTC_") + get_name()).c_str(), JackNullOption, nullptr);
 
   if (!jack_client_) {
-    g_warning("Could not create jack client (ltctojack).");
+    warning("Could not create jack client (ltctojack).");
     is_valid_ = false;
     return;
   }
 
   if (jack_activate(jack_client_) != 0) {
-    g_warning("Could not activate jack client (ltctojack).");
+    warning("Could not activate jack client (ltctojack).");
     is_valid_ = false;
     return;
   }

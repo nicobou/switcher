@@ -51,8 +51,8 @@ AVRecorder::AVRecorder(QuiddityConfiguration&& conf)
     if (nullptr != mux_factories) gst_plugin_feature_list_free(mux_factories);
   };
   if (!mux_factories || g_list_length(mux_factories) == 0) {
-    g_warning("ERROR: Could not find any gstreamer muxer (avrec)");
-    g_message("ERROR: Could not find any gstreamer muxer (avrec)");
+    warning("ERROR: Could not find any gstreamer muxer (avrec)");
+    message("ERROR: Could not find any gstreamer muxer (avrec)");
     is_valid_ = false;
     return;
   }
@@ -68,17 +68,16 @@ AVRecorder::AVRecorder(QuiddityConfiguration&& conf)
       "recpath",
       [this](const std::string& val) {
         if (val.empty()) {
-          g_warning("Empty folder provided for shmdata recorder.");
-          g_message("ERROR: Empty folder provided for shmdata recorder.");
+          warning("Empty folder provided for shmdata recorder.");
+          message("ERROR: Empty folder provided for shmdata recorder.");
           return false;
         }
 
         struct stat st;
         if (stat(val.c_str(), &st) != 0 || !S_ISDIR(st.st_mode)) {
           if (-1 == mkdir(val.c_str(), S_IRWXU | S_IRUSR | S_IWUSR)) {
-            g_warning("The specified folder does not exist and could not be created (avrec).");
-            g_message(
-                "ERROR: The specified folder does not exist and could not be created (avrec).");
+            warning("The specified folder does not exist and could not be created (avrec).");
+            message("ERROR: The specified folder does not exist and could not be created (avrec).");
             return false;
           }
         }
@@ -184,7 +183,7 @@ bool AVRecorder::start() {
   };
 
   if (error) {
-    g_warning("Could not create shmdata recorder: %s", error->message);
+    warning("Could not create shmdata recorder: %", std::string(error->message));
     g_error_free(error);
     return false;
   }
@@ -267,8 +266,8 @@ bool AVRecorder::stop() {
 bool AVRecorder::on_shmdata_connect(const std::string& shmpath) {
   auto shmdata_name = get_shmdata_name_from_file_name(shmpath);
   if (shmdata_name.empty()) {
-    g_warning("Invalid shmdata path %s (avrec)", shmpath.c_str());
-    g_message("ERROR: Invalid shmdata path %s (avrec)", shmpath.c_str());
+    warning("Invalid shmdata path % (avrec)", shmpath);
+    message("ERROR: Invalid shmdata path % (avrec)", shmpath);
     return false;
   }
 

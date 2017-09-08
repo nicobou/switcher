@@ -21,6 +21,7 @@
 
 #include <sys/stat.h>
 #include <cstring>
+#include <iostream>
 #include "switcher/quiddity-basic-test.hpp"
 
 int main() {
@@ -32,7 +33,7 @@ int main() {
 
     struct stat st;
     if (stat("/dev/snd", &st) == -1) {
-      g_warning("Could not open /dev/snd in MIDI test: %s", strerror(errno));
+      std::cerr << "Could not open /dev/snd in MIDI test: " << strerror(errno) << '\n';
       return 0;
     }
 

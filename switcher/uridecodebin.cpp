@@ -73,7 +73,7 @@ Uridecodebin::Uridecodebin(QuiddityConfiguration&& conf)
 
 void Uridecodebin::init_uridecodebin() {
   if (!GstUtils::make_element("uridecodebin", &uridecodebin_)) {
-    g_warning("cannot create uridecodebin");
+    warning("cannot create uridecodebin");
     return;
   }
 
@@ -126,8 +126,9 @@ void Uridecodebin::unknown_type_cb(GstElement* bin,
                                    GstCaps* caps,
                                    gpointer user_data) {
   Uridecodebin* context = static_cast<Uridecodebin*>(user_data);
-  g_warning(
-      "Uridecodebin unknown type: %s (%s)\n", gst_caps_to_string(caps), gst_element_get_name(bin));
+  context->warning("Uridecodebin unknown type: % (%)",
+                   std::string(gst_caps_to_string(caps)),
+                   std::string(gst_element_get_name(bin)));
   context->pad_to_shmdata_writer(context->gst_pipeline_->get_pipeline(), pad);
 }
 
@@ -205,14 +206,8 @@ bool Uridecodebin::pad_is_image(const std::string& padname) {
 
 void Uridecodebin::decodebin_pad_added_cb(GstElement* object, GstPad* pad, gpointer /*user_data*/) {
   GstBin* bin = static_cast<GstBin*>(g_object_get_data(G_OBJECT(object), "bin"));
-  GstElement* decodebin =
-      static_cast<GstElement*>(g_object_get_data(G_OBJECT(object), "decodebin"));
   GstElement* shmdatasink =
       static_cast<GstElement*>(g_object_get_data(G_OBJECT(object), "shmdatasink"));
-
-  if (!bin || !decodebin || !shmdatasink)
-    g_warning(
-        "Probable bug in gstreamer, this should never happen: %s line %d", __FILE__, __LINE__);
 
   GstElement* imagefreeze = nullptr;
   GstUtils::make_element("imagefreeze", &imagefreeze);
@@ -220,8 +215,7 @@ void Uridecodebin::decodebin_pad_added_cb(GstElement* object, GstPad* pad, gpoin
 
   GstPad* sinkpad = gst_element_get_static_pad(imagefreeze, "sink");
   On_scope_exit { gst_object_unref(sinkpad); };
-  if (GST_PAD_LINK_OK != gst_pad_link(pad, sinkpad))
-    g_warning("pad link failed from decodebin to imagefreeze (uridecodebin)");
+  gst_pad_link(pad, sinkpad);
   gst_element_link(imagefreeze, shmdatasink);
   GstUtils::sync_state_with_parent(imagefreeze);
   GstUtils::sync_state_with_parent(shmdatasink);
@@ -254,13 +248,13 @@ void Uridecodebin::pad_to_shmdata_writer(GstElement* bin, GstPad* pad) {
     GstPad* sinkpad = gst_element_get_static_pad(decodebin, "sink");
     On_scope_exit { gst_object_unref(sinkpad); };
     if (GST_PAD_LINK_OK != gst_pad_link(pad, sinkpad))
-      g_warning("pad link failed from uridecodebin to decodebin (fixed image in uridecodebin)");
+      warning("pad link failed from uridecodebin to decodebin (fixed image in uridecodebin)");
   } else {
     gst_bin_add(GST_BIN(bin), shmdatasink);
     GstPad* sinkpad = gst_element_get_static_pad(shmdatasink, "sink");
     On_scope_exit { gst_object_unref(sinkpad); };
     if (GST_PAD_LINK_OK != gst_pad_link(pad, sinkpad))
-      g_warning("pad link failed from uridecodebin to shmdatasink (uridecodebin)");
+      warning("pad link failed from uridecodebin to shmdatasink (uridecodebin)");
   }
 
   // counting
@@ -311,14 +305,14 @@ void Uridecodebin::uridecodebin_pad_added_cb(GstElement* object, GstPad* pad, gp
 
 bool Uridecodebin::to_shmdata() {
   if (uri_.empty()) {
-    g_warning("no uri to decode");
+    warning("no uri to decode");
     return false;
   }
   counter_.reset_counter_map();
   destroy_uridecodebin();
   if (!gst_uri_is_valid(uri_.c_str())) {
-    g_warning("uri %s is invalid (uridecodebin)", uri_.c_str());
-    g_message("ERROR:The provided uri is invalid.");
+    warning("uri % is invalid (uridecodebin)", uri_);
+    message("ERROR:The provided uri is invalid.");
     return false;
   }
   init_uridecodebin();

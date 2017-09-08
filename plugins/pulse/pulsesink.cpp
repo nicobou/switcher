@@ -66,7 +66,7 @@ PulseSink::PulseSink(QuiddityConfiguration&& conf)
                                          nullptr);
   devices_cond_.wait(lock);
   if (!connected_to_pulse_) {
-    g_message("ERROR:Not connected to pulse, cannot initialize.");
+    message("ERROR:Not connected to pulse, cannot initialize.");
     is_valid_ = false;
     return;
   }
@@ -103,13 +103,14 @@ gboolean PulseSink::async_get_pulse_devices(void* user_data) {
   context->pa_mainloop_api_ = pa_glib_mainloop_get_api(context->pa_glib_mainloop_);
   context->pa_context_ = pa_context_new(context->pa_mainloop_api_, nullptr);
   if (nullptr == context->pa_context_) {
-    g_debug("PulseSink:: pa_context_new() failed.");
+    context->debug("PulseSink:: pa_context_new() failed.");
     return FALSE;
   }
   pa_context_set_state_callback(context->pa_context_, pa_context_state_callback, context);
   if (pa_context_connect(context->pa_context_, context->server_, (pa_context_flags_t)0, nullptr) <
       0) {
-    g_debug("pa_context_connect() failed: %s", pa_strerror(pa_context_errno(context->pa_context_)));
+    context->debug("pa_context_connect() failed: %s",
+                   pa_strerror(pa_context_errno(context->pa_context_)));
     return FALSE;
   }
   context->connected_to_pulse_ = true;
@@ -170,7 +171,7 @@ void PulseSink::pa_context_state_callback(pa_context* pulse_context, void* user_
     case PA_CONTEXT_FAILED:
       break;
     default:
-      g_debug("PulseSink Context error: %s\n", pa_strerror(pa_context_errno(pulse_context)));
+      context->debug("PulseSink Context error: %s\n", pa_strerror(pa_context_errno(pulse_context)));
   }
 }
 
@@ -180,7 +181,8 @@ void PulseSink::get_sink_info_callback(pa_context* pulse_context,
                                        void* user_data) {
   PulseSink* context = static_cast<PulseSink*>(user_data);
   if (is_last < 0) {
-    g_debug("Failed to get sink information: %s", pa_strerror(pa_context_errno(pulse_context)));
+    context->debug("Failed to get sink information: %",
+                   std::string(pa_strerror(pa_context_errno(pulse_context))));
     return;
   }
   if (is_last) {

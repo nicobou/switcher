@@ -230,10 +230,7 @@ bool PostureMerge::disconnect(std::string shmName) {
   try {
     cloud_readers_.erase(shmName);
   } catch (...) {
-    g_warning(
-        "An exception has been caught while trying to disconnect from shmdata "
-        "%s",
-        shmName.c_str());
+    warning("An exception has been caught while trying to disconnect from shmdata %", shmName);
   }
   return true;
 }

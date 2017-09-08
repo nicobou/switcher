@@ -194,7 +194,7 @@ void PostureScan3DGPU::update_loop() {
             this, make_file_name("mesh"), mesh_serialized.size() * 2, data_type);
 
         if (!mesh_writer_) {
-          g_warning("Unable to create mesh writer");
+          warning("Unable to create mesh writer");
           return;
         }
       }
@@ -214,7 +214,7 @@ void PostureScan3DGPU::update_loop() {
                 to_string(height) + ",framerate=30/1");
 
         if (!texture_writer_) {
-          g_warning("Unable to create texture writer");
+          warning("Unable to create texture writer");
           return;
         }
       }

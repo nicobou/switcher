@@ -76,9 +76,6 @@ bool Method::invoke(std::vector<std::string> args, GValue* result_value) {
   // GValue result_value = G_VALUE_INIT;
 
   if (args.size() != num_of_value_args_ && arg_types_[0] != G_TYPE_NONE) {
-    g_warning(
-        "Method::invoke number of arguments does not correspond to the size of "
-        "argument types");
     return false;
   }
 
@@ -90,10 +87,6 @@ bool Method::invoke(std::vector<std::string> args, GValue* result_value) {
       params[i] = G_VALUE_INIT;
       g_value_init(&params[i], arg_types_[i]);
       if (!gst_value_deserialize(&params[i], args[i].c_str())) {
-        g_warning(
-            "Method::invoke string not transformable into gvalue (argument: "
-            "%s) ",
-            args[i].c_str());
         return false;
       }
     }

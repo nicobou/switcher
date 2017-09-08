@@ -655,7 +655,7 @@ std::vector<std::string> V4L2Src::get_file_names_with_prefix(const std::string& 
 bool V4L2Src::check_folder_for_v4l2_devices() {
   auto files = get_file_names_with_prefix("/dev/", "video");
   if (files.empty()) {
-    g_warning("not v4l2 device found");
+    warning("no v4l2 device found");
     return false;
   }
   for (auto& it : files) inspect_file_device("/dev/" + it);
@@ -960,7 +960,7 @@ GstStructure* V4L2Src::gst_v4l2_object_v4l2fourcc_to_structure(guint32 fourcc) {
 }
 
 void V4L2Src::on_gst_error(GstObject*, GError* err) {
-  g_message("ERROR:camera error %s", err->message);
+  message("ERROR:camera error %", std::string(err->message));
   self_destruct();
 }
 
