@@ -74,7 +74,11 @@ Quiddity::Quiddity(QuiddityConfiguration&& conf)
   information_tree_->graft(".type", InfoTree::make(conf.type_));
 }
 
-Quiddity::~Quiddity() { std::lock_guard<std::mutex> lock(self_destruct_mtx_); }
+Quiddity::~Quiddity() {
+  std::cout << __FUNCTION__ << __LINE__ << '\n';
+  std::lock_guard<std::mutex> lock(self_destruct_mtx_);
+  std::cout << __FUNCTION__ << __LINE__ << '\n';
+}
 
 std::string Quiddity::get_name() const { return name_; }
 

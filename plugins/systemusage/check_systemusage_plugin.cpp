@@ -29,7 +29,6 @@ void quiddity_created_removed_cb(std::string /*subscriber_name */,
                                  std::string /*signal_name*/,
                                  std::vector<std::string> params,
                                  void* user_data) {
-  // g_print("%s: %s\n", signal_name.c_str(), params[0].c_str());
   switcher::Switcher* ctx = static_cast<switcher::Switcher*>(user_data);
   std::cout << ctx->use_tree<MPtr(&switcher::InfoTree::serialize_json)>(quiddity_name, params[0])
             << std::endl;

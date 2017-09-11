@@ -270,7 +270,7 @@ gboolean RtpSession::remove_destination_wrapped(gpointer nick_name, gpointer use
 bool RtpSession::remove_destination(std::string nick_name) {
   auto it = destinations_.find(nick_name);
   if (destinations_.end() == it) {
-    warning("RtpSession: destination named %s does not exists, cannot remove", nick_name.c_str());
+    warning("RtpSession: destination named % does not exists, cannot remove", nick_name);
     return false;
   }
   if (!it->second) return false;
@@ -307,7 +307,7 @@ bool RtpSession::add_udp_stream_to_dest(std::string shmpath,
   }
   gint rtp_port = atoi(port.c_str());
   if (rtp_port % 2 != 0) {
-    warning("rtp destination port %s must be even, not odd", port.c_str());
+    warning("rtp destination port % must be even, not odd", port);
     return false;
   }
   // rtp stream (sending)

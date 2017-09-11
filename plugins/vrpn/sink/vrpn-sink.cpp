@@ -475,19 +475,13 @@ void VRPNSink::onShmReaderData(void* data, size_t size) {
   }
 
   if (debug_) {
-    /*debug("VRPNSink   <<< Sender: %s Type: %s Length: %lu Payload: %u",
-      senderName.c_str(),
-      typeName.c_str(),
-      size,
-      payload_len);*/
-
     unsigned char* d = static_cast<unsigned char*>(data);
     std::stringstream ss;
     ss << "VRPNSink   <<< ";
     for (int i = 0; i < (int)size; ++i) {
       ss << std::hex << std::setfill('0') << std::setw(2) << (int)d[i] << " ";
     }
-    debug("%s", ss.str().c_str());
+    debug("%", ss.str());
   }
 
   // BUFFER

@@ -268,7 +268,6 @@ PropertyQuid::PropertyQuid(QuiddityConfiguration&& conf)
   //           << std::get<1>(tuple_) << " "      // 2.2
   //           << std::get<2>(tuple_) << "\n";    // a22
 
-  // debug("uint property installation id is %lu", uint_id);
   // props_.install("int_", &int_prop_);
   install_method("Hello World",                                  // long name
                  "hello-world",                                  // name

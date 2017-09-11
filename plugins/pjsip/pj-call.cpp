@@ -145,10 +145,6 @@ void PJCall::finalize_calls() {
 
 /* Callback to be called to handle incoming requests outside dialogs: */
 pj_bool_t PJCall::on_rx_request(pjsip_rx_data* rdata) {
-  // printf("-------------------- %s %.*s\n",
-  //        __FUNCTION__,
-  //        static_cast<int>(rdata->msg_info.msg->line.req.method.name.slen),
-  //        rdata->msg_info.msg->line.req.method.name.ptr);
   /* Ignore strandled ACKs (must not send respone) */
   if (rdata->msg_info.msg->line.req.method.id == PJSIP_ACK_METHOD) return PJ_FALSE;
   /* Respond (statelessly) any non-INVITE requests with 500  */
@@ -363,7 +359,7 @@ void PJCall::call_on_state_changed(pjsip_inv_session* inv, pjsip_event* /*e*/) {
       SIPPlugin::this_->debug("PJSIP_INV_STATE_INCOMING");
       break;
     default:
-      SIPPlugin::this_->debug("%s, unhandled invite state", __FUNCTION__);
+      SIPPlugin::this_->debug("%, unhandled invite state", std::string(__FUNCTION__));
       break;
   }
 }

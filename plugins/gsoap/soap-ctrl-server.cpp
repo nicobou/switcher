@@ -189,7 +189,6 @@ bool SoapCtrlServer::start() {
 //   soap_done(&soap_);
 //   if (nullptr != service_)
 //     delete service_;
-//   g_print("end of %s\n", __FUNCTION__);
 //   return true;
 // }
 

@@ -115,7 +115,7 @@ bool Switcher::load_state(InfoTree::ptr state) {
     for (auto& it : nicknames->get_child_keys(".")) {
       std::string nickname = nicknames->branch_get_value(it);
       if (!set_nickname(it, nickname))
-        log_->warning("error applying nickname %s for %s", nickname.c_str(), it.c_str());
+        log_->warning("error applying nickname % for %", nickname, it);
     }
   }
 
@@ -131,10 +131,10 @@ bool Switcher::load_state(InfoTree::ptr state) {
         } else {
           if (!use_prop<MPtr(&PContainer::set_str_str)>(
                   quid, prop, Any::to_string(properties->branch_get_value(quid + "." + prop))))
-            log_->warning("failed to apply value, quiddity is %s, property is %s, value is %s",
-                          quid.c_str(),
-                          prop.c_str(),
-                          Any::to_string(properties->branch_get_value(quid + "." + prop)).c_str());
+            log_->warning("failed to apply value, quiddity is %, property is %, value is %",
+                          quid,
+                          prop,
+                          Any::to_string(properties->branch_get_value(quid + "." + prop)));
         }
       }
     }
@@ -163,7 +163,7 @@ bool Switcher::load_state(InfoTree::ptr state) {
   // starting quiddities
   for (auto& quid : quid_to_start) {
     if (!use_prop<MPtr(&PContainer::set_str_str)>(quid, "started", "true")) {
-      log_->warning("failed to start quiddity %s", quid.c_str());
+      log_->warning("failed to start quiddity %", quid);
     }
   }
 

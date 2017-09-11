@@ -224,11 +224,6 @@ void PortMidi::PortMidiScheduler::process_midi(PtTimestamp /*timestamp */, void*
             continue; /* ignore this data */
           }
 
-          // g_print ("midi input msg from %u %u %u \n",
-          //  Pm_MessageStatus(buffer.message),
-          //  Pm_MessageData1(buffer.message),
-          //  Pm_MessageData2(buffer.message));
-
           // invoking the callback
           itr.second.first(&buffer, itr.second.second);
 
@@ -265,11 +260,6 @@ void PortMidi::PortMidiScheduler::process_midi(PtTimestamp /*timestamp */, void*
         /* maybe sysex has timed out (output becomes unblocked) */
         context->thru_sysex_in_progress_ = false;
       }
-
-      // g_print ("midi output msg: %u %u %u\n",
-      //      Pm_MessageStatus(next->message),
-      //      Pm_MessageData1(next->message),
-      //      Pm_MessageData2(next->message));
 
       Pm_Write(itr.first, next, 1);
 

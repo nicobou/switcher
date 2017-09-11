@@ -109,8 +109,8 @@ gboolean PulseSink::async_get_pulse_devices(void* user_data) {
   pa_context_set_state_callback(context->pa_context_, pa_context_state_callback, context);
   if (pa_context_connect(context->pa_context_, context->server_, (pa_context_flags_t)0, nullptr) <
       0) {
-    context->debug("pa_context_connect() failed: %s",
-                   pa_strerror(pa_context_errno(context->pa_context_)));
+    context->debug("pa_context_connect() failed: %",
+                   std::string(pa_strerror(pa_context_errno(context->pa_context_))));
     return FALSE;
   }
   context->connected_to_pulse_ = true;
@@ -171,7 +171,8 @@ void PulseSink::pa_context_state_callback(pa_context* pulse_context, void* user_
     case PA_CONTEXT_FAILED:
       break;
     default:
-      context->debug("PulseSink Context error: %s\n", pa_strerror(pa_context_errno(pulse_context)));
+      context->debug("PulseSink Context error: %",
+                     std::string(pa_strerror(pa_context_errno(pulse_context))));
   }
 }
 
@@ -242,40 +243,17 @@ void PulseSink::get_sink_info_callback(pa_context* pulse_context,
   gchar* channels = g_strdup_printf("%u", i->sample_spec.channels);
   description.channels_ = channels;
   g_free(channels);
-  // g_print ("Name: %s\n"
-  //      "Description: %s\n"
-  //      " format: %s\n"
-  //      " rate: %u\n"
-  //      " channels: %u\n",
-  //      //"Channel Map: %s\n",
-  //      i->name,
-  //      i->description,// warning this can be nullptr
-  //      pa_sample_format_to_string (i->sample_spec.format),
-  //      i->sample_spec.rate,
-  //      i->sample_spec.channels//,
-  //      // pa_channel_map_snprint(cm, sizeof(cm), &i->channel_map)
-  //      );
   if (i->ports) {
     pa_sink_port_info** p;
-    // printf("\tPorts:\n");
     for (p = i->ports; *p; p++) {
-      // printf("\t\t%s: %s (priority. %u)\n", (*p)->name, (*p)->description,
-      // (*p)->priority);
       description.ports_.push_back(std::make_pair((*p)->name, (*p)->description));
     }
   }
   if (i->active_port) {
-    // printf("\tActive Port: %s\n", i->active_port->name);
     description.active_port_ = i->active_port->description;
   } else
     description.active_port_ = "n/a";
   context->devices_.push_back(description);
-  // if (i->formats) {
-  //   uint8_t j;
-  //   printf("\tFormats:\n");
-  //   for (j = 0; j < i->n_formats; j++)
-  // printf("\t\t%s\n", pa_format_info_snprint(f, sizeof(f), i->formats[j]));
-  // }
 }
 
 void PulseSink::make_device_description(pa_context* pulse_context) {

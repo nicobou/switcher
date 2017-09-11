@@ -41,7 +41,6 @@ JackClient::JackClient(const char* name,
   jack_on_shutdown(client_.get(), &JackClient::on_jack_shutdown, this);
   // if (status_ & JackNameNotUnique) {
   // client_name = jack_get_client_name(client);
-  // fprintf (stderr, "unique name `%s' assigned\n", client_name);
   // }
   sample_rate_ = jack_get_sample_rate(client_.get());
   buffer_size_ = jack_get_buffer_size(client_.get());
@@ -55,45 +54,12 @@ void JackClient::port_callback(jack_port_id_t port_id, int yn, void* user_data) 
   JackClient* context = static_cast<JackClient*>(user_data);
   jack_port_t* port = jack_port_by_id(context->client_.get(), port_id);
   if (yn) context->port_cb_(port);
-  // printf ("Port %d %s\n", port_id, (yn ? "registered" : "unregistered"));
-  // {
-  //   int flags = jack_port_flags (port);
-  //   printf ("	properties: ");
-  //   if (flags & JackPortIsInput) {
-  //     fputs ("input,", stdout);
-  //   }
-  //   if (flags & JackPortIsOutput) {
-  //     fputs ("output,", stdout);
-  //   }
-  //   if (flags & JackPortCanMonitor) {
-  //     fputs ("can-monitor,", stdout);
-  //   }
-  //   if (flags & JackPortIsPhysical) {
-  //     fputs ("physical,", stdout);
-  //   }
-  //   if (flags & JackPortIsTerminal) {
-  //     fputs ("terminal,", stdout);
-  //   }
-  //   putc ('\n', stdout);
-  // }
-  // {
-  //   printf ("port type :: ");
-  //   putc ('\t', stdout);
-  //   fputs (jack_port_type (port), stdout);
-  //   putc ('\n', stdout);
-  // }
-  // {
-  //   printf("port name %s\n", jack_port_name(port));
-  //   printf("port short name %s\n", jack_port_short_name(port));
-  // }
-  // printf("-------------------------\n");
 }
 
 int JackClient::jack_process(jack_nframes_t nframes, void* arg) {
   JackClient* context = static_cast<JackClient*>(arg);
   unsigned int samples = context->xrun_count_.load();
   if (0 != samples) {
-    // g_print("-- missed samples %u\n", samples);
     if (context->xrun_cb_) context->xrun_cb_(samples);
     context->xrun_count_.fetch_sub(samples);
   }

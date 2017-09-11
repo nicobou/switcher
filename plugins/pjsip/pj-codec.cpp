@@ -77,11 +77,6 @@ pj_status_t PJCodec::alt_codec_enum_codecs(pjmedia_codec_factory* /*factory*/,
 
   unsigned i = 0;
   for (auto& it : available_codecs) {
-    // g_print(" encoding %s, payload %d, media %s, clock rate %d\n",
-    //         it->encoding_name_.c_str(),
-    //         it->payload_,
-    //         it->media_.c_str(),
-    //         it->clock_rate_);
     if (i >= *count)  // default pjsip is 32, need a patch to get more, like 128
       break;
     pj_bzero(&codecs[i], sizeof(pjmedia_codec_info));

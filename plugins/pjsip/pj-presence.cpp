@@ -432,20 +432,6 @@ void PJPresence::on_buddy_state(pjsua_buddy_id buddy_id) {
   //   activity = "away";
   // if (PJRPID_ACTIVITY_BUSY == info.rpid.activity)
   //   activity = "busy";
-  // debug("%.*s status is %.*s, subscription state is %s "
-  //         "(last termination reason code=%d %.*s)\n"
-  //         "rpid  activity %s, note %.*s\n",
-  //         static_cast<int>(info.uri.slen),
-  //         info.uri.ptr,
-  //         static_cast<int>(info.status_text.slen),
-  //         info.status_text.ptr,
-  //         info.sub_state_name,
-  //         info.sub_term_code,
-  //         static_cast<int>(info.sub_term_reason.slen),
-  //         info.sub_term_reason.ptr,
-  //         activity.c_str(),
-  //         static_cast<int>(info.rpid.note.slen),
-  //         info.rpid.note.ptr);
   // std::string buddy_url(info.uri.ptr, (size_t) info.uri.slen);
   // tree->graft(".sip_url", InfoTree::make(buddy_url));
   std::string status("unknown");

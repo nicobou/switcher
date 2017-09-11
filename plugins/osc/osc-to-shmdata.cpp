@@ -84,7 +84,6 @@ int OscToShmdata::osc_handler(const char* path,
                               void* user_data) {
   OscToShmdata* context = static_cast<OscToShmdata*>(user_data);
   lo_timetag timetag = lo_message_get_timestamp(m);
-  // g_print ("timestamp %u %u", path, timetag.sec, timetag.frac);
   if (0 != timetag.sec) {
     // FIXME handle internal timetag
     // note: this is not implemented in osc-send

@@ -208,14 +208,6 @@ bool V4L2Src::fetch_available_frame_intervals() {
   }
 
   if (frmival.type != V4L2_FRMIVAL_TYPE_DISCRETE) {
-    // g_print ("frametime (s) for rate min %u/%u\nrate max %u/%u\n time step
-    // %u/%u\n",
-    //  frmival.stepwise.min.numerator,
-    //  frmival.stepwise.min.denominator,
-    //  frmival.stepwise.max.numerator,
-    //  frmival.stepwise.max.denominator,
-    //  frmival.stepwise.step.numerator,
-    //  frmival.stepwise.step.denominator);
     description.frame_interval_stepwise_max_numerator_ = frmival.stepwise.max.numerator;
     description.frame_interval_stepwise_max_denominator_ = frmival.stepwise.max.denominator;
     description.frame_interval_stepwise_min_numerator_ = frmival.stepwise.max.numerator;
@@ -564,12 +556,8 @@ bool V4L2Src::inspect_file_device(const std::string& file_path) {
   description.bus_info_ = (char*)vcap.bus_info;
   description.device_id_ = description.bus_info_;
   description.driver_ = (char*)vcap.driver;
-  // g_print ("-------------------------- card %s bus %s driver %s\n",
-  //        (char *)vcap.card,
-  //        (char *)vcap.bus_info,
-  //        (char *)vcap.driver);
-  // pixel format
 
+  // pixel format
   v4l2_fmtdesc fmt;
   unsigned default_pixel_format = 0;
   memset(&fmt, 0, sizeof(fmt));
@@ -578,9 +566,6 @@ bool V4L2Src::inspect_file_device(const std::string& file_path) {
   while (ioctl(fd, VIDIOC_ENUM_FMT, &fmt) >= 0) {
     if (fmt.pixelformat != 0) {
       if (default_pixel_format == 0) default_pixel_format = fmt.pixelformat;
-      // g_print ("******** pixel format  %s \n %s",
-      //          pixel_format_to_string(fmt.pixelformat).c_str (),
-      //          (const char *)fmt.description);
       GstStructure* structure = gst_v4l2_object_v4l2fourcc_to_structure(fmt.pixelformat);
       if (nullptr != structure) {
         GstCaps* caps = gst_caps_new_full(structure, nullptr);

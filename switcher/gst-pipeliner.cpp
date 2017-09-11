@@ -96,55 +96,7 @@ void GstPipeliner::play(gboolean play) {
 
 bool GstPipeliner::seek(gdouble position_in_ms) { return gst_pipeline_->seek(position_in_ms); }
 
-// gboolean GstPipeliner::run_remove_quid(gpointer user_data) {
-//   GstPipeliner *context = static_cast<GstPipeliner *>(user_data);
-//   QuiddityContainer::ptr manager = context->qcontainer_.lock();
-//   if (manager) {
-//     // copying in case of self destruction
-//     std::list<std::string> tmp = context->quids_to_remove_;
-//     context->quids_to_remove_.clear();
-//     for (auto &it: tmp)
-//       manager->remove(it);
-//   }
-//   return FALSE;
-// }
-
 GstElement* GstPipeliner::get_pipeline() { return gst_pipeline_->get_pipeline(); }
-
-// void
-// GstPipeliner::print_one_tag(const GstTagList */*list*/,
-//                             const gchar */*tag*/,
-//                             gpointer /*user_data*/) {
-//   // int i, num;
-
-//   // num = gst_tag_list_get_tag_size (list, tag);
-//   // for (i = 0; i < num; ++i) {
-//   //   const GValue *val;
-
-//   //   /* Note: when looking for specific tags, use the g_tag_list_get_xyz()
-//   API,
-//   //    * we only use the GValue approach here because it is more generic */
-//   //   val = gst_tag_list_get_value_index (list, tag, i);
-//   //   if (G_VALUE_HOLDS_STRING (val)) {
-//   // g_print ("\t%20s : %s\n", tag, g_value_get_string (val));
-//   //   } else if (G_VALUE_HOLDS_UINT (val)) {
-//   // g_print ("\t%20s : %u\n", tag, g_value_get_uint (val));
-//   //   } else if (G_VALUE_HOLDS_DOUBLE (val)) {
-//   // g_print ("\t%20s : %g\n", tag, g_value_get_double (val));
-//   //   } else if (G_VALUE_HOLDS_BOOLEAN (val)) {
-//   // g_print ("\t%20s : %s\n", tag,
-//   //  (g_value_get_boolean (val)) ? "true" : "false");
-//   //   } else if (GST_VALUE_HOLDS_BUFFER (val)) {
-//   // g_print ("\t%20s : buffer of size %u\n", tag,
-//   //  GST_BUFFER_SIZE (gst_value_get_buffer (val)));
-//   //   } else if (GST_VALUE_HOLDS_DATE (val)) {
-//   // g_print ("\t%20s : date (year=%u,...)\n", tag,
-//   //  g_date_get_year (gst_value_get_date (val)));
-//   //   } else {
-//   // g_print ("\t%20s : tag of type '%s'\n", tag, G_VALUE_TYPE_NAME (val));
-//   //   }
-//   // }
-// }
 
 GstBusSyncReply GstPipeliner::on_gst_error(GstMessage* msg) {
   if (GST_MESSAGE_TYPE(msg) != GST_MESSAGE_ERROR) return GST_BUS_PASS;
@@ -186,18 +138,6 @@ GstBusSyncReply GstPipeliner::bus_sync_handler(GstBus* /*bus*/,
     }
   }
 
-  // if (GST_MESSAGE_TYPE(msg) == GST_MESSAGE_QOS) {
-  //   GstFormat format;
-  //   guint64 processed;
-  //   guint64 dropped;
-  //   gst_message_parse_qos_stats(msg, &format, &processed, &dropped);
-  //   // g_print ("QOS from %s, format %d, processed %lu dropped %lu\n",
-  //   //  G_OBJECT_TYPE_NAME(G_OBJECT (msg->src)),
-  //   //  format,
-  //   //  processed,
-  //   //  dropped);
-  // }
-
   if (GST_MESSAGE_TYPE(msg) == GST_MESSAGE_ERROR) {
     gchar* debug = nullptr;
     GError* error = nullptr;
@@ -206,35 +146,6 @@ GstBusSyncReply GstPipeliner::bus_sync_handler(GstBus* /*bus*/,
     g_error_free(error);
     res = GST_BUS_DROP;
   }
-
-  // if (GST_MESSAGE_TYPE(msg) == GST_MESSAGE_EOS) {
-  //   if (context->on_eos_cb_)
-  //     context->on_eos_cb_();
-  //   return GST_BUS_DROP;
-  // }
-
-  // FIXME:
-  // const GstStructure *gstruct = gst_message_get_structure (msg);
-  // if (nullptr != gstruct) {
-  //   if (gst_structure_has_name(gstruct, "prepare-xwindow-id")) {
-  //     guintptr *window_handle =
-  //         (guintptr *) g_object_get_data(G_OBJECT(msg->src),
-  //                                        "window-handle");
-  //     if (window_handle != nullptr) {
-  //       gst_x_overlay_set_window_handle(GST_X_OVERLAY(msg->src),
-  //                                       *window_handle);
-  //     }
-  //   }
-  // }
-
-  // if (GST_MESSAGE_TYPE(msg) == GST_MESSAGE_TAG) {
-  //   // GstTagList *tags = nullptr;
-  //   // gst_message_parse_tag (msg, &tags);
-  //   // g_print ("Got tags from element %s:\n", GST_OBJECT_NAME (msg->src));
-  //   // gst_tag_list_foreach (tags, print_one_tag, nullptr);
-  //   // g_print ("\n");
-  //   // gst_tag_list_free (tags);
-  // }
 
   return res;
 }

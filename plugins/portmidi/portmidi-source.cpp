@@ -159,12 +159,6 @@ void PortMidiSource::on_pm_event(PmEvent* event, void* user_data) {
     context->last_data2_ = (gint)data2;
   }
   context->pmanage<MPtr(&PContainer::notify)>(context->last_midi_value_id_);
-  // g_print ("to shm:  %u %u %u event ts %d tmp_event_ts %d\n",
-  //        status,
-  //        data1,
-  //        data2,
-  //      event->timestamp);
-
   // updating property if needed
   if (context->midi_channels_.find(std::make_pair(status, data1)) !=
       context->midi_channels_.end()) {
@@ -196,7 +190,7 @@ gboolean PortMidiSource::remove_property_method(gchar* long_name, void* user_dat
   PortMidiSource* context = static_cast<PortMidiSource*>(user_data);
 
   if (context->midi_property_contexts_.find(long_name) == context->midi_property_contexts_.end()) {
-    context->debug("property %s not found for removing", long_name);
+    context->debug("property % not found for removing", std::string(long_name));
     return FALSE;
   }
 
