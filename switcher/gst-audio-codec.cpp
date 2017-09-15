@@ -128,10 +128,8 @@ void GstAudioCodec::make_codec_properties() {
 
 gboolean GstAudioCodec::reset_codec_configuration(gpointer /*unused */, gpointer user_data) {
   GstAudioCodec* context = static_cast<GstAudioCodec*>(user_data);
-
-  context->quid_->pmanage<MPtr(&PContainer::set<Selection<>::index_t>)>(
-      context->codec_id_, context->codecs_.get_index("Opus audio encoder"));
-
+  context->codecs_.select(IndexOrName("Opus audio encoder"));
+  context->quid_->pmanage<MPtr(&PContainer::notify)>(context->codec_id_);
   return TRUE;
 }
 
