@@ -1,2 +1,2 @@
 pkg-resources==0.0.0
-websockets==8.1
+websockets==9.1
