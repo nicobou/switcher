@@ -8,7 +8,8 @@ stages:
   - test
   - coverage
   - package
-
+  - upload
+  - release
 
 Test Ubuntu 20.04:
   stage: test
@@ -190,3 +191,30 @@ Debian Package Ubuntu 23.04:
     paths:
     - release-files/
 
+#
+# Gitlab release
+#
+Gitlab release upload:
+  stage: upload
+  image: curlimages/curl:latest
+  rules:
+    - if: $CI_COMMIT_TAG
+  script:
+    - |
+      for i in $(ls release-files/); do curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file release-files/${i} "${PACKAGE_REGISTRY_URL}/${CI_COMMIT_TAG}/${i}"; done
+
+
+Gitlab release:
+  stage: release
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  rules:
+    - if: $CI_COMMIT_TAG
+  script:
+    - |
+      release-cli create --name "Release $CI_COMMIT_TAG" --tag-name $CI_COMMIT_TAG \
+        --description LAST_RELEASE.md \
+        $(\
+          for i in $(ls release-files/); do \
+            echo --assets-link  "{\"name\":\"${i}\",\"url\":\"${PACKAGE_REGISTRY_URL}/${CI_COMMIT_TAG}/${i}\",\"link_type\":\"package\"}" ;\
+          done \
+         )
