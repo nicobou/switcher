@@ -2,6 +2,7 @@ variables:
   SHMDATA_VERSION: '1.3.74'
   CTEST_OUTPUT_ON_FAILURE: '1'
   GIT_SUBMODULE_STRATEGY: recursive
+  PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/releases"
   CMAKE_PLUGINS_OPTIONS: '-DPLUGIN_AV=OFF -DPLUGIN_CRASHTEST=OFF -DPLUGIN_CROPPER=OFF -DPLUGIN_EXECUTOR=OFF -DPLUGIN_GLFW=OFF -DPLUGIN_JACK=OFF -DPLUGIN_LADSPA=OFF -DPLUGIN_MIDI=OFF -DPLUGIN_NVENC=OFF -DPLUGIN_OSC=OFF -DPLUGIN_PROTOCOL_MAPPER=OFF -DPLUGIN_PULSE=OFF -DPLUGIN_RESAMPLE=OFF -DPLUGIN_RTMP=OFF -DPLUGIN_SIP=OFF -DPLUGIN_SYSTEMUSAGE=OFF -DPLUGIN_TIMECODE=OFF -DPLUGIN_V4L2=OFF -DPLUGIN_VIDEO_SNAPSHOT=OFF -DPLUGIN_VNC=OFF -DPLUGIN_VRPN=OFF -DPLUGIN_WATCHER=OFF -DPLUGIN_WEBRTC=OFF'
 
 stages:
@@ -29,6 +30,7 @@ Test Ubuntu 20.04:
   except:
     - develop
     - master
+    - feature/cmake_deb
     
 Test Ubuntu 22.04:
   stage: test
@@ -48,6 +50,7 @@ Test Ubuntu 22.04:
   except:
     - develop
     - master
+    - feature/cmake_deb
 
 Test Ubuntu 23.04:
   stage: test
@@ -66,6 +69,7 @@ Test Ubuntu 23.04:
   except:
     - develop
     - master
+    - feature/cmake_deb
 
 Coverage -- Ubuntu 22.04:
   stage: coverage
