@@ -44,7 +44,7 @@ const std::string OscToShmdata::kConnectionSpec(R"(
 OscToShmdata::OscToShmdata(quiddity::Config&& conf)
     : Quiddity(std::forward<quiddity::Config>(conf), {kConnectionSpec}),
       Startable(this),
-      port_id_(pmanage<MPtr(&property::PBag::make_int)>(
+      port_id_(pmanage<&property::PBag::make_int>(
           "port",
           [this](const int& val) {
             port_ = val;
@@ -102,14 +102,14 @@ int OscToShmdata::osc_handler(const char* path,
   }
   size_t size = 0;
   void* buftmp = lo_message_serialise(m, path, nullptr, &size);
-  if (context->shm_->writer<MPtr(&::shmdata::Writer::alloc_size)>() < size) {
+  if (context->shm_->writer<&::shmdata::Writer::alloc_size>() < size) {
     context->shm_.reset(nullptr);
     context->shm_.reset(new shmdata::Writer(context,
                                             context->claw_.get_shmpath_from_writer_label("osc"),
                                             size,
                                             "application/x-libloserialized-osc"));
   }
-  context->shm_->writer<MPtr(&::shmdata::Writer::copy_to_shm)>(buftmp, size);
+  context->shm_->writer<&::shmdata::Writer::copy_to_shm>(buftmp, size);
   context->shm_->bytes_written(size);
   free(buftmp);
   return 0;

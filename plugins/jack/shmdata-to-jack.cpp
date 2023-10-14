@@ -56,7 +56,7 @@ ShmdataToJack::ShmdataToJack(quiddity::Config&& conf)
       server_name_(conf.tree_config_->branch_has_data("server_name")
                        ? conf.tree_config_->branch_get_value("server_name").copy_as<std::string>()
                        : "default"),
-      client_name_id_(pmanage<MPtr(&property::PBag::make_string)>(
+      client_name_id_(pmanage<&property::PBag::make_string>(
           "client_name",
           [this](const std::string& val) {
             client_name_ = val;
@@ -66,7 +66,7 @@ ShmdataToJack::ShmdataToJack(quiddity::Config&& conf)
           "Client Name",
           "The jack client name",
           client_name_)),
-      server_name_id_(pmanage<MPtr(&property::PBag::make_string)>(
+      server_name_id_(pmanage<&property::PBag::make_string>(
           "server_name",
           [this](const std::string& val) {
             server_name_ = val;
@@ -76,7 +76,7 @@ ShmdataToJack::ShmdataToJack(quiddity::Config&& conf)
           "Server Name",
           "The jack server name",
           server_name_)),
-      connect_to_id_(pmanage<MPtr(&property::PBag::make_string)>(
+      connect_to_id_(pmanage<&property::PBag::make_string>(
           "connect_to",
           [this](const std::string& val) {
             connect_to_ = val;
@@ -86,22 +86,22 @@ ShmdataToJack::ShmdataToJack(quiddity::Config&& conf)
           "Connect To",
           "Which client to connect to",
           connect_to_)),
-      auto_connect_id_(pmanage<MPtr(&property::PBag::make_bool)>(
+      auto_connect_id_(pmanage<&property::PBag::make_bool>(
           "auto_connect",
           [this](const bool val) {
             auto_connect_ = val;
             if (auto_connect_) {
-              pmanage<MPtr(&property::PBag::enable)>(connect_to_id_);
-              pmanage<MPtr(&property::PBag::enable)>(index_id_);
-              pmanage<MPtr(&property::PBag::enable)>(connect_all_to_first_id_);
-              pmanage<MPtr(&property::PBag::enable)>(connect_only_first_id_);
+              pmanage<&property::PBag::enable>(connect_to_id_);
+              pmanage<&property::PBag::enable>(index_id_);
+              pmanage<&property::PBag::enable>(connect_all_to_first_id_);
+              pmanage<&property::PBag::enable>(connect_only_first_id_);
             } else {
               static const std::string why_disabled =
                   "this property is available only when auto connect is enabled";
-              pmanage<MPtr(&property::PBag::disable)>(connect_to_id_, why_disabled);
-              pmanage<MPtr(&property::PBag::disable)>(index_id_, why_disabled);
-              pmanage<MPtr(&property::PBag::disable)>(connect_all_to_first_id_, why_disabled);
-              pmanage<MPtr(&property::PBag::disable)>(connect_only_first_id_, why_disabled);
+              pmanage<&property::PBag::disable>(connect_to_id_, why_disabled);
+              pmanage<&property::PBag::disable>(index_id_, why_disabled);
+              pmanage<&property::PBag::disable>(connect_all_to_first_id_, why_disabled);
+              pmanage<&property::PBag::disable>(connect_only_first_id_, why_disabled);
             }
             return true;
           },
@@ -109,7 +109,7 @@ ShmdataToJack::ShmdataToJack(quiddity::Config&& conf)
           "Auto Connect",
           "Auto Connect to another client",
           auto_connect_)),
-      connect_all_to_first_id_(pmanage<MPtr(&property::PBag::make_bool)>(
+      connect_all_to_first_id_(pmanage<&property::PBag::make_bool>(
           "connect_all_to_first",
           [this](const bool val) {
             connect_all_to_first_ = val;
@@ -119,7 +119,7 @@ ShmdataToJack::ShmdataToJack(quiddity::Config&& conf)
           "Many Channels To One",
           "Connect all channels to the first",
           connect_all_to_first_)),
-      connect_only_first_id_(pmanage<MPtr(&property::PBag::make_bool)>(
+      connect_only_first_id_(pmanage<&property::PBag::make_bool>(
           "connect_only_first",
           [this](const bool val) {
             connect_only_first_ = val;
@@ -129,7 +129,7 @@ ShmdataToJack::ShmdataToJack(quiddity::Config&& conf)
           "Connect only first channel",
           "Connect only first channel",
           connect_only_first_)),
-      do_format_conversion_id_(pmanage<MPtr(&property::PBag::make_bool)>(
+      do_format_conversion_id_(pmanage<&property::PBag::make_bool>(
           "do_format_conversion",
           [this](const bool val) {
             do_format_conversion_ = val;
@@ -139,7 +139,7 @@ ShmdataToJack::ShmdataToJack(quiddity::Config&& conf)
           "Do sample conversion to float (F32LE)",
           "Do sample conversion to float (F32LE)",
           do_format_conversion_)),
-      do_rate_conversion_id_(pmanage<MPtr(&property::PBag::make_bool)>(
+      do_rate_conversion_id_(pmanage<&property::PBag::make_bool>(
           "do_rate_conversion",
           [this](const bool val) {
             do_rate_conversion_ = val;
@@ -151,11 +151,11 @@ ShmdataToJack::ShmdataToJack(quiddity::Config&& conf)
           do_rate_conversion_)),
       gst_pipeline_(std::make_unique<gst::Pipeliner>(nullptr, nullptr)) {
   unsigned int max_number_of_channels = kMaxNumberOfChannels;
-  if (config<MPtr(&InfoTree::branch_has_data)>("max_number_of_channels"))
+  if (config<&InfoTree::branch_has_data>("max_number_of_channels"))
     max_number_of_channels =
-        config<MPtr(&InfoTree::branch_get_value)>("max_number_of_channels").copy_as<unsigned int>();
+        config<&InfoTree::branch_get_value>("max_number_of_channels").copy_as<unsigned int>();
 
-  index_id_ = pmanage<MPtr(&property::PBag::make_int)>(
+  index_id_ = pmanage<&property::PBag::make_int>(
       "index",
       [this](const int& val) {
         index_ = val;
@@ -344,21 +344,21 @@ bool ShmdataToJack::start() {
       this, shmdatasrc_, shmpath_, shmdata::GstTreeUpdater::Direction::reader);
 
   // Disable properties
-  pmanage<MPtr(&property::PBag::disable)>(server_name_id_,
+  pmanage<&property::PBag::disable>(server_name_id_,
                                           property::PBag::disabledWhenConnectedMsg);
-  pmanage<MPtr(&property::PBag::disable)>(client_name_id_,
+  pmanage<&property::PBag::disable>(client_name_id_,
                                           property::PBag::disabledWhenConnectedMsg);
-  pmanage<MPtr(&property::PBag::disable)>(auto_connect_id_,
+  pmanage<&property::PBag::disable>(auto_connect_id_,
                                           property::PBag::disabledWhenConnectedMsg);
-  pmanage<MPtr(&property::PBag::disable)>(connect_to_id_, property::PBag::disabledWhenConnectedMsg);
-  pmanage<MPtr(&property::PBag::disable)>(index_id_, property::PBag::disabledWhenConnectedMsg);
-  pmanage<MPtr(&property::PBag::disable)>(connect_all_to_first_id_,
+  pmanage<&property::PBag::disable>(connect_to_id_, property::PBag::disabledWhenConnectedMsg);
+  pmanage<&property::PBag::disable>(index_id_, property::PBag::disabledWhenConnectedMsg);
+  pmanage<&property::PBag::disable>(connect_all_to_first_id_,
                                           property::PBag::disabledWhenConnectedMsg);
-  pmanage<MPtr(&property::PBag::disable)>(connect_only_first_id_,
+  pmanage<&property::PBag::disable>(connect_only_first_id_,
                                           property::PBag::disabledWhenConnectedMsg);
-  pmanage<MPtr(&property::PBag::disable)>(do_format_conversion_id_,
+  pmanage<&property::PBag::disable>(do_format_conversion_id_,
                                           property::PBag::disabledWhenConnectedMsg);
-  pmanage<MPtr(&property::PBag::disable)>(do_rate_conversion_id_,
+  pmanage<&property::PBag::disable>(do_rate_conversion_id_,
                                           property::PBag::disabledWhenConnectedMsg);
 
   return true;
@@ -380,15 +380,15 @@ bool ShmdataToJack::stop() {
   is_constructed_ = false;
 
   // Enable properties
-  pmanage<MPtr(&property::PBag::enable)>(server_name_id_);
-  pmanage<MPtr(&property::PBag::enable)>(client_name_id_);
-  pmanage<MPtr(&property::PBag::enable)>(auto_connect_id_);
-  pmanage<MPtr(&property::PBag::enable)>(connect_to_id_);
-  pmanage<MPtr(&property::PBag::enable)>(index_id_);
-  pmanage<MPtr(&property::PBag::enable)>(connect_all_to_first_id_);
-  pmanage<MPtr(&property::PBag::enable)>(connect_only_first_id_);
-  pmanage<MPtr(&property::PBag::enable)>(do_format_conversion_id_);
-  pmanage<MPtr(&property::PBag::enable)>(do_rate_conversion_id_);
+  pmanage<&property::PBag::enable>(server_name_id_);
+  pmanage<&property::PBag::enable>(client_name_id_);
+  pmanage<&property::PBag::enable>(auto_connect_id_);
+  pmanage<&property::PBag::enable>(connect_to_id_);
+  pmanage<&property::PBag::enable>(index_id_);
+  pmanage<&property::PBag::enable>(connect_all_to_first_id_);
+  pmanage<&property::PBag::enable>(connect_only_first_id_);
+  pmanage<&property::PBag::enable>(do_format_conversion_id_);
+  pmanage<&property::PBag::enable>(do_rate_conversion_id_);
 
   return true;
 }

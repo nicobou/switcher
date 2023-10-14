@@ -31,7 +31,7 @@ namespace switcher::session {
 
 Session::Session(Switcher* instance) : switcher_(instance) {
   // retrieve current configuration tree
-  auto config_tree = this->switcher_->conf<MPtr(&Configuration::get)>();
+  auto config_tree = this->switcher_->conf<&Configuration::get>();
   // check for $XDG_STATE_HOME variable
   const auto env_xsh = std::getenv("XDG_STATE_HOME");
   // or use recommended fallback as a default

@@ -35,51 +35,51 @@ int main() {
     Switcher::ptr sw = Switcher::make_switcher("test_manager");
     assert(quiddity::test::full(sw, "dyn-writer-quid"));
 
-    auto dynw = sw->quids<MPtr(&Container::create)>("dyn-writer-quid", "writer", nullptr).get();
+    auto dynw = sw->quids<&Container::create>("dyn-writer-quid", "writer", nullptr).get();
     assert(dynw);
     // register to new connection spec in the tree
     int num_added_received = 0;
     assert(0 !=
-           dynw->sig<MPtr(&signal::SBag::subscribe_by_name)>(
+           dynw->sig<&signal::SBag::subscribe_by_name>(
                "on-connection-spec-added", [&](const InfoTree::ptr& tree) {
                  assert(stringutils::starts_with(tree->read_data().as<std::string>(), "writer."));
                  ++num_added_received;
                }));
     int num_removed_received = 0;
     assert(0 !=
-           dynw->sig<MPtr(&signal::SBag::subscribe_by_name)>(
+           dynw->sig<&signal::SBag::subscribe_by_name>(
                "on-connection-spec-removed", [&](const InfoTree::ptr& tree) {
                  assert(stringutils::starts_with(tree->read_data().as<std::string>(), "writer."));
                  ++num_removed_received;
                }));
 
-    auto reader = sw->quids<MPtr(&Container::create)>("connection-quid", "reader", nullptr).get();
+    auto reader = sw->quids<&Container::create>("connection-quid", "reader", nullptr).get();
     assert(reader);
 
     // 1 - dynw has no writer enabled: check nothing connects
     {
       // dynw is expected tp get only one writer, i.e. video%
-      assert(1 == dynw->claw<MPtr(&Claw::get_writer_labels)>().size());
+      assert(1 == dynw->claw<&Claw::get_writer_labels>().size());
 
       // check the reader quiddity is not able to connect to the meta-writer
       auto res_id =
-          reader->claw<MPtr(&Claw::connect)>(reader->claw<MPtr(&Claw::get_sfid)>("texture"),
+          reader->claw<&Claw::connect>(reader->claw<&Claw::get_sfid>("texture"),
                                              dynw->get_id(),
-                                             dynw->claw<MPtr(&Claw::get_swid)>("video%"));
+                                             dynw->claw<&Claw::get_swid>("video%"));
       assert(Ids::kInvalid == res_id);
     }  // end of 1 - dynw has no writer enabled: check nothing connects
 
     // 2 - enable the dynamic shmdata writer and check connection success
     {
-      assert(dynw->prop<MPtr(&PBag::set_str_str)>("video", "true"));
+      assert(dynw->prop<&PBag::set_str_str>("video", "true"));
       // check we received two notifications
       assert(2 == num_added_received);
 
       // inspect dynw
       std::vector<swid_t> swids;
       {
-        auto conspec_tree = dynw->conspec<MPtr(&InfoTree::get_copy)>();
-        auto meta_shmdata_swid = dynw->claw<MPtr(&Claw::get_swid)>("video%");
+        auto conspec_tree = dynw->conspec<&InfoTree::get_copy>();
+        auto meta_shmdata_swid = dynw->claw<&Claw::get_swid>("video%");
         conspec_tree->cfor_each_in_array("writer", [&](const InfoTree* tree) {
           const auto label = tree->branch_get_value("label").as<std::string>();
           // check descriptions
@@ -102,16 +102,16 @@ int main() {
       }
 
       // check the reader quiddity is able to connect to video A and video B
-      auto rtexture_id = reader->claw<MPtr(&Claw::get_sfid)>("texture");
+      auto rtexture_id = reader->claw<&Claw::get_sfid>("texture");
       for (const auto& swid : swids) {
-        auto res_id = reader->claw<MPtr(&Claw::connect)>(rtexture_id, dynw->get_id(), swid);
+        auto res_id = reader->claw<&Claw::connect>(rtexture_id, dynw->get_id(), swid);
         assert(Ids::kInvalid != res_id);
-        assert(reader->claw<MPtr(&Claw::disconnect)>(res_id));
+        assert(reader->claw<&Claw::disconnect>(res_id));
       }
     }  // end of 2 - enable the dynamic shmdata writer and check connection success
 
     // 3 stop these dynamic writers
-    assert(dynw->prop<MPtr(&PBag::set_str_str)>("video", "false"));
+    assert(dynw->prop<&PBag::set_str_str>("video", "false"));
     // check we received two notifications
     assert(2 == num_removed_received);
 

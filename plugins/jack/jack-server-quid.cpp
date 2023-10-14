@@ -31,23 +31,23 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(JackServerQuid,
 JackServerQuid::JackServerQuid(quiddity::Config&& conf)
     : Quiddity(std::forward<quiddity::Config>(conf)),
       Startable(this),
-      jack_server_(config<MPtr(&InfoTree::branch_get_value)>("name"),
-                   config<MPtr(&InfoTree::branch_get_value)>("driver"),
-                   config<MPtr(&InfoTree::branch_get_value)>("realtime").is_null()
+      jack_server_(config<&InfoTree::branch_get_value>("name"),
+                   config<&InfoTree::branch_get_value>("driver"),
+                   config<&InfoTree::branch_get_value>("realtime").is_null()
                        ? false
-                       : config<MPtr(&InfoTree::branch_get_value)>("realtime").as<bool>(),
+                       : config<&InfoTree::branch_get_value>("realtime").as<bool>(),
                    this),
       config_(jack_server_.get_config()),
-      driver_config_id_(pmanage<MPtr(&property::PBag::make_group)>(
+      driver_config_id_(pmanage<&property::PBag::make_group>(
           "driver_config",
           "Driver configuration",
           "Select if you want to configure the audio driver used by jack.")),
-      advanced_config_id_(pmanage<MPtr(&property::PBag::make_group)>(
+      advanced_config_id_(pmanage<&property::PBag::make_group>(
           "advanced_config",
           "Advanced configuration",
           "Select if you want to configure jack's advanced configuration.")),
       driver_enum_(jack_server_.get_driver_names(), jack_server_.get_driver_index()),
-      driver_id_(pmanage<MPtr(&property::PBag::make_parented_selection<>)>(
+      driver_id_(pmanage<&property::PBag::make_parented_selection<>>(
           "driver",
           "driver_config",
           [this](const quiddity::property::IndexOrName& val) {
@@ -74,7 +74,7 @@ JackServerQuid::JackServerQuid(quiddity::Config&& conf)
 
 void JackServerQuid::renew_driver_properties() {
   // removing old properties
-  for (const auto& it : driver_params_) pmanage<MPtr(&property::PBag::remove)>(it);
+  for (const auto& it : driver_params_) pmanage<&property::PBag::remove>(it);
 
   // creating new driver related properties
   auto params = config_->get_child_keys("driver.params");
@@ -93,7 +93,7 @@ property::prop_id_t JackServerQuid::make_param(const std::string& config_path,
   auto type = config_->branch_get_value(config_path + ".type").as<std::string>();
   auto name = config_->branch_get_value(config_path + ".name").as<std::string>();
   if (type == "bool") {
-    return pmanage<MPtr(&property::PBag::make_parented_bool)>(
+    return pmanage<&property::PBag::make_parented_bool>(
         name,
         parent,
         [this, config_path](const bool val) {
@@ -107,7 +107,7 @@ property::prop_id_t JackServerQuid::make_param(const std::string& config_path,
         config_->branch_get_value(config_path + ".value").as<bool>());
   }
   if (type == "string") {
-    return pmanage<MPtr(&property::PBag::make_parented_string)>(
+    return pmanage<&property::PBag::make_parented_string>(
         name,
         parent,
         [this, config_path](const std::string& val) {
@@ -127,7 +127,7 @@ property::prop_id_t JackServerQuid::make_param(const std::string& config_path,
     if (config_min.not_null()) min = config_min;
     auto config_max = config_->branch_get_value(config_path + ".max");
     if (config_max.not_null()) max = config_max;
-    return pmanage<MPtr(&property::PBag::make_parented_int)>(
+    return pmanage<&property::PBag::make_parented_int>(
         name,
         parent,
         [this, config_path](const int& val) {
@@ -149,7 +149,7 @@ property::prop_id_t JackServerQuid::make_param(const std::string& config_path,
     if (config_min.not_null()) min = config_min;
     auto config_max = config_->branch_get_value(config_path + ".max");
     if (config_max.not_null()) max = config_max;
-    return pmanage<MPtr(&property::PBag::make_parented_unsigned_int)>(
+    return pmanage<&property::PBag::make_parented_unsigned_int>(
         name,
         parent,
         [this, config_path](const uint& val) {
@@ -177,7 +177,7 @@ property::prop_id_t JackServerQuid::make_param(const std::string& config_path,
     selections_.at(config_path)
         .select(config_->branch_get_value(config_path + ".value").as<std::string>());
     // return created property
-    return pmanage<MPtr(&property::PBag::make_parented_selection<>)>(
+    return pmanage<&property::PBag::make_parented_selection<>>(
         name,
         parent,
         [this, config_path](const quiddity::property::IndexOrName& val) {
@@ -192,7 +192,7 @@ property::prop_id_t JackServerQuid::make_param(const std::string& config_path,
         selections_.at(config_path));
   }
   if (type == "char") {
-    return pmanage<MPtr(&property::PBag::make_parented_char)>(
+    return pmanage<&property::PBag::make_parented_char>(
         name,
         parent,
         [this, config_path](const char& val) {

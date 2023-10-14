@@ -37,15 +37,15 @@ int main() {
       return 0;
     }
 
-    if (manager->quids<MPtr(&quiddity::Container::create)>("midisrc", "src", nullptr))
-      manager->quids<MPtr(&quiddity::Container::remove)>(
-          manager->quids<MPtr(&quiddity::Container::get_id)>("src"));
+    if (manager->quids<&quiddity::Container::create>("midisrc", "src", nullptr))
+      manager->quids<&quiddity::Container::remove>(
+          manager->quids<&quiddity::Container::get_id>("src"));
     else
       success = false;
 
-    if (manager->quids<MPtr(&quiddity::Container::create)>("midisrc", "sink", nullptr))
-      manager->quids<MPtr(&quiddity::Container::remove)>(
-          manager->quids<MPtr(&quiddity::Container::get_id)>("sink"));
+    if (manager->quids<&quiddity::Container::create>("midisrc", "sink", nullptr))
+      manager->quids<&quiddity::Container::remove>(
+          manager->quids<&quiddity::Container::get_id>("sink"));
     else
       success = false;
 

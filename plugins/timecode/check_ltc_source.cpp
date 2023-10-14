@@ -33,23 +33,23 @@ int main() {
     InfoTree::ptr server_config = InfoTree::make();
     server_config->vgraft("driver", "dummy");
     server_config->vgraft("realtime", false);
-    auto jserv = switcher->quids<MPtr(&quiddity::Container::create)>(
+    auto jserv = switcher->quids<&quiddity::Container::create>(
         "jackserver", "test_server", server_config.get());
     assert(jserv);
-    assert(jserv.get()->prop<MPtr(&property::PBag::set_str_str)>("driver", "dummy"));
-    assert(jserv.get()->prop<MPtr(&property::PBag::set_str_str)>("started", "true"));
+    assert(jserv.get()->prop<&property::PBag::set_str_str>("driver", "dummy"));
+    assert(jserv.get()->prop<&property::PBag::set_str_str>("started", "true"));
 
     // Fringe case like CI cannot run this test successfully but we don't want it to fail.
-    if (!switcher->quids<MPtr(&quiddity::Container::create)>(
+    if (!switcher->quids<&quiddity::Container::create>(
             "ltcsource", "ltctestsourcedummy", nullptr))
       return 0;
 
     auto created =
-        switcher->quids<MPtr(&quiddity::Container::create)>("ltcsource", "ltctestsource", nullptr);
+        switcher->quids<&quiddity::Container::create>("ltcsource", "ltctestsource", nullptr);
     if (!created) return 1;
 
-    if (!created.get()->prop<MPtr(&property::PBag::set_str_str)>("started", "true")) return 1;
-    if (!switcher->quids<MPtr(&quiddity::Container::remove)>(created.get_id())) return 1;
+    if (!created.get()->prop<&property::PBag::set_str_str>("started", "true")) return 1;
+    if (!switcher->quids<&quiddity::Container::remove>(created.get_id())) return 1;
 
     if (!quiddity::test::full(switcher, "ltcsource")) return 1;
 

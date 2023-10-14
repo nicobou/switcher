@@ -76,7 +76,7 @@ V4L2Src::V4L2Src(quiddity::Config&& conf)
           nullptr, nullptr, [this](GstObject* gstobj, GError* err) {
             on_gst_error(gstobj, err);
           })) {
-  force_framerate_id_ = pmanage<MPtr(&property::PBag::make_bool)>(
+  force_framerate_id_ = pmanage<&property::PBag::make_bool>(
       "force_framerate",
       [this](bool val) {
         force_framerate_ = val;
@@ -102,7 +102,7 @@ V4L2Src::V4L2Src(quiddity::Config&& conf)
     is_valid_ = false;
     return;
   }
-  devices_id_ = pmanage<MPtr(&property::PBag::make_selection<>)>(
+  devices_id_ = pmanage<&property::PBag::make_selection<>>(
       "device",
       [this](const quiddity::property::IndexOrName& val) {
         if (is_loading_) return false;
@@ -114,12 +114,12 @@ V4L2Src::V4L2Src(quiddity::Config&& conf)
       "Capture Device",
       "Enumeration of v4l2 capture devices",
       devices_enum_);
-  group_id_ = pmanage<MPtr(&property::PBag::make_group)>(
+  group_id_ = pmanage<&property::PBag::make_group>(
       "config", "Capture device configuration", "device specific parameters");
 
   update_device_specific_properties();
 
-  deinterlace_mode_id_ = pmanage<MPtr(&property::PBag::make_parented_selection<>)>(
+  deinterlace_mode_id_ = pmanage<&property::PBag::make_parented_selection<>>(
       "deinterlace_mode",
       "config",
       [this](const quiddity::property::IndexOrName& val) {
@@ -131,9 +131,9 @@ V4L2Src::V4L2Src(quiddity::Config&& conf)
       "Choose whether input should be deinterlaced or not",
       deinterlace_mode_);
 
-  pmanage<MPtr(&property::PBag::make_group)>(
+  pmanage<&property::PBag::make_group>(
       "advanced", "Advanced configuration", "Advanced configuration");
-  save_device_id_ = pmanage<MPtr(&property::PBag::make_parented_selection<>)>(
+  save_device_id_ = pmanage<&property::PBag::make_parented_selection<>>(
       "save_mode",
       "advanced",
       [this](const quiddity::property::IndexOrName& val) {
@@ -362,7 +362,7 @@ bool V4L2Src::is_current_pixel_format_raw_video() const {
 
 void V4L2Src::update_pixel_format() {
   CaptureDescription& cap_descr = capture_devices_[devices_enum_.get_current_index()];
-  pmanage<MPtr(&property::PBag::remove)>(pixel_format_id_);
+  pmanage<&property::PBag::remove>(pixel_format_id_);
   pixel_format_id_ = 0;
   if (cap_descr.pixel_formats_.empty()) return;
   std::vector<std::string> nicks;
@@ -372,7 +372,7 @@ void V4L2Src::update_pixel_format() {
     names.push_back(std::get<2>(it));
   }
   pixel_format_enum_ = property::Selection<>(std::make_pair(std::move(names), std::move(nicks)), 0);
-  pixel_format_id_ = pmanage<MPtr(&property::PBag::make_parented_selection<>)>(
+  pixel_format_id_ = pmanage<&property::PBag::make_parented_selection<>>(
       "pixel_format",
       "config",
       [this](const quiddity::property::IndexOrName& val) {
@@ -388,17 +388,17 @@ void V4L2Src::update_pixel_format() {
       "Pixel format of selected capture devices",
       pixel_format_enum_);
 
-  pmanage<MPtr(&property::PBag::set<quiddity::property::IndexOrName>)>(
+  pmanage<&property::PBag::set<quiddity::property::IndexOrName>>(
       pixel_format_id_, quiddity::property::IndexOrName(0));
 }
 
 void V4L2Src::update_device_resolution() {
   CaptureDescription& cap_descr = capture_devices_[devices_enum_.get_current_index()];
-  pmanage<MPtr(&property::PBag::remove)>(resolutions_id_);
+  pmanage<&property::PBag::remove>(resolutions_id_);
   resolutions_id_ = 0;
-  pmanage<MPtr(&property::PBag::remove)>(width_id_);
+  pmanage<&property::PBag::remove>(width_id_);
   width_id_ = 0;
-  pmanage<MPtr(&property::PBag::remove)>(height_id_);
+  pmanage<&property::PBag::remove>(height_id_);
   height_id_ = 0;
 
   if (!cap_descr.frame_size_discrete_.empty()) {
@@ -410,7 +410,7 @@ void V4L2Src::update_device_resolution() {
       names.push_back(std::string(it.first) + "x" + std::string(it.second));
 
     resolutions_enum_ = property::Selection<>(std::move(names), 0);
-    resolutions_id_ = pmanage<MPtr(&property::PBag::make_parented_selection<>)>(
+    resolutions_id_ = pmanage<&property::PBag::make_parented_selection<>>(
         "resolution",
         "config",
         [this](const quiddity::property::IndexOrName& val) {
@@ -424,23 +424,23 @@ void V4L2Src::update_device_resolution() {
         "Select resolution",
         resolutions_enum_);
   } else if (cap_descr.frame_size_stepwise_max_width_ >= 1) {
-    resolutions_id_ = pmanage<MPtr(&property::PBag::make_parented_selection<property::Fraction>)>(
+    resolutions_id_ = pmanage<&property::PBag::make_parented_selection<property::Fraction>>(
         "resolution",
         "config",
         [this](const quiddity::property::IndexOrName& val) {
           custom_resolutions_.select(val);
           if (custom_resolutions_.get_current() == "Custom") {
-            pmanage<MPtr(&property::PBag::enable)>(width_id_);
-            pmanage<MPtr(&property::PBag::enable)>(height_id_);
+            pmanage<&property::PBag::enable>(width_id_);
+            pmanage<&property::PBag::enable>(height_id_);
             return true;
           }
           auto fract = custom_resolutions_.get_attached();
-          pmanage<MPtr(&property::PBag::set<int>)>(width_id_, fract.numerator());
-          pmanage<MPtr(&property::PBag::set<int>)>(height_id_, fract.denominator());
+          pmanage<&property::PBag::set<int>>(width_id_, fract.numerator());
+          pmanage<&property::PBag::set<int>>(height_id_, fract.denominator());
           static const std::string why_disconnected =
               "this property is available only with custom resolution";
-          pmanage<MPtr(&property::PBag::disable)>(width_id_, why_disconnected);
-          pmanage<MPtr(&property::PBag::disable)>(height_id_, why_disconnected);
+          pmanage<&property::PBag::disable>(width_id_, why_disconnected);
+          pmanage<&property::PBag::disable>(height_id_, why_disconnected);
           return true;
         },
         [this]() { return custom_resolutions_.get(); },
@@ -449,7 +449,7 @@ void V4L2Src::update_device_resolution() {
         custom_resolutions_);
 
     width_id_ =
-        pmanage<MPtr(&property::PBag::make_parented_int)>("width",
+        pmanage<&property::PBag::make_parented_int>("width",
                                                           "config",
                                                           [this](const int& val) {
                                                             width_ = val;
@@ -463,7 +463,7 @@ void V4L2Src::update_device_resolution() {
                                                           width_,
                                                           cap_descr.frame_size_stepwise_min_width_,
                                                           cap_descr.frame_size_stepwise_max_width_);
-    height_id_ = pmanage<MPtr(&property::PBag::make_parented_int)>(
+    height_id_ = pmanage<&property::PBag::make_parented_int>(
         "height",
         "config",
         [this](const int& val) {
@@ -485,20 +485,20 @@ void V4L2Src::update_device_resolution() {
   if (!current_res.empty()) {
     sw_info("Automatically setting resolution for video input {}",
             capture_devices_[devices_enum_.get_current_index()].file_device_);
-    pmanage<MPtr(&property::PBag::set<quiddity::property::IndexOrName>)>(resolutions_id_,
+    pmanage<&property::PBag::set<quiddity::property::IndexOrName>>(resolutions_id_,
                                                                          current_res);
   } else {
-    pmanage<MPtr(&property::PBag::set_to_current)>(resolutions_id_);
+    pmanage<&property::PBag::set_to_current>(resolutions_id_);
   }
 }
 
 void V4L2Src::update_device_framerate() {
   CaptureDescription& cap_descr = capture_devices_[devices_enum_.get_current_index()];
-  pmanage<MPtr(&property::PBag::remove)>(standard_framerates_id_);
+  pmanage<&property::PBag::remove>(standard_framerates_id_);
   standard_framerates_id_ = 0;
-  pmanage<MPtr(&property::PBag::remove)>(custom_framerate_id_);
+  pmanage<&property::PBag::remove>(custom_framerate_id_);
   custom_framerate_id_ = 0;
-  pmanage<MPtr(&property::PBag::remove)>(framerates_enum_id_);
+  pmanage<&property::PBag::remove>(framerates_enum_id_);
   framerates_enum_id_ = 0;
 
   if (!cap_descr.frame_interval_discrete_.empty()) {
@@ -512,7 +512,7 @@ void V4L2Src::update_device_framerate() {
     }
 
     framerates_enum_ = property::Selection<>(std::move(names), 0);
-    framerates_enum_id_ = pmanage<MPtr(&property::PBag::make_parented_selection<>)>(
+    framerates_enum_id_ = pmanage<&property::PBag::make_parented_selection<>>(
         "framerate",
         "config",
         [this](const quiddity::property::IndexOrName& val) {
@@ -524,7 +524,7 @@ void V4L2Src::update_device_framerate() {
         "Framerate of selected capture device",
         framerates_enum_);
   } else if (cap_descr.frame_interval_stepwise_max_numerator_ >= 1) {
-    custom_framerate_id_ = pmanage<MPtr(&property::PBag::make_parented_fraction)>(
+    custom_framerate_id_ = pmanage<&property::PBag::make_parented_fraction>(
         "custom_framerate",
         "config",
         [this](const property::Fraction& val) {
@@ -541,20 +541,20 @@ void V4L2Src::update_device_framerate() {
         125);
 
     standard_framerates_id_ =
-        pmanage<MPtr(&property::PBag::make_parented_selection<property::Fraction>)>(
+        pmanage<&property::PBag::make_parented_selection<property::Fraction>>(
             "standard_framerates",
             "config",
             [this](const quiddity::property::IndexOrName& val) {
               standard_framerates_.select(val);
               if (standard_framerates_.get_current() == "Custom") {
-                pmanage<MPtr(&property::PBag::enable)>(custom_framerate_id_);
+                pmanage<&property::PBag::enable>(custom_framerate_id_);
                 return true;
               }
               auto fract = standard_framerates_.get_attached();
-              pmanage<MPtr(&property::PBag::set<property::Fraction>)>(custom_framerate_id_, fract);
+              pmanage<&property::PBag::set<property::Fraction>>(custom_framerate_id_, fract);
               static const std::string why_disconnected =
                   "this property is available only with custom frame rate";
-              pmanage<MPtr(&property::PBag::disable)>(custom_framerate_id_, why_disconnected);
+              pmanage<&property::PBag::disable>(custom_framerate_id_, why_disconnected);
               return true;
             },
             [this]() { return standard_framerates_.get(); },
@@ -569,30 +569,30 @@ void V4L2Src::update_device_framerate() {
     sw_info("Automatically setting framerate for video input {}",
             capture_devices_[devices_enum_.get_current_index()].file_device_);
     if (framerates_enum_id_ > 0) {
-      pmanage<MPtr(&property::PBag::set<quiddity::property::IndexOrName>)>(framerates_enum_id_,
+      pmanage<&property::PBag::set<quiddity::property::IndexOrName>>(framerates_enum_id_,
                                                                            current_framerate);
     } else {
-      pmanage<MPtr(&property::PBag::set<quiddity::property::IndexOrName>)>(standard_framerates_id_,
+      pmanage<&property::PBag::set<quiddity::property::IndexOrName>>(standard_framerates_id_,
                                                                            current_framerate);
     }
   } else {
     if (framerates_enum_id_ > 0) {
-      pmanage<MPtr(&property::PBag::set_to_current)>(framerates_enum_id_);
+      pmanage<&property::PBag::set_to_current>(framerates_enum_id_);
     } else {
-      pmanage<MPtr(&property::PBag::set_to_current)>(standard_framerates_id_);
+      pmanage<&property::PBag::set_to_current>(standard_framerates_id_);
     }
   }
 }
 
 void V4L2Src::update_tv_standard() {
   CaptureDescription& cap_descr = capture_devices_[devices_enum_.get_current_index()];
-  pmanage<MPtr(&property::PBag::remove)>(tv_standards_id_);
+  pmanage<&property::PBag::remove>(tv_standards_id_);
   tv_standards_id_ = 0;
   if (cap_descr.tv_standards_.empty()) return;
   std::vector<std::string> names;
   for (auto& it : cap_descr.tv_standards_) names.push_back(it);
   tv_standards_enum_ = property::Selection<>(std::move(names), 0);
-  tv_standards_id_ = pmanage<MPtr(&property::PBag::make_parented_selection<>)>(
+  tv_standards_id_ = pmanage<&property::PBag::make_parented_selection<>>(
       "tv_standard",
       "config",
       [this](const quiddity::property::IndexOrName& val) {
@@ -836,18 +836,18 @@ bool V4L2Src::start() {
       this, shmsink_.get_raw(), shmpath_, shmdata::GstTreeUpdater::Direction::writer);
 
   gst_pipeline_->play(true);
-  pmanage<MPtr(&property::PBag::disable)>(devices_id_, disabledWhenStartedMsg);
-  pmanage<MPtr(&property::PBag::disable)>(force_framerate_id_, disabledWhenStartedMsg);
-  pmanage<MPtr(&property::PBag::disable)>(group_id_, disabledWhenStartedMsg);
-  pmanage<MPtr(&property::PBag::disable)>(resolutions_id_, disabledWhenStartedMsg);
-  pmanage<MPtr(&property::PBag::disable)>(width_id_, disabledWhenStartedMsg);
-  pmanage<MPtr(&property::PBag::disable)>(height_id_, disabledWhenStartedMsg);
-  pmanage<MPtr(&property::PBag::disable)>(tv_standards_id_, disabledWhenStartedMsg);
-  pmanage<MPtr(&property::PBag::disable)>(standard_framerates_id_, disabledWhenStartedMsg);
-  pmanage<MPtr(&property::PBag::disable)>(framerates_enum_id_, disabledWhenStartedMsg);
-  pmanage<MPtr(&property::PBag::disable)>(custom_framerate_id_, disabledWhenStartedMsg);
-  pmanage<MPtr(&property::PBag::disable)>(pixel_format_id_, disabledWhenStartedMsg);
-  pmanage<MPtr(&property::PBag::disable)>(deinterlace_mode_id_, disabledWhenStartedMsg);
+  pmanage<&property::PBag::disable>(devices_id_, disabledWhenStartedMsg);
+  pmanage<&property::PBag::disable>(force_framerate_id_, disabledWhenStartedMsg);
+  pmanage<&property::PBag::disable>(group_id_, disabledWhenStartedMsg);
+  pmanage<&property::PBag::disable>(resolutions_id_, disabledWhenStartedMsg);
+  pmanage<&property::PBag::disable>(width_id_, disabledWhenStartedMsg);
+  pmanage<&property::PBag::disable>(height_id_, disabledWhenStartedMsg);
+  pmanage<&property::PBag::disable>(tv_standards_id_, disabledWhenStartedMsg);
+  pmanage<&property::PBag::disable>(standard_framerates_id_, disabledWhenStartedMsg);
+  pmanage<&property::PBag::disable>(framerates_enum_id_, disabledWhenStartedMsg);
+  pmanage<&property::PBag::disable>(custom_framerate_id_, disabledWhenStartedMsg);
+  pmanage<&property::PBag::disable>(pixel_format_id_, disabledWhenStartedMsg);
+  pmanage<&property::PBag::disable>(deinterlace_mode_id_, disabledWhenStartedMsg);
   return true;
 }
 
@@ -856,18 +856,18 @@ bool V4L2Src::stop() {
   remake_elements();
   gst_pipeline_ = std::make_unique<gst::Pipeliner>(
       nullptr, nullptr, [this](GstObject* gstobj, GError* err) { on_gst_error(gstobj, err); });
-  pmanage<MPtr(&property::PBag::enable)>(devices_id_);
-  pmanage<MPtr(&property::PBag::enable)>(force_framerate_id_);
-  pmanage<MPtr(&property::PBag::enable)>(group_id_);
-  pmanage<MPtr(&property::PBag::enable)>(resolutions_id_);
-  pmanage<MPtr(&property::PBag::enable)>(width_id_);
-  pmanage<MPtr(&property::PBag::enable)>(height_id_);
-  pmanage<MPtr(&property::PBag::enable)>(tv_standards_id_);
-  pmanage<MPtr(&property::PBag::enable)>(standard_framerates_id_);
-  pmanage<MPtr(&property::PBag::enable)>(framerates_enum_id_);
-  pmanage<MPtr(&property::PBag::enable)>(custom_framerate_id_);
-  pmanage<MPtr(&property::PBag::enable)>(pixel_format_id_);
-  pmanage<MPtr(&property::PBag::enable)>(deinterlace_mode_id_);
+  pmanage<&property::PBag::enable>(devices_id_);
+  pmanage<&property::PBag::enable>(force_framerate_id_);
+  pmanage<&property::PBag::enable>(group_id_);
+  pmanage<&property::PBag::enable>(resolutions_id_);
+  pmanage<&property::PBag::enable>(width_id_);
+  pmanage<&property::PBag::enable>(height_id_);
+  pmanage<&property::PBag::enable>(tv_standards_id_);
+  pmanage<&property::PBag::enable>(standard_framerates_id_);
+  pmanage<&property::PBag::enable>(framerates_enum_id_);
+  pmanage<&property::PBag::enable>(custom_framerate_id_);
+  pmanage<&property::PBag::enable>(pixel_format_id_);
+  pmanage<&property::PBag::enable>(deinterlace_mode_id_);
   return true;
 }
 
@@ -1125,7 +1125,7 @@ void V4L2Src::on_loading(InfoTree::ptr&& tree) {
     if (capture_devices_.end() == it)
       sw_warning("device not found at port {}", bus_id);
     else
-      pmanage<MPtr(&property::PBag::set<quiddity::property::IndexOrName>)>(
+      pmanage<&property::PBag::set<quiddity::property::IndexOrName>>(
           devices_id_, quiddity::property::IndexOrName(it - capture_devices_.begin()));
   } else {  // save by device
     auto it = std::find_if(
@@ -1135,7 +1135,7 @@ void V4L2Src::on_loading(InfoTree::ptr&& tree) {
     if (capture_devices_.end() == it)
       sw_warning("device {} not found", device_id);
     else
-      pmanage<MPtr(&property::PBag::set<quiddity::property::IndexOrName>)>(
+      pmanage<&property::PBag::set<quiddity::property::IndexOrName>>(
           devices_id_, quiddity::property::IndexOrName(it - capture_devices_.begin()));
   }
   // this is locking device change from property:

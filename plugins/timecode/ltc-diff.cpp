@@ -63,7 +63,7 @@ LTCDiff::LTCDiff(quiddity::Config&& conf)
                 },
                 [this](claw::sfid_t sfid) { return on_shmdata_disconnect(sfid); }}) {
   display_timecode1_id_ =
-      pmanage<MPtr(&property::PBag::make_string)>("first_timecode",
+      pmanage<&property::PBag::make_string>("first_timecode",
                                                   nullptr,
                                                   [this]() { return display_timecodes_.at(0); },
                                                   "Timecode 1",
@@ -71,7 +71,7 @@ LTCDiff::LTCDiff(quiddity::Config&& conf)
                                                   display_timecodes_.at(0));
 
   display_timecode2_id_ =
-      pmanage<MPtr(&property::PBag::make_string)>("second_timecode",
+      pmanage<&property::PBag::make_string>("second_timecode",
                                                   nullptr,
                                                   [this]() { return display_timecodes_.at(1); },
                                                   "Timecode 2",
@@ -80,10 +80,10 @@ LTCDiff::LTCDiff(quiddity::Config&& conf)
 
   notify_task_ = std::make_unique<PeriodicTask<>>(
       [this]() {
-        pmanage<MPtr(&property::PBag::get_lock)>(display_timecode1_id_);
-        pmanage<MPtr(&property::PBag::notify)>(display_timecode1_id_);
-        pmanage<MPtr(&property::PBag::get_lock)>(display_timecode2_id_);
-        pmanage<MPtr(&property::PBag::notify)>(display_timecode2_id_);
+        pmanage<&property::PBag::get_lock>(display_timecode1_id_);
+        pmanage<&property::PBag::notify>(display_timecode1_id_);
+        pmanage<&property::PBag::get_lock>(display_timecode2_id_);
+        pmanage<&property::PBag::notify>(display_timecode2_id_);
       },
       std::chrono::milliseconds(500));
 }
@@ -123,7 +123,7 @@ bool LTCDiff::on_shmdata_connect(const std::string& shmpath, claw::sfid_t sfid) 
           }
 
           time_difference_ = std::max<double>(time_difference_, -time_difference_) * 1000;
-          shmw_->writer<MPtr(&::shmdata::Writer::copy_to_shm)>(&time_difference_,
+          shmw_->writer<&::shmdata::Writer::copy_to_shm>(&time_difference_,
                                                                sizeof(time_difference_));
           shmw_->bytes_written(sizeof(time_difference_));
           time_difference_ = 0;

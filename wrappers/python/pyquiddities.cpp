@@ -43,13 +43,13 @@ PyObject* pyQuiddities::get_quiddities(pyQuidditiesObject* self) {
 
   auto pyswitchobj = reinterpret_cast<pySwitch::pySwitchObject*>(self->pyswitch);
   auto switcher =  pyswitchobj->switcher.get();
-  auto ids = switcher->quids<MPtr(&quiddity::Container::get_ids)>();
+  auto ids = switcher->quids<&quiddity::Container::get_ids>();
 
   PyObject* arg_list = nullptr;
   PyObject* capsule = nullptr;
 
   for (auto it = ids.begin(); it != ids.end(); ++it) {
-    auto quid = switcher->quids<MPtr(&quiddity::Container::get_quiddity)>(*it);
+    auto quid = switcher->quids<&quiddity::Container::get_quiddity>(*it);
 
     capsule = PyCapsule_New(static_cast<void*>(quid.get()), nullptr, nullptr);
     arg_list = Py_BuildValue("(O)", capsule);

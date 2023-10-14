@@ -52,10 +52,10 @@ VideoSnapshot::VideoSnapshot(quiddity::Config&& conf)
           {kConnectionSpec,
            [this](const std::string& shmpath, claw::sfid_t) { return on_shmdata_connect(shmpath); },
            [this](claw::sfid_t sfid) { return on_shmdata_disconnect(); }}),
-      snap_id_(pmanage<MPtr(&property::PBag::make_bool)>(
+      snap_id_(pmanage<&property::PBag::make_bool>(
           "shot",
           [this](bool val) {
-            if (!val || !pmanage<MPtr(&property::PBag::enabled)>(snap_id_)) return false;
+            if (!val || !pmanage<&property::PBag::enabled>(snap_id_)) return false;
             g_object_set(G_OBJECT(valve_), "drop", FALSE, nullptr);
             return true;
           },
@@ -63,14 +63,14 @@ VideoSnapshot::VideoSnapshot(quiddity::Config&& conf)
           "Take Snapshot",
           "Triger the saving of a frame",
           false)),
-      last_image_id_(pmanage<MPtr(&property::PBag::make_string)>(
+      last_image_id_(pmanage<&property::PBag::make_string>(
           "last_image",
           nullptr,
           [this]() { return last_image_; },
           "Last image written",
           "Path of the last jpeg file written",
           last_image_)),
-      img_dir_id_(pmanage<MPtr(&property::PBag::make_string)>(
+      img_dir_id_(pmanage<&property::PBag::make_string>(
           "imgdir",
           [this](const std::string& val) {
             img_dir_ = val;
@@ -88,7 +88,7 @@ VideoSnapshot::VideoSnapshot(quiddity::Config&& conf)
           "path will be /tmp/<videosnapshot name>_xxxxx.jpg",
           img_dir_)),
       img_name_(std::filesystem::path(get_nickname()).filename()),
-      img_name_id_(pmanage<MPtr(&property::PBag::make_string)>(
+      img_name_id_(pmanage<&property::PBag::make_string>(
           "imgname",
           [this](const std::string& val) {
             img_name_ = val;
@@ -101,7 +101,7 @@ VideoSnapshot::VideoSnapshot(quiddity::Config&& conf)
           "take the input shmdata name with option file number and jpg "
           "extension",
           img_name_)),
-      num_files_id_(pmanage<MPtr(&property::PBag::make_bool)>(
+      num_files_id_(pmanage<&property::PBag::make_bool>(
           "num_files",
           [this](const bool num_files) {
             num_files_ = num_files;
@@ -111,7 +111,7 @@ VideoSnapshot::VideoSnapshot(quiddity::Config&& conf)
           "Number Files",
           "Automatically number produced files",
           num_files_)),
-      jpg_quality_id_(pmanage<MPtr(&property::PBag::make_unsigned_int)>(
+      jpg_quality_id_(pmanage<&property::PBag::make_unsigned_int>(
           "quality",
           [this](const unsigned int val) {
             jpg_quality_ = val;
@@ -132,7 +132,7 @@ VideoSnapshot::VideoSnapshot(quiddity::Config&& conf)
             on_new_file(gst_structure_get_string(s, "filename"));
           },
           nullptr)) {
-  pmanage<MPtr(&property::PBag::disable)>(snap_id_, property::PBag::disabledWhenDisconnectedMsg);
+  pmanage<&property::PBag::disable>(snap_id_, property::PBag::disabledWhenDisconnectedMsg);
 }
 
 void VideoSnapshot::make_gst_pipeline(const std::string& shmpath) {
@@ -171,23 +171,23 @@ void VideoSnapshot::on_new_file(const std::string& filename) {
     std::unique_lock<std::mutex> lock(mtx_);
     g_object_set(G_OBJECT(valve_), "drop", TRUE, nullptr);
     {
-      auto image_lock = pmanage<MPtr(&property::PBag::get_lock)>(last_image_id_);
+      auto image_lock = pmanage<&property::PBag::get_lock>(last_image_id_);
       last_image_ = filename;
     }
-    pmanage<MPtr(&property::PBag::notify)>(last_image_id_);
+    pmanage<&property::PBag::notify>(last_image_id_);
     sw_info("image {} written", filename);
 }
 
 bool VideoSnapshot::on_shmdata_disconnect() {
   std::unique_lock<std::mutex> lock(mtx_);
-  pmanage<MPtr(&property::PBag::disable)>(snap_id_, property::PBag::disabledWhenDisconnectedMsg);
+  pmanage<&property::PBag::disable>(snap_id_, property::PBag::disabledWhenDisconnectedMsg);
   gst_pipeline_.reset();
   return true;
 }
 
 bool VideoSnapshot::on_shmdata_connect(const std::string& shmpath) {
   std::unique_lock<std::mutex> lock(mtx_);
-  pmanage<MPtr(&property::PBag::enable)>(snap_id_);
+  pmanage<&property::PBag::enable>(snap_id_);
   make_gst_pipeline(shmpath);
   return true;
 }

@@ -57,7 +57,7 @@ Cropper::Cropper(quiddity::Config&& conf)
                 },
                 [this](claw::sfid_t sfid) { return on_shmdata_disconnect(); }}),
       gst_pipeline_(std::make_unique<gst::Pipeliner>(nullptr, nullptr)),
-      left_id_(pmanage<MPtr(&property::PBag::make_int)>(
+      left_id_(pmanage<&property::PBag::make_int>(
           "left",
           [this](const int val) {
             left_ = val;
@@ -72,7 +72,7 @@ Cropper::Cropper(quiddity::Config&& conf)
           0,
           0,
           4096)),
-      right_id_(pmanage<MPtr(&property::PBag::make_int)>(
+      right_id_(pmanage<&property::PBag::make_int>(
           "right",
           [this](const int val) {
             right_ = val;
@@ -87,7 +87,7 @@ Cropper::Cropper(quiddity::Config&& conf)
           0,
           0,
           4096)),
-      top_id_(pmanage<MPtr(&property::PBag::make_int)>(
+      top_id_(pmanage<&property::PBag::make_int>(
           "top",
           [this](const int val) {
             top_ = val;
@@ -102,7 +102,7 @@ Cropper::Cropper(quiddity::Config&& conf)
           0,
           0,
           4096)),
-      bottom_id_(pmanage<MPtr(&property::PBag::make_int)>(
+      bottom_id_(pmanage<&property::PBag::make_int>(
           "bottom",
           [this](const int val) {
             bottom_ = val;

@@ -52,7 +52,7 @@ Resample::Resample(quiddity::Config&& conf)
                {kConnectionSpec,
                 [this](const std::string& shmpath, claw::sfid_t) { return connect(shmpath); },
                 [this](claw::sfid_t) { return disconnect(); }}),
-      samplerate_id_(pmanage<MPtr(&property::PBag::make_parented_unsigned_int)>(
+      samplerate_id_(pmanage<&property::PBag::make_parented_unsigned_int>(
           "samplerate",
           "",
           [this](unsigned int val) {
@@ -65,7 +65,7 @@ Resample::Resample(quiddity::Config&& conf)
           samplerate_,
           1,
           192000)),
-      algo_id_(pmanage<MPtr(&property::PBag::make_selection<int>)>(
+      algo_id_(pmanage<&property::PBag::make_selection<int>>(
           "algo",
           [this](const quiddity::property::IndexOrName& val) {
             algo_.select(val);
@@ -82,8 +82,8 @@ Resample::Resample(quiddity::Config&& conf)
 bool Resample::connect(const std::string& path) {
   shmr_.reset();
   shmw_.reset();
-  pmanage<MPtr(&property::PBag::disable)>(algo_id_, property::PBag::disabledWhenConnectedMsg);
-  pmanage<MPtr(&property::PBag::disable)>(samplerate_id_, property::PBag::disabledWhenConnectedMsg);
+  pmanage<&property::PBag::disable>(algo_id_, property::PBag::disabledWhenConnectedMsg);
+  pmanage<&property::PBag::disable>(samplerate_id_, property::PBag::disabledWhenConnectedMsg);
   shmr_ = std::make_unique<shmdata::Follower>(
       this,
       path,
@@ -132,7 +132,7 @@ bool Resample::connect(const std::string& path) {
         }
         // write to shmdata
         auto written = resampler_data_->output_frames_gen * incaps_->channels() * sizeof(float);
-        shmw_->writer<MPtr(&::shmdata::Writer::copy_to_shm)>(resampled_.data(), written);
+        shmw_->writer<&::shmdata::Writer::copy_to_shm>(resampled_.data(), written);
         shmw_->bytes_written(written);
       },
       [this](const std::string& str_caps) {
@@ -168,8 +168,8 @@ bool Resample::connect(const std::string& path) {
 bool Resample::disconnect() {
   shmr_.reset();
   shmw_.reset();
-  pmanage<MPtr(&property::PBag::enable)>(algo_id_);
-  pmanage<MPtr(&property::PBag::enable)>(samplerate_id_);
+  pmanage<&property::PBag::enable>(algo_id_);
+  pmanage<&property::PBag::enable>(samplerate_id_);
   return true;
 }
 

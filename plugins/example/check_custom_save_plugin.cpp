@@ -40,20 +40,20 @@ int main() {
 
     {  // check saving a cutom state
       auto test =
-          manager->quids<MPtr(&quiddity::Container::create)>("custom-save", "test", nullptr).get();
+          manager->quids<&quiddity::Container::create>("custom-save", "test", nullptr).get();
       assert(test);
       auto has_loaded_id =
-          test->prop<MPtr(&property::PBag::get_id)>(std::string("has_loaded_custom_state"));
+          test->prop<&property::PBag::get_id>(std::string("has_loaded_custom_state"));
       auto has_saved_id =
-          test->prop<MPtr(&property::PBag::get_id)>(std::string("has_saved_custom_state"));
-      assert(!test->prop<MPtr(&property::PBag::get<bool>)>(has_loaded_id));
-      assert(!test->prop<MPtr(&property::PBag::get<bool>)>(has_saved_id));
+          test->prop<&property::PBag::get_id>(std::string("has_saved_custom_state"));
+      assert(!test->prop<&property::PBag::get<bool>>(has_loaded_id));
+      assert(!test->prop<&property::PBag::get<bool>>(has_saved_id));
 
       // saving the custom state
       save = manager->get_state();
       assert(save);
-      assert(!test->prop<MPtr(&property::PBag::get<bool>)>(has_loaded_id));
-      assert(test->prop<MPtr(&property::PBag::get<bool>)>(has_saved_id));
+      assert(!test->prop<&property::PBag::get<bool>>(has_loaded_id));
+      assert(test->prop<&property::PBag::get<bool>>(has_saved_id));
     }
 
     // reset manager
@@ -61,13 +61,13 @@ int main() {
 
     {  // check loading
       manager->load_state(save.get());
-      auto qid = manager->quids<MPtr(&quiddity::Container::get_id)>("test");
-      auto loaded = manager->quids<MPtr(&quiddity::Container::get_qrox)>(qid).get();
+      auto qid = manager->quids<&quiddity::Container::get_id>("test");
+      auto loaded = manager->quids<&quiddity::Container::get_qrox>(qid).get();
       assert(loaded);
-      assert(loaded->prop<MPtr(&property::PBag::get<bool>)>(
-          loaded->prop<MPtr(&property::PBag::get_id)>(std::string("has_loaded_custom_state"))));
-      assert(!loaded->prop<MPtr(&property::PBag::get<bool>)>(
-          loaded->prop<MPtr(&property::PBag::get_id)>(std::string("has_saved_custom_state"))));
+      assert(loaded->prop<&property::PBag::get<bool>>(
+          loaded->prop<&property::PBag::get_id>(std::string("has_loaded_custom_state"))));
+      assert(!loaded->prop<&property::PBag::get<bool>>(
+          loaded->prop<&property::PBag::get_id>(std::string("has_saved_custom_state"))));
     }
 
   }  // end of scope is releasing the manager

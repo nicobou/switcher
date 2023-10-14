@@ -74,7 +74,7 @@ LTCSource::LTCSource(quiddity::Config&& conf)
     return;
   }
 
-  time_reference_id_ = pmanage<MPtr(&property::PBag::make_selection<>)>(
+  time_reference_id_ = pmanage<&property::PBag::make_selection<>>(
       "time_reference",
       [this](const quiddity::property::IndexOrName& val) {
         time_reference_.select(val);
@@ -85,7 +85,7 @@ LTCSource::LTCSource(quiddity::Config&& conf)
       "Select the time reference for the generated timecode",
       time_reference_);
 
-  fps_id_ = pmanage<MPtr(&property::PBag::make_selection<double>)>(
+  fps_id_ = pmanage<&property::PBag::make_selection<double>>(
       "fps",
       [this](const quiddity::property::IndexOrName& val) {
         fps_.select(val);
@@ -96,7 +96,7 @@ LTCSource::LTCSource(quiddity::Config&& conf)
       "Desired frame per second setting for the encoder.",
       fps_);
 
-  timeshift_fw_id_ = pmanage<MPtr(&property::PBag::make_unsigned_int)>(
+  timeshift_fw_id_ = pmanage<&property::PBag::make_unsigned_int>(
       "timeshift_forward",
       [this](const unsigned int& val) {
         // We increment the initial timecode.
@@ -112,7 +112,7 @@ LTCSource::LTCSource(quiddity::Config&& conf)
 }
 
 LTCSource::~LTCSource() {
-  if (is_started()) pmanage<MPtr(&property::PBag::set_str_str)>("started", "false");
+  if (is_started()) pmanage<&property::PBag::set_str_str>("started", "false");
   jack_client_close(jack_client_);
 }
 
@@ -197,9 +197,9 @@ bool LTCSource::start() {
     return false;
   }
 
-  pmanage<MPtr(&property::PBag::disable)>(time_reference_id_, disabledWhenStartedMsg);
-  pmanage<MPtr(&property::PBag::disable)>(fps_id_, disabledWhenStartedMsg);
-  pmanage<MPtr(&property::PBag::disable)>(timeshift_fw_id_, disabledWhenStartedMsg);
+  pmanage<&property::PBag::disable>(time_reference_id_, disabledWhenStartedMsg);
+  pmanage<&property::PBag::disable>(fps_id_, disabledWhenStartedMsg);
+  pmanage<&property::PBag::disable>(timeshift_fw_id_, disabledWhenStartedMsg);
 
   return true;
 }
@@ -210,9 +210,9 @@ bool LTCSource::stop() {
   shmw_.reset(nullptr);
   samples_.clear();
 
-  pmanage<MPtr(&property::PBag::enable)>(time_reference_id_);
-  pmanage<MPtr(&property::PBag::enable)>(fps_id_);
-  pmanage<MPtr(&property::PBag::enable)>(timeshift_fw_id_);
+  pmanage<&property::PBag::enable>(time_reference_id_);
+  pmanage<&property::PBag::enable>(fps_id_);
+  pmanage<&property::PBag::enable>(timeshift_fw_id_);
 
   return true;
 }
@@ -289,7 +289,7 @@ bool LTCSource::on_shmdata_disconnect() {
   // We don't switch the source of the ticks during the generation so we stop if we get disconnected
   // from the shmdata.
   if (is_started()) {
-    pmanage<MPtr(&property::PBag::set_str_str)>("started", "false");
+    pmanage<&property::PBag::set_str_str>("started", "false");
     sw_warning("LTC generation stopped because the tick source was disconnected (ltcsource).");
   }
 
@@ -305,7 +305,7 @@ void LTCSource::write_samples_to_shmdata(const unsigned int& nb_samples) {
   std::vector<ltcsnd_sample_t> array;
   array.reserve(samples_size);
   std::copy(samples_.begin(), samples_.begin() + nb_samples, array.begin());
-  shmw_->writer<MPtr(&::shmdata::Writer::copy_to_shm)>(array.data(), samples_size);
+  shmw_->writer<&::shmdata::Writer::copy_to_shm>(array.data(), samples_size);
   shmw_->bytes_written(samples_size);
   for (unsigned int i = 0; i < nb_samples; ++i) {
     samples_.pop_front();

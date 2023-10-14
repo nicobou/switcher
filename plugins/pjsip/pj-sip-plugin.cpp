@@ -53,7 +53,7 @@ const std::string SIPPlugin::kConnectionSpec(R"(
 
 SIPPlugin::SIPPlugin(quiddity::Config&& conf)
     : Quiddity(std::forward<quiddity::Config>(conf), {kConnectionSpec}),
-      port_id_(pmanage<MPtr(&property::PBag::make_string)>(
+      port_id_(pmanage<&property::PBag::make_string>(
           "port",
           [this](const std::string& valstr) {
             if (valstr.empty()) return false;
@@ -77,7 +77,7 @@ SIPPlugin::SIPPlugin(quiddity::Config&& conf)
           std::to_string(sip_port_))),
       default_dns_address_(netutils::get_system_dns()),
       dns_address_(default_dns_address_),
-      dns_address_id_(pmanage<MPtr(&property::PBag::make_string)>(
+      dns_address_id_(pmanage<&property::PBag::make_string>(
           "dns_addr",
           [this](const std::string& requested_val) {
             auto val = requested_val;
@@ -106,7 +106,7 @@ SIPPlugin::SIPPlugin(quiddity::Config&& conf)
           "DNS address",
           "IP address used for DNS",
           dns_address_)),
-      decompress_streams_id_(pmanage<MPtr(&property::PBag::make_bool)>(
+      decompress_streams_id_(pmanage<&property::PBag::make_bool>(
           "decompress",
           [this](const bool val) {
             decompress_streams_ = val;
@@ -164,7 +164,7 @@ SIPPlugin::SIPPlugin(quiddity::Config&& conf)
     }
   });
 
-  this_->mmanage<MPtr(&method::MBag::make_method<std::function<bool(std::string)>>)>(
+  this_->mmanage<&method::MBag::make_method<std::function<bool(std::string)>>>(
       "can-sink-caps",
       infotree::json::deserialize(
           R"(
@@ -200,24 +200,24 @@ SIPPlugin::~SIPPlugin() {
 }
 
 void SIPPlugin::apply_log_level_configuration() {
-  if (config<MPtr(&InfoTree::branch_has_data)>("log_level")) {
-    int log_level = config<MPtr(&InfoTree::branch_get_value)>("log_level").copy_as<int>();
+  if (config<&InfoTree::branch_has_data>("log_level")) {
+    int log_level = config<&InfoTree::branch_get_value>("log_level").copy_as<int>();
     if (log_level > -1) {
         log_level_ = log_level;
         sw_debug("sip has set log level from configuration");
     }
   }
 
-  if (config<MPtr(&InfoTree::branch_has_data)>("console_log_level")) {
-    int console_log_level = config<MPtr(&InfoTree::branch_get_value)>("console_log_level").copy_as<int>();
+  if (config<&InfoTree::branch_has_data>("console_log_level")) {
+    int console_log_level = config<&InfoTree::branch_get_value>("console_log_level").copy_as<int>();
     if (console_log_level > -1) {
         console_log_level_ = console_log_level;
         sw_debug("sip has set console log level from configuration");
     }
   }
 
-  if (config<MPtr(&InfoTree::branch_has_data)>("log_filename")) {
-    auto log_filename = config<MPtr(&InfoTree::branch_get_value)>("log_filename");
+  if (config<&InfoTree::branch_has_data>("log_filename")) {
+    auto log_filename = config<&InfoTree::branch_get_value>("log_filename");
     log_filename_.assign(log_filename.copy_as<std::string>());
     sw_debug("sip has set log filename from configuration");
   }
@@ -225,9 +225,9 @@ void SIPPlugin::apply_log_level_configuration() {
 
 void SIPPlugin::apply_port_configuration() {
   // trying to set port if configuration found
-  if (config<MPtr(&InfoTree::branch_has_data)>("port")) {
+  if (config<&InfoTree::branch_has_data>("port")) {
     sw_debug("SIP is trying to set port from configuration");
-    auto port = config<MPtr(&InfoTree::branch_get_value)>("port");
+    auto port = config<&InfoTree::branch_get_value>("port");
     auto port_str = port.copy_as<std::string>();
     unsigned int val;
     if (!isdigit(port_str[0])) {
@@ -249,10 +249,10 @@ void SIPPlugin::apply_port_configuration() {
 
 void SIPPlugin::apply_configuration() {
   // trying to set stun/turn from configuration
-  std::string stun = config<MPtr(&InfoTree::branch_get_value)>("stun");
-  std::string turn = config<MPtr(&InfoTree::branch_get_value)>("turn");
-  std::string turn_user = config<MPtr(&InfoTree::branch_get_value)>("turn_user");
-  std::string turn_pass = config<MPtr(&InfoTree::branch_get_value)>("turn_pass");
+  std::string stun = config<&InfoTree::branch_get_value>("stun");
+  std::string turn = config<&InfoTree::branch_get_value>("turn");
+  std::string turn_user = config<&InfoTree::branch_get_value>("turn_user");
+  std::string turn_pass = config<&InfoTree::branch_get_value>("turn_pass");
   if (!stun.empty()) {
     sw_debug("SIP is trying to set STUN/TURN from configuration");
     if (stun_turn_.get()->set_stun_turn(stun, turn, turn_user, turn_pass)) {
@@ -262,10 +262,10 @@ void SIPPlugin::apply_configuration() {
     }
   }
   // trying to register if a user is given
-  std::string user = config<MPtr(&InfoTree::branch_get_value)>("user");
+  std::string user = config<&InfoTree::branch_get_value>("user");
   if (!user.empty()) {
     sw_debug("SIP is trying to register from configuration");
-    std::string pass = config<MPtr(&InfoTree::branch_get_value)>("pass");
+    std::string pass = config<&InfoTree::branch_get_value>("pass");
     pjsip_->run([&]() { sip_presence_->register_account(user, pass); });
     if (sip_presence_->registered_) {
       sw_debug("sip registered using configuration file");
@@ -310,7 +310,7 @@ std::string SIPPlugin::get_exposed_quiddity_name_from_shmpath(const std::string&
     for (auto const& [peer_uri, names] : exposed_quiddities_) {
       for (auto const& name : names) {
         if (shmpath == qcontainer_->get_quiddity(qcontainer_->get_id(name))
-                           ->prop<MPtr(&property::PBag::get_str_str)>("shmdata-path")) {
+                           ->prop<&property::PBag::get_str_str>("shmdata-path")) {
           return name;
         }
       }
@@ -341,7 +341,7 @@ void SIPPlugin::create_quiddity_stream(const std::string& peer_uri,
 
 void SIPPlugin::expose_stream_to_quiddity(const std::string& quid_name,
                                           const std::string& shmpath) {
-  qcontainer_->props<MPtr(&property::PBag::set_str_str)>(
+  qcontainer_->props<&property::PBag::set_str_str>(
       qcontainer_->get_id(quid_name), "shmdata-path", shmpath);
 }
 

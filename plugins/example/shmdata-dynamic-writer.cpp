@@ -43,7 +43,7 @@ const std::string ShmdataDynWriter::kConnectionSpec(R"(
 
 ShmdataDynWriter::ShmdataDynWriter(quiddity::Config&& conf)
     : Quiddity(std::forward<quiddity::Config>(conf), {kConnectionSpec}),
-      video_prop_id_(pmanage<MPtr(&property::PBag::make_bool)>(
+      video_prop_id_(pmanage<&property::PBag::make_bool>(
           "video",
           [this](bool val) {
             if (val) {

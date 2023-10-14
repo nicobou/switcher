@@ -32,18 +32,18 @@ int main() {
 
   // now testing a audio resampling pipeline
   // load the resamplebundle quiddity
-  sw->conf<MPtr(&Configuration::from_file)>("./check_resample.json");
+  sw->conf<&Configuration::from_file>("./check_resample.json");
   auto qrox =
-      sw->quids<MPtr(&quiddity::Container::create)>("resamplebundle", std::string(), nullptr);
+      sw->quids<&quiddity::Container::create>("resamplebundle", std::string(), nullptr);
   assert(qrox);
-  assert(qrox.get()->prop<MPtr(&property::PBag::set_str_str)>("started", "true"));
+  assert(qrox.get()->prop<&property::PBag::set_str_str>("started", "true"));
 
-  auto frame_received_id = qrox.get()->prop<MPtr(&property::PBag::get_id)>("dummy/frame-received");
+  auto frame_received_id = qrox.get()->prop<&property::PBag::get_id>("dummy/frame-received");
   assert(0 != frame_received_id);
 
   // check an audio frame has been resampled
-  assert(0 != qrox.get()->prop<MPtr(&property::PBag::subscribe)>(frame_received_id, [&]() {
-    if (qrox.get()->prop<MPtr(&property::PBag::get<bool>)>(frame_received_id)) exit(0);  // success
+  assert(0 != qrox.get()->prop<&property::PBag::subscribe>(frame_received_id, [&]() {
+    if (qrox.get()->prop<&property::PBag::get<bool>>(frame_received_id)) exit(0);  // success
   }));
 
   using namespace std::chrono_literals;

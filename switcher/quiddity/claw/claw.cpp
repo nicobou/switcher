@@ -113,7 +113,7 @@ sfid_t Claw::connect_raw(sfid_t sfid, const std::string& shmpath) const {
   }
   // notify new follower
   if (is_meta) {
-    quid_->smanage<MPtr(&signal::SBag::notify)>(quid_->on_connection_spec_grafted_id_,
+    quid_->smanage<&signal::SBag::notify>(quid_->on_connection_spec_grafted_id_,
                                                 InfoTree::make("follower." + std::to_string(id)));
   }
   follower_shmpaths_.emplace(id, shmpath);
@@ -130,7 +130,7 @@ bool Claw::disconnect(sfid_t sfid) const {
   }
   // remove from connection spec if a follower is generated from a meta follower
   if (connection_spec_.deallocate_sfid_from_meta(sfid)) {
-    quid_->smanage<MPtr(&signal::SBag::notify)>(quid_->on_connection_spec_pruned_id_,
+    quid_->smanage<&signal::SBag::notify>(quid_->on_connection_spec_pruned_id_,
                                                 InfoTree::make("follower." + std::to_string(sfid)));
   }
   follower_shmpaths_.erase(sfid);
@@ -167,7 +167,7 @@ swid_t Claw::add_writer_to_meta(swid_t swid, const shm_spec_t& spec) {
   if (Ids::kInvalid == id) {
     return id;
   }
-  quid_->smanage<MPtr(&signal::SBag::notify)>(quid_->on_connection_spec_grafted_id_,
+  quid_->smanage<&signal::SBag::notify>(quid_->on_connection_spec_grafted_id_,
                                               InfoTree::make("writer." + std::to_string(id)));
   return id;
 }
@@ -175,7 +175,7 @@ swid_t Claw::add_writer_to_meta(swid_t swid, const shm_spec_t& spec) {
 bool Claw::remove_writer_from_meta(swid_t swid) {
   auto res = connection_spec_.deallocate_swid_from_meta(swid);
   if (res) {
-    quid_->smanage<MPtr(&signal::SBag::notify)>(quid_->on_connection_spec_pruned_id_,
+    quid_->smanage<&signal::SBag::notify>(quid_->on_connection_spec_pruned_id_,
                                                 InfoTree::make("writer." + std::to_string(swid)));
   }
   return res;

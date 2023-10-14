@@ -32,7 +32,7 @@ Startable::Startable(void* quiddity) { init_startable(quiddity); }
 
 void Startable::init_startable(void* quiddity) {
   Quiddity* quid = static_cast<Quiddity*>(quiddity);
-  quid->pmanage<MPtr(&property::PBag::make_bool)>("started",
+  quid->pmanage<&property::PBag::make_bool>("started",
                                                   [this](bool val) {
                                                     if (__started_ == val) return true;
                                                     if (val) {

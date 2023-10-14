@@ -140,38 +140,38 @@ int main(int argc, char* argv[]) {
   }
 
   if (extraplugindir != nullptr)
-    manager->factory<MPtr(&quiddity::Factory::scan_dir)>(extraplugindir);
+    manager->factory<&quiddity::Factory::scan_dir>(extraplugindir);
 
   // checking if this is printing info only
   if (listkinds) {
-    std::vector<std::string> resultlist = manager->factory<MPtr(&quiddity::Factory::get_kinds)>();
+    std::vector<std::string> resultlist = manager->factory<&quiddity::Factory::get_kinds>();
     for (uint i = 0; i < resultlist.size(); i++) g_print("%s\n", resultlist[i].c_str());
     return 0;
   }
   if (kindsdoc) {
     g_print("%s\n",
-            kindprinter::print(manager->factory<MPtr(&quiddity::Factory::get_kinds_doc)>().get())
+            kindprinter::print(manager->factory<&quiddity::Factory::get_kinds_doc>().get())
                 .c_str());
     return 0;
   }
   if (kinddoc != nullptr) {
     g_print("%s\n",
-            infotree::json::serialize(manager->factory<MPtr(&quiddity::Factory::get_kinds_doc)>()
+            infotree::json::serialize(manager->factory<&quiddity::Factory::get_kinds_doc>()
                                           ->get_tree(std::string(".kinds.") + kinddoc)
                                           .get())
                 .c_str());
     return 0;
   }
 
-  auto created = manager->quids<MPtr(&quiddity::Container::create)>(
+  auto created = manager->quids<&quiddity::Container::create>(
       "SOAPcontrolServer", "soapserver", nullptr);
   if (!created) {
     std::cerr << "could not create SOAP server" << '\n';
     return 0;
   }
   auto soap = created.get();
-  if (!soap->meth<MPtr(&method::MBag::invoke_str)>(
-          soap->meth<MPtr(&method::MBag::get_id)>("set_port"),
+  if (!soap->meth<&method::MBag::invoke_str>(
+          soap->meth<&method::MBag::get_id>("set_port"),
           serialize::esc_for_tuple(port_number))) {
     std::cerr << "could not set soap port " << '\n';
     return 0;

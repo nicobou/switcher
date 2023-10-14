@@ -65,55 +65,55 @@ int main() {
     InfoTree::ptr server_config = InfoTree::make();
     server_config->vgraft("driver", "dummy");
     server_config->vgraft("realtime", false);
-    auto jserv = manager->quids<MPtr(&quiddity::Container::create)>(
+    auto jserv = manager->quids<&quiddity::Container::create>(
         "jackserver", "test_server", server_config.get());
     assert(jserv);
-    assert(jserv.get()->prop<MPtr(&property::PBag::set_str_str)>("driver", "dummy"));
-    assert(jserv.get()->prop<MPtr(&property::PBag::set_str_str)>("started", "true"));
+    assert(jserv.get()->prop<&property::PBag::set_str_str>("driver", "dummy"));
+    assert(jserv.get()->prop<&property::PBag::set_str_str>("started", "true"));
 
     // Fringe case like CI cannot run this test successfully but we don't want it to fail.
-    if (!manager->quids<MPtr(&quiddity::Container::create)>(
+    if (!manager->quids<&quiddity::Container::create>(
             "ltcsource", "ltctestsourcedummy", nullptr))
       return 0;
 
     if (!quiddity::test::full(manager, "ltcdiff")) return 1;
 
     auto ltctestsource1 =
-        manager->quids<MPtr(&quiddity::Container::create)>("ltcsource", "ltctestsource1", nullptr)
+        manager->quids<&quiddity::Container::create>("ltcsource", "ltctestsource1", nullptr)
             .get();
     if (!ltctestsource1) return 1;
     auto ltctestsource2 =
-        manager->quids<MPtr(&quiddity::Container::create)>("ltcsource", "ltctestsource2", nullptr)
+        manager->quids<&quiddity::Container::create>("ltcsource", "ltctestsource2", nullptr)
             .get();
     if (!ltctestsource2) return 1;
     auto ltcdiff =
-        manager->quids<MPtr(&quiddity::Container::create)>("ltcdiff", "ltcdifftest", nullptr).get();
+        manager->quids<&quiddity::Container::create>("ltcdiff", "ltcdifftest", nullptr).get();
     if (!ltcdiff) return 1;
 
     // We set 30 frames of delay for this source.
-    if (!ltctestsource1->prop<MPtr(&property::PBag::set_str_str)>("timeshift_forward", "30"))
+    if (!ltctestsource1->prop<&property::PBag::set_str_str>("timeshift_forward", "30"))
       return 1;
 
-    if (!ltctestsource1->prop<MPtr(&property::PBag::set_str_str)>("started", "true")) return 1;
+    if (!ltctestsource1->prop<&property::PBag::set_str_str>("started", "true")) return 1;
 
-    if (!ltctestsource2->prop<MPtr(&property::PBag::set_str_str)>("started", "true")) return 1;
+    if (!ltctestsource2->prop<&property::PBag::set_str_str>("started", "true")) return 1;
 
     if (Ids::kInvalid ==
-        ltcdiff->claw<MPtr(&Claw::connect)>(ltcdiff->claw<MPtr(&Claw::get_sfid)>("ltc1"),
+        ltcdiff->claw<&Claw::connect>(ltcdiff->claw<&Claw::get_sfid>("ltc1"),
                                             ltctestsource1->get_id(),
-                                            ltctestsource1->claw<MPtr(&Claw::get_swid)>("ltc"))) {
+                                            ltctestsource1->claw<&Claw::get_swid>("ltc"))) {
       return 1;
     }
     if (Ids::kInvalid ==
-        ltcdiff->claw<MPtr(&Claw::connect)>(ltcdiff->claw<MPtr(&Claw::get_sfid)>("ltc2"),
+        ltcdiff->claw<&Claw::connect>(ltcdiff->claw<&Claw::get_sfid>("ltc2"),
                                             ltctestsource2->get_id(),
-                                            ltctestsource2->claw<MPtr(&Claw::get_swid)>("ltc"))) {
+                                            ltctestsource2->claw<&Claw::get_swid>("ltc"))) {
       return 1;
     }
 
     ::shmdata::ConsoleLogger logger;
     auto reader = std::make_unique<::shmdata::Reader>(
-        ltcdiff->claw<MPtr(&Claw::get_shmpath_from_writer_label)>("ltc-diff"),
+        ltcdiff->claw<&Claw::get_shmpath_from_writer_label>("ltc-diff"),
         [](void* data, size_t data_size) {
           if (data_size) {
             auto diff = *static_cast<double*>(data);

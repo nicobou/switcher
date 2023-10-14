@@ -23,7 +23,7 @@ namespace switcher {
 namespace quiddities {
 
 PJWhiteList::PJWhiteList()
-    : mode_id_(SIPPlugin::this_->pmanage<MPtr(&property::PBag::make_selection<>)>(
+    : mode_id_(SIPPlugin::this_->pmanage<&property::PBag::make_selection<>>(
           "mode",
           [this](const quiddity::property::IndexOrName& val) {
             mode_.select(val);
@@ -35,7 +35,7 @@ PJWhiteList::PJWhiteList()
           mode_)),
       everybody_(mode_.get_index("everybody")) {
   using authorize_t = std::function<bool(std::string, bool)>;
-  SIPPlugin::this_->mmanage<MPtr(&method::MBag::make_method<authorize_t>)>(
+  SIPPlugin::this_->mmanage<&method::MBag::make_method<authorize_t>>(
       "authorize",
       infotree::json::deserialize(
           R"(

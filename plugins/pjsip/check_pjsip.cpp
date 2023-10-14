@@ -32,11 +32,11 @@ int main() {
 
     assert(quiddity::test::full(manager, "sip"));
 
-    for (auto& it : manager->quids<MPtr(&quiddity::Container::get_ids)>()) {
-      manager->quids<MPtr(&quiddity::Container::remove)>(it);
+    for (auto& it : manager->quids<&quiddity::Container::get_ids>()) {
+      manager->quids<&quiddity::Container::remove>(it);
     }
-    manager->conf<MPtr(&Configuration::from_file)>("./config.json");
-    assert(manager->quids<MPtr(&quiddity::Container::create)>("sip", "test", nullptr));
+    manager->conf<&Configuration::from_file>("./config.json");
+    assert(manager->quids<&quiddity::Container::create>("sip", "test", nullptr));
   }  // end of scope is releasing the manager
   return 0;
 }

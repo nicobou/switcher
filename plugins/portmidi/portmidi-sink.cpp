@@ -47,7 +47,7 @@ PortMidiSink::PortMidiSink(quiddity::Config&& conf)
            [this](const std::string& shmpath, claw::sfid_t) { return on_shmdata_connect(shmpath); },
            [this](claw::sfid_t) { return on_shmdata_disconnect(); }}),
       Startable(this),
-      devices_id_(pmanage<MPtr(&property::PBag::make_selection<>)>(
+      devices_id_(pmanage<&property::PBag::make_selection<>>(
           "device",
           [this](const quiddity::property::IndexOrName& val) {
             output_devices_enum_.select(val);
@@ -65,7 +65,7 @@ PortMidiSink::PortMidiSink(quiddity::Config&& conf)
           "Output device",
           "MIDI output device to use",
           output_devices_enum_)),
-      autostart_id_(pmanage<MPtr(&property::PBag::make_bool)>(
+      autostart_id_(pmanage<&property::PBag::make_bool>(
           "autostart",
           [this](bool val) {
             autostart_ = val;
@@ -121,7 +121,7 @@ bool PortMidiSink::on_shmdata_connect(std::string path) {
       shmdata::Follower::Direction::reader,
       true);
   if (autostart_) {
-    return pmanage<MPtr(&property::PBag::set_str_str)>("started", "true");
+    return pmanage<&property::PBag::set_str_str>("started", "true");
   }
   return true;
 }
@@ -129,7 +129,7 @@ bool PortMidiSink::on_shmdata_connect(std::string path) {
 bool PortMidiSink::on_shmdata_disconnect() {
   shm_.reset();
   if (autostart_) {
-    return pmanage<MPtr(&property::PBag::set_str_str)>("started", "false");
+    return pmanage<&property::PBag::set_str_str>("started", "false");
   }
   return true;
 }

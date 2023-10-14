@@ -172,7 +172,7 @@ void PulseSink::get_sink_info_callback(pa_context* pulse_context,
     pa_operation* operation = pa_context_drain(pulse_context, nullptr, nullptr);
     if (operation) pa_operation_unref(operation);
     context->update_output_device();
-    context->devices_enum_id_ = context->pmanage<MPtr(&property::PBag::make_selection<>)>(
+    context->devices_enum_id_ = context->pmanage<&property::PBag::make_selection<>>(
         "device",
         [context](const quiddity::property::IndexOrName& val) {
           context->devices_enum_.select(val);
@@ -272,13 +272,13 @@ void PulseSink::update_output_device() {
 }
 
 bool PulseSink::on_shmdata_disconnect() {
-  pmanage<MPtr(&property::PBag::enable)>(devices_enum_id_);
+  pmanage<&property::PBag::enable>(devices_enum_id_);
   shmf_.reset();
   return remake_elements();
 }
 
 bool PulseSink::on_shmdata_connect(const std::string& shmpath) {
-  pmanage<MPtr(&property::PBag::disable)>(devices_enum_id_,
+  pmanage<&property::PBag::disable>(devices_enum_id_,
                                           property::PBag::disabledWhenConnectedMsg);
   shmpath_ = shmpath;
   shmf_ = std::make_unique<shmdata::Follower>(

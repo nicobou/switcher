@@ -37,7 +37,7 @@ void destroy(Quiddity* quiddity) { delete quiddity; }
 Bundle::~Bundle() {
   quitting_ = true;
   for (const auto& reg : registered_sigs_) {
-    reg.quid_->sig<MPtr(&signal::SBag::unsubscribe_by_name)>(reg.sig_name_, reg.reg_id_);
+    reg.quid_->sig<&signal::SBag::unsubscribe_by_name>(reg.sig_name_, reg.reg_id_);
   }
 }
 
@@ -49,15 +49,15 @@ Bundle::Bundle(quiddity::Config&& conf)
     manager_->qfactory_.scan_dir(it);
   }
 
-  manager_->conf<MPtr(&Configuration::from_tree)>(
-      qcontainer_->get_switcher()->conf<MPtr(&Configuration::get)>().get());
+  manager_->conf<&Configuration::from_tree>(
+      qcontainer_->get_switcher()->conf<&Configuration::get>().get());
 
-  if (!config<MPtr(&InfoTree::branch_has_data)>("pipeline")) {
+  if (!config<&InfoTree::branch_has_data>("pipeline")) {
     sw_warning("bundle description is missing the pipeline description");
     is_valid_ = false;
     return;
   }
-  pipeline_ = config<MPtr(&InfoTree::branch_get_value)>("pipeline").copy_as<std::string>();
+  pipeline_ = config<&InfoTree::branch_get_value>("pipeline").copy_as<std::string>();
   auto spec = bundle::DescriptionParser(pipeline_, std::vector<std::string>());
   if (!spec) {
     sw_warning("{} : error parsing the pipeline ({})", get_nickname(), spec.get_parsing_error());
@@ -153,7 +153,7 @@ bool Bundle::make_quiddities(const std::vector<bundle::quiddity_spec_t>& quids) 
         continue;
       }
       if (!param.second.empty() &&
-          !res.get()->prop<MPtr(&property::PBag::set_str_str)>(param.first, param.second)) {
+          !res.get()->prop<&property::PBag::set_str_str>(param.first, param.second)) {
         sw_warning(
             "fail to set property {} to {} for quiddity {}", param.first, param.second, name);
         return false;
@@ -166,7 +166,7 @@ bool Bundle::make_quiddities(const std::vector<bundle::quiddity_spec_t>& quids) 
     registered_sigs_.push_back(
         QuidRegSig(quid_ptr,
                    "on-tree-grafted",
-                   quid_ptr->sig<MPtr(&signal::SBag::subscribe_by_name)>(
+                   quid_ptr->sig<&signal::SBag::subscribe_by_name>(
                        std::string("on-tree-grafted"),
                        [&, tree_data = on_tree_datas_.back().get()](InfoTree::ptr tree) {
                          Bundle::on_tree_grafted(tree->get_value().as<std::string>(), tree_data);
@@ -174,7 +174,7 @@ bool Bundle::make_quiddities(const std::vector<bundle::quiddity_spec_t>& quids) 
     registered_sigs_.push_back(
         QuidRegSig(quid_ptr,
                    "on-tree-pruned",
-                   quid_ptr->sig<MPtr(&signal::SBag::subscribe_by_name)>(
+                   quid_ptr->sig<&signal::SBag::subscribe_by_name>(
                        std::string("on-tree-pruned"),
                        [&, tree_data = on_tree_datas_.back().get()](InfoTree::ptr tree) {
                          Bundle::on_tree_pruned(tree->get_value().as<std::string>(), tree_data);
@@ -183,7 +183,7 @@ bool Bundle::make_quiddities(const std::vector<bundle::quiddity_spec_t>& quids) 
     if (!quid.top_level && (quid.expose_prop || !quid.whitelisted_params.empty())) {
       auto group_name = name;
       if (!quid.group_name.empty()) group_name = quid.group_name;
-      pmanage<MPtr(&property::PBag::make_group)>(
+      pmanage<&property::PBag::make_group>(
           group_name, group_name, std::string("Properties for ") + name);
     }
     // We need to sort the list so that groups are created first or we could lose some properties.
@@ -191,7 +191,7 @@ bool Bundle::make_quiddities(const std::vector<bundle::quiddity_spec_t>& quids) 
     std::partition(props.begin(),
                    props.end(),
                    [&quid_ptr](const std::pair<std::string, property::prop_id_t>& prop) {
-                     auto type = quid_ptr->tree<MPtr(&InfoTree::branch_get_value)>(
+                     auto type = quid_ptr->tree<&InfoTree::branch_get_value>(
                          "property." + prop.first + ".type");
                      return type.is_null() || type.copy_as<std::string>() == "group";
                    });
@@ -199,12 +199,12 @@ bool Bundle::make_quiddities(const std::vector<bundle::quiddity_spec_t>& quids) 
       if (property_is_displayed(quid, prop.first)) {
         std::string parent_strid;
         auto parent =
-            quid_ptr->tree<MPtr(&InfoTree::branch_get_value)>("property." + prop.first + ".parent");
+            quid_ptr->tree<&InfoTree::branch_get_value>("property." + prop.first + ".parent");
         if (!quid.top_level || (parent.not_null() && !parent.copy_as<std::string>().empty())) {
           parent_strid = quid.group_name.empty() ? name : quid.group_name;
         }
 
-        pmanage<MPtr(&property::PBag::mirror_property_from)>(
+        pmanage<&property::PBag::mirror_property_from>(
             name + "/" + prop.first, parent_strid, &quid_ptr->props_, prop.second);
       }
     }
@@ -240,14 +240,14 @@ void Bundle::on_tree_grafted(const std::string& key, void* user_data) {
           // WARNING test against the first follower sfid, bundle need to be extended
           // specification of which follower to connect in order to allow internal
           // connection to dedicated sfid
-          auto sfid = quid->claw<MPtr(&quiddity::claw::Claw::get_sfids)>();
+          auto sfid = quid->claw<&quiddity::claw::Claw::get_sfids>();
           if (sfid.empty()) {
             quid->sw_warning(
                 "BUG in bundle, no follower available when connecting from quiddity {}",
                 quid->get_nickname());
             continue;
           }
-          if (!quid->claw<MPtr(&quiddity::claw::Claw::sfid_can_do_shmtype)>(sfid[0], caps)) {
+          if (!quid->claw<&quiddity::claw::Claw::sfid_can_do_shmtype>(sfid[0], caps)) {
             context->self_->sw_warning(
                 "ERROR: bundle specification error: {} cannot connect with {} (caps is {})",
                 context->quid_spec_.name,
@@ -256,7 +256,7 @@ void Bundle::on_tree_grafted(const std::string& key, void* user_data) {
             continue;
           }
 
-          quid->claw<MPtr(&quiddity::claw::Claw::connect_raw)>(sfid[0], shm_match[1]);
+          quid->claw<&quiddity::claw::Claw::connect_raw>(sfid[0], shm_match[1]);
           {
             std::lock_guard<std::mutex> lock(context->self_->connected_shms_mtx_);
             context->self_->connected_shms_.push_back(std::make_pair(it, shm_match[1]));
@@ -296,14 +296,14 @@ void Bundle::on_tree_grafted(const std::string& key, void* user_data) {
     if (std::regex_match(key, prop_created_rgx)) {
       if (property_is_displayed(context->quid_spec_, prop_name)) {
         std::string parent_strid;
-        auto parent = context->quid_->tree<MPtr(&InfoTree::branch_get_value)>(
+        auto parent = context->quid_->tree<&InfoTree::branch_get_value>(
             "property." + prop_name + ".parent");
         if (!context->quid_spec_.top_level ||
             (parent.not_null() && !parent.copy_as<std::string>().empty())) {
           parent_strid = context->quid_name_;
         }
 
-        context->self_->pmanage<MPtr(&property::PBag::mirror_property_from)>(
+        context->self_->pmanage<&property::PBag::mirror_property_from>(
             context->quid_name_ + "/" + prop_name,
             parent_strid,
             &context->quid_->props_,
@@ -347,8 +347,8 @@ void Bundle::on_tree_pruned(const std::string& key, void* user_data) {
     }
     static std::regex prop_deleted_rgx("\\.?property\\.[^.]*");
     if (std::regex_match(key, prop_deleted_rgx)) {
-      if (!context->self_->pmanage<MPtr(&property::PBag::remove)>(
-              context->self_->pmanage<MPtr(&property::PBag::get_id)>(context->quid_name_ + "/" +
+      if (!context->self_->pmanage<&property::PBag::remove>(
+              context->self_->pmanage<&property::PBag::get_id>(context->quid_name_ + "/" +
                                                                      prop_name))) {
         context->self_->sw_warning(
             "BUG removing property ({}) deleted from a quiddity ({}) in a bundle ({})",
@@ -395,13 +395,13 @@ void Bundle::on_tree_pruned(const std::string& key, void* user_data) {
         if (!quid) continue;
         // WARNING disconnecting the first sfid only because specification of which sfid to connect
         // is missing
-        const auto sfids = quid->claw<MPtr(&quiddity::claw::Claw::get_sfids)>();
+        const auto sfids = quid->claw<&quiddity::claw::Claw::get_sfids>();
         if (sfids.empty()) {
           quid->sw_warning(
               "BUG in bundle, no follower available when disconnecting from quiddity {}",
               quid->get_nickname());
         }
-        quid->claw<MPtr(&quiddity::claw::Claw::disconnect)>(sfids[0]);
+        quid->claw<&quiddity::claw::Claw::disconnect>(sfids[0]);
       }
     }
     return;
@@ -417,7 +417,7 @@ void Bundle::on_tree_pruned(const std::string& key, void* user_data) {
 bool Bundle::start() {
   for (auto& it : start_quids_) {
     if (!manager_->qcontainer_->get_quiddity(manager_->qcontainer_->get_id(it))
-             ->prop<MPtr(&property::PBag::set_str_str)>("started", "true")) {
+             ->prop<&property::PBag::set_str_str>("started", "true")) {
       sw_warning("fail to set start {}", it);
       return false;
     }
@@ -428,7 +428,7 @@ bool Bundle::start() {
 bool Bundle::stop() {
   for (auto& it : start_quids_) {
     if (!manager_->qcontainer_->get_quiddity(manager_->qcontainer_->get_id(it))
-             ->prop<MPtr(&property::PBag::set_str_str)>("started", "false")) {
+             ->prop<&property::PBag::set_str_str>("started", "false")) {
       sw_warning("fail to set start {}", it);
       return false;
     }

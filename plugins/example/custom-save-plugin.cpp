@@ -30,14 +30,14 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(CustomSavePlugin,
 
 CustomSavePlugin::CustomSavePlugin(quiddity::Config&& conf)
     : Quiddity(std::forward<quiddity::Config>(conf)),
-      has_loaded_custom_state_id_(pmanage<MPtr(&property::PBag::make_bool)>(
+      has_loaded_custom_state_id_(pmanage<&property::PBag::make_bool>(
           "has_loaded_custom_state",
           nullptr,
           [this]() { return has_loaded_custom_state_ && on_loaded_called_; },
           "Has loaded",
           "A custom state has been loaded with success",
           has_loaded_custom_state_ && on_loaded_called_)),
-      has_saved_custom_state_id_(pmanage<MPtr(&property::PBag::make_bool)>(
+      has_saved_custom_state_id_(pmanage<&property::PBag::make_bool>(
           "has_saved_custom_state",
           nullptr,
           [this]() { return on_saving_called_ && on_saved_called_; },

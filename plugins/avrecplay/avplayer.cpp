@@ -52,7 +52,7 @@ AVPlayer::AVPlayer(quiddity::Config&& conf)
     : Quiddity(std::forward<quiddity::Config>(conf)),
       Startable(this),
       gst_pipeline_(std::make_unique<gst::Pipeliner>(nullptr, nullptr)) {
-  pmanage<MPtr(&property::PBag::make_string)>(
+  pmanage<&property::PBag::make_string>(
       "playpath",
       [this](const std::string& val) {
         if (val.empty()) {
@@ -73,7 +73,7 @@ AVPlayer::AVPlayer(quiddity::Config&& conf)
       "Location of the folder from which the player will read recorded shmdata files",
       playpath_);
 
-  pmanage<MPtr(&property::PBag::make_bool)>(
+  pmanage<&property::PBag::make_bool>(
       "paused",
       [this](const bool val) {
         pause_ = val;
@@ -144,7 +144,7 @@ bool AVPlayer::start() {
 bool AVPlayer::stop() {
   position_task_.reset();
   gst_pipeline_ = std::make_unique<gst::Pipeliner>(nullptr, nullptr);
-  pmanage<MPtr(&property::PBag::remove)>(position_id_);
+  pmanage<&property::PBag::remove>(position_id_);
   position_id_ = 0;
   track_duration_ = 0;
   pause_ = false;
@@ -158,7 +158,7 @@ bool AVPlayer::stop() {
 GstBusSyncReply AVPlayer::bus_async(GstMessage* msg) {
   switch (GST_MESSAGE_TYPE(msg)) {
     case GST_MESSAGE_EOS: {
-      th_->run_async([this]() { pmanage<MPtr(&property::PBag::set_str_str)>("started", "false"); });
+      th_->run_async([this]() { pmanage<&property::PBag::set_str_str>("started", "false"); });
       break;
     }
 
@@ -168,7 +168,7 @@ GstBusSyncReply AVPlayer::bus_async(GstMessage* msg) {
             gst_pipeline_->get_pipeline(), GST_FORMAT_TIME, &track_duration_);
 
         if (track_duration_ != 0) {
-          position_id_ = pmanage<MPtr(&property::PBag::make_int)>(
+          position_id_ = pmanage<&property::PBag::make_int>(
               "track_position",
               [this](const int& pos) {
                 std::lock_guard<std::mutex> lock(seek_mutex_);
@@ -189,7 +189,7 @@ GstBusSyncReply AVPlayer::bus_async(GstMessage* msg) {
                 gst_element_query_position(
                     gst_pipeline_->get_pipeline(), GST_FORMAT_TIME, &position);
                 position_ = static_cast<int>(position / GST_SECOND);
-                pmanage<MPtr(&property::PBag::notify)>(position_id_);
+                pmanage<&property::PBag::notify>(position_id_);
 
               },
               std::chrono::milliseconds(500));

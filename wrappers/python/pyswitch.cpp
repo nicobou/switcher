@@ -93,7 +93,7 @@ int pySwitch::Switcher_init(pySwitchObject* self, PyObject* args, PyObject* kwds
   self->sig_reg = std::make_unique<sig_registering_t>();
 
   if (configFile) {
-    if (!self->switcher->conf<MPtr(&Configuration::from_file)>(PyUnicode_AsUTF8(configFile))) {
+    if (!self->switcher->conf<&Configuration::from_file>(PyUnicode_AsUTF8(configFile))) {
       PyErr_SetString(PyExc_RuntimeError, "Switcher could not load configuration file");
       return -1;
     }
@@ -134,7 +134,7 @@ PyObject* pySwitch::get_quiddities_descriptor(pySwitchObject* self) {
 
 void pySwitch::Switcher_dealloc(pySwitchObject* self) {
   // cleaning signal subscription
-  self->switcher->quids<MPtr(&quiddity::Container::reset_create_remove_cb)>();
+  self->switcher->quids<&quiddity::Container::reset_create_remove_cb>();
   for (const auto& it : self->sig_reg->callbacks) {
     Py_XDECREF(it.second);
   }
@@ -234,14 +234,14 @@ PyObject* pySwitch::create(pySwitchObject* self, PyObject* args, PyObject* kwds)
   // create a quiddity without calling creation callbacks
   auto switcher = self->switcher;
 
-  auto qrox = switcher->quids<MPtr(&quiddity::Container::quiet_create)>(kind, name, user_tree);
+  auto qrox = switcher->quids<&quiddity::Container::quiet_create>(kind, name, user_tree);
 
   if (!qrox ) {
     PyErr_Format(PyExc_RuntimeError, "Failed to create qrox: %s", qrox.msg().c_str());
     return nullptr;
   }
 
-  auto quid = switcher->quids<MPtr(&quiddity::Container::get_quiddity)>(qrox.get_id());
+  auto quid = switcher->quids<&quiddity::Container::get_quiddity>(qrox.get_id());
 
   if (!quid) {
     PyErr_Format(PyExc_RuntimeError, "Failed to create quiddity %s", name.c_str());
@@ -257,7 +257,7 @@ PyObject* pySwitch::create(pySwitchObject* self, PyObject* args, PyObject* kwds)
   Py_XDECREF(arg_list);
 
   // notify quiddity created
-  switcher->quids<MPtr(&quiddity::Container::notify_quiddity_created)>(quid.get());
+  switcher->quids<&quiddity::Container::notify_quiddity_created>(quid.get());
 
   return py_quiddity;
 }
@@ -275,7 +275,7 @@ PyObject* pySwitch::remove(pySwitchObject* self, PyObject* args, PyObject* kwds)
     return nullptr;
   }
 
-  if (!self->switcher->quids<MPtr(&quiddity::Container::remove)>(id)) {
+  if (!self->switcher->quids<&quiddity::Container::remove>(id)) {
     Py_INCREF(Py_False);
     return Py_False;
   }
@@ -298,7 +298,7 @@ PyObject* pySwitch::get_quid(pySwitchObject* self, PyObject* args, PyObject* kwd
   }
 
   auto switcher = self->switcher;
-  auto quid = switcher->quids<MPtr(&quiddity::Container::get_quiddity)>(qid);
+  auto quid = switcher->quids<&quiddity::Container::get_quiddity>(qid);
   auto capsule = PyCapsule_New(static_cast<void*>(quid.get()), nullptr, nullptr);
 
   On_scope_exit { Py_XDECREF(capsule); };
@@ -330,7 +330,7 @@ PyObject* pySwitch::get_quid_id(pySwitchObject* self, PyObject* args, PyObject* 
     PyErr_SetString(PyExc_TypeError, "error parsing arguments");
     return nullptr;
   }
-  return PyLong_FromSize_t(self->switcher->quids<MPtr(&quiddity::Container::get_id)>(nickname));
+  return PyLong_FromSize_t(self->switcher->quids<&quiddity::Container::get_id>(nickname));
 }
 
 PyDoc_STRVAR(pyswitch_get_state_doc,
@@ -398,7 +398,7 @@ PyDoc_STRVAR(pyswitch_list_kinds_doc,
              "Returns: A list a of string with the kind.\n");
 
 PyObject* pySwitch::list_kinds(pySwitchObject* self, PyObject* args, PyObject* kwds) {
-  auto kind_list = self->switcher->factory<MPtr(&quiddity::Factory::get_kinds)>();
+  auto kind_list = self->switcher->factory<&quiddity::Factory::get_kinds>();
   PyObject* result = PyList_New(kind_list.size());
   for (unsigned int i = 0; i < kind_list.size(); ++i) {
     PyList_SetItem(result, i, Py_BuildValue("s", kind_list[i].c_str()));
@@ -413,7 +413,7 @@ PyDoc_STRVAR(pyswitch_kinds_doc_doc,
 
 PyObject* pySwitch::kinds_doc(pySwitchObject* self, PyObject* args, PyObject* kwds) {
   auto str = infotree::json::serialize(
-      self->switcher->factory<MPtr(&quiddity::Factory::get_kinds_doc)>().get());
+      self->switcher->factory<&quiddity::Factory::get_kinds_doc>().get());
   // call options
   PyObject *obj = PyImport_ImportModule("json"), *method = PyUnicode_FromString("loads"),
            *arg = PyUnicode_FromString(str.c_str());
@@ -436,7 +436,7 @@ PyObject* pySwitch::kind_doc(pySwitchObject* self, PyObject* args, PyObject* kwd
   if (!PyArg_ParseTupleAndKeywords(args, kwds, "s", kwlist, &kind_name)) return nullptr;
   // get doc as json string
   auto str =
-      infotree::json::serialize(self->switcher->factory<MPtr(&quiddity::Factory::get_kinds_doc)>()
+      infotree::json::serialize(self->switcher->factory<&quiddity::Factory::get_kinds_doc>()
                                     ->get_tree(std::string(".kinds.") + kind_name)
                                     .get());
   // call options
@@ -456,7 +456,7 @@ PyDoc_STRVAR(pyswitch_list_quids_doc,
              "Returns: List of nicknames.\n");
 
 PyObject* pySwitch::list_quids(pySwitchObject* self, PyObject* args, PyObject* kwds) {
-  auto quids = self->switcher->quids<MPtr(&quiddity::Container::get_nicknames)>();
+  auto quids = self->switcher->quids<&quiddity::Container::get_nicknames>();
   PyObject* result = PyList_New(quids.size());
   for (unsigned int i = 0; i < quids.size(); ++i) {
     PyList_SetItem(result, i, Py_BuildValue("s", quids[i].c_str()));
@@ -470,7 +470,7 @@ PyDoc_STRVAR(pyswitch_list_ids_doc,
              "Returns: List of ids.\n");
 
 PyObject* pySwitch::list_ids(pySwitchObject* self, PyObject* args, PyObject* kwds) {
-  auto quids = self->switcher->quids<MPtr(&quiddity::Container::get_ids)>();
+  auto quids = self->switcher->quids<&quiddity::Container::get_ids>();
   PyObject* result = PyList_New(quids.size());
   for (unsigned int i = 0; i < quids.size(); ++i) {
     // "n" for Py_ssize_t (size_t)
@@ -487,7 +487,7 @@ PyDoc_STRVAR(pyswitch_quids_descr_doc,
 PyObject* pySwitch::quids_descr(pySwitchObject* self, PyObject* args, PyObject* kwds) {
   // serialize infotree to json string
   auto desc = infotree::json::serialize(
-      self->switcher->quids<MPtr(&quiddity::Container::get_quiddities_description)>().get());
+      self->switcher->quids<&quiddity::Container::get_quiddities_description>().get());
 
   if (!desc.c_str()) return nullptr;
 
@@ -512,7 +512,7 @@ PyObject* pySwitch::quid_descr(pySwitchObject* self, PyObject* args, PyObject* k
   static char* kwlist[] = {(char*)"id", nullptr};
   if (!PyArg_ParseTupleAndKeywords(args, kwds, "i", kwlist, &id) && 0 != id) return nullptr;
   auto desc = infotree::json::serialize(
-      self->switcher->quids<MPtr(&quiddity::Container::get_quiddity_description)>(id).get());
+      self->switcher->quids<&quiddity::Container::get_quiddity_description>(id).get());
   // call options
   PyObject *obj = PyImport_ImportModule("json"), *method = PyUnicode_FromString("loads"),
            *arg = PyUnicode_FromString(desc.c_str());
@@ -551,9 +551,9 @@ bool pySwitch::subscribe_to_signal(pySwitchObject* self,
 
   unsigned int reg_id = 0;
   if ("on-quiddity-created" == signal_name) {
-    reg_id = self->switcher->quids<MPtr(&quiddity::Container::register_creation_cb)>(signalCb);
+    reg_id = self->switcher->quids<&quiddity::Container::register_creation_cb>(signalCb);
   } else if ("on-quiddity-removed" == signal_name) {
-    reg_id = self->switcher->quids<MPtr(&quiddity::Container::register_removal_cb)>(signalCb);
+    reg_id = self->switcher->quids<&quiddity::Container::register_removal_cb>(signalCb);
   } else {
     return false;
   }
@@ -602,9 +602,9 @@ bool pySwitch::unsubscribe_from_signal(pySwitchObject* self, const std::string s
   auto found = self->sig_reg->signals.find(signal_name);
   if (self->sig_reg->signals.end() == found) return false;
   if (found->first == "on-quiddity-created") {
-    self->switcher->quids<MPtr(&quiddity::Container::unregister_creation_cb)>(found->second);
+    self->switcher->quids<&quiddity::Container::unregister_creation_cb>(found->second);
   } else {
-    self->switcher->quids<MPtr(&quiddity::Container::unregister_removal_cb)>(found->second);
+    self->switcher->quids<&quiddity::Container::unregister_removal_cb>(found->second);
   }
   auto cb = self->sig_reg->callbacks.find(signal_name);
   Py_XDECREF(cb->second);
@@ -648,7 +648,7 @@ PyDoc_STRVAR(pyswitch_list_extra_configs_doc,
              "Returns: List of paths.\n");
 
 PyObject* pySwitch::list_extra_configs(pySwitchObject* self, PyObject* args, PyObject* kwds) {
-  auto config_paths = self->switcher->conf<MPtr(&Configuration::list_extra_configs)>();
+  auto config_paths = self->switcher->conf<&Configuration::list_extra_configs>();
   PyObject* result = PyList_New(config_paths.size());
 
   for (unsigned int i = 0; i < config_paths.size(); ++i) {
@@ -672,7 +672,7 @@ PyObject* pySwitch::read_extra_config(pySwitchObject* self, PyObject* args, PyOb
     return nullptr;
   }
 
-  auto extra_config = self->switcher->conf<MPtr(&Configuration::get_extra_config)>(name);
+  auto extra_config = self->switcher->conf<&Configuration::get_extra_config>(name);
 
   if (!extra_config) {
     PyErr_SetString(PyExc_RuntimeError, extra_config.msg().c_str());

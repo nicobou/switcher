@@ -51,10 +51,10 @@ JackToShmdata::JackToShmdata(quiddity::Config&& conf)
                        ? conf.tree_config_->branch_get_value("server_name").copy_as<std::string>()
                        : "default") {
   size_t max_number_of_channels = kMaxNumberOfChannels;
-  if (config<MPtr(&InfoTree::branch_has_data)>("max_number_of_channels"))
+  if (config<&InfoTree::branch_has_data>("max_number_of_channels"))
     max_number_of_channels =
-        config<MPtr(&InfoTree::branch_get_value)>("max_number_of_channels").copy_as<size_t>();
-  server_name_id_ = pmanage<MPtr(&property::PBag::make_string)>(
+        config<&InfoTree::branch_get_value>("max_number_of_channels").copy_as<size_t>();
+  server_name_id_ = pmanage<&property::PBag::make_string>(
       "server_name",
       [this](const std::string& val) {
         server_name_ = val;
@@ -64,7 +64,7 @@ JackToShmdata::JackToShmdata(quiddity::Config&& conf)
       "Server Name",
       "The jack server name",
       server_name_);
-  client_name_id_ = pmanage<MPtr(&property::PBag::make_string)>(
+  client_name_id_ = pmanage<&property::PBag::make_string>(
       "client_name",
       [this](const std::string& val) {
         client_name_ = val;
@@ -74,19 +74,19 @@ JackToShmdata::JackToShmdata(quiddity::Config&& conf)
       "Client Name",
       "The jack client name",
       client_name_);
-  auto_connect_id_ = pmanage<MPtr(&property::PBag::make_bool)>(
+  auto_connect_id_ = pmanage<&property::PBag::make_bool>(
       "auto_connect",
       [this](const bool val) {
         auto_connect_ = val;
         update_port_to_connect();
         if (auto_connect_) {
-          pmanage<MPtr(&property::PBag::enable)>(connect_to_id_);
-          pmanage<MPtr(&property::PBag::enable)>(index_id_);
+          pmanage<&property::PBag::enable>(connect_to_id_);
+          pmanage<&property::PBag::enable>(index_id_);
         } else {
           static const std::string why_disabled =
               "this property is available only when auto connect is enabled";
-          pmanage<MPtr(&property::PBag::disable)>(connect_to_id_, why_disabled);
-          pmanage<MPtr(&property::PBag::disable)>(index_id_, why_disabled);
+          pmanage<&property::PBag::disable>(connect_to_id_, why_disabled);
+          pmanage<&property::PBag::disable>(index_id_, why_disabled);
         }
         return true;
       },
@@ -94,7 +94,7 @@ JackToShmdata::JackToShmdata(quiddity::Config&& conf)
       "Auto Connect",
       "Auto Connect to another client",
       auto_connect_);
-  connect_to_id_ = pmanage<MPtr(&property::PBag::make_string)>("connect_to",
+  connect_to_id_ = pmanage<&property::PBag::make_string>("connect_to",
                                                                [this](const std::string& val) {
                                                                  connect_to_ = val;
                                                                  update_port_to_connect();
@@ -105,7 +105,7 @@ JackToShmdata::JackToShmdata(quiddity::Config&& conf)
                                                                "Auto connect to an other client",
                                                                connect_to_);
   index_id_ =
-      pmanage<MPtr(&property::PBag::make_int)>("index",
+      pmanage<&property::PBag::make_int>("index",
                                                [this](const int& val) {
                                                  index_ = val;
                                                  update_port_to_connect();
@@ -117,7 +117,7 @@ JackToShmdata::JackToShmdata(quiddity::Config&& conf)
                                                num_channels_,
                                                1,
                                                max_number_of_channels);
-  num_channels_id_ = pmanage<MPtr(&property::PBag::make_int)>("channels",
+  num_channels_id_ = pmanage<&property::PBag::make_int>("channels",
                                                               [this](const int& val) {
                                                                 num_channels_ = val;
                                                                 update_port_to_connect();
@@ -202,12 +202,12 @@ bool JackToShmdata::start() {
     shm_.reset(nullptr);
     return false;
   }
-  pmanage<MPtr(&property::PBag::disable)>(auto_connect_id_, disabledWhenStartedMsg);
-  pmanage<MPtr(&property::PBag::disable)>(num_channels_id_, disabledWhenStartedMsg);
-  pmanage<MPtr(&property::PBag::disable)>(client_name_id_, disabledWhenStartedMsg);
-  pmanage<MPtr(&property::PBag::disable)>(server_name_id_, disabledWhenStartedMsg);
-  pmanage<MPtr(&property::PBag::disable)>(connect_to_id_, disabledWhenStartedMsg);
-  pmanage<MPtr(&property::PBag::disable)>(index_id_, disabledWhenStartedMsg);
+  pmanage<&property::PBag::disable>(auto_connect_id_, disabledWhenStartedMsg);
+  pmanage<&property::PBag::disable>(num_channels_id_, disabledWhenStartedMsg);
+  pmanage<&property::PBag::disable>(client_name_id_, disabledWhenStartedMsg);
+  pmanage<&property::PBag::disable>(server_name_id_, disabledWhenStartedMsg);
+  pmanage<&property::PBag::disable>(connect_to_id_, disabledWhenStartedMsg);
+  pmanage<&property::PBag::disable>(index_id_, disabledWhenStartedMsg);
   {
     std::lock_guard<std::mutex> lock(input_ports_mutex_);
     input_ports_.clear();
@@ -224,12 +224,12 @@ bool JackToShmdata::stop() {
   }
   shm_.reset();
   jack_client_.reset();
-  pmanage<MPtr(&property::PBag::enable)>(auto_connect_id_);
-  pmanage<MPtr(&property::PBag::enable)>(num_channels_id_);
-  pmanage<MPtr(&property::PBag::enable)>(client_name_id_);
-  pmanage<MPtr(&property::PBag::enable)>(server_name_id_);
-  pmanage<MPtr(&property::PBag::enable)>(connect_to_id_);
-  pmanage<MPtr(&property::PBag::enable)>(index_id_);
+  pmanage<&property::PBag::enable>(auto_connect_id_);
+  pmanage<&property::PBag::enable>(num_channels_id_);
+  pmanage<&property::PBag::enable>(client_name_id_);
+  pmanage<&property::PBag::enable>(server_name_id_);
+  pmanage<&property::PBag::enable>(connect_to_id_);
+  pmanage<&property::PBag::enable>(index_id_);
   return true;
 }
 
@@ -262,7 +262,7 @@ int JackToShmdata::jack_process(jack_nframes_t nframes, void* arg) {
         }
       }
       size_t size = nframes * num_chan * sizeof(jack_sample_t);
-      context->shm_->writer<MPtr(&::shmdata::Writer::copy_to_shm)>(context->buf_.data(), size);
+      context->shm_->writer<&::shmdata::Writer::copy_to_shm>(context->buf_.data(), size);
       context->shm_->bytes_written(size);
     }  // locked
   }    // releasing lock

@@ -34,7 +34,7 @@ Watcher::Watcher(quiddity::Config&& conf)
     : Quiddity(std::forward<quiddity::Config>(conf)),
       Startable(this),
       directory_id_(
-          pmanage<MPtr(&property::PBag::make_string)>("directory",
+          pmanage<&property::PBag::make_string>("directory",
                                                       [this](const std::string& val) {
                                                         directory_ = val;
                                                         return true;
@@ -43,7 +43,7 @@ Watcher::Watcher(quiddity::Config&& conf)
                                                       "Directory Path",
                                                       "Full path of the directory to watch",
                                                       directory_)),
-      create_dir_id_(pmanage<MPtr(&property::PBag::make_bool)>(
+      create_dir_id_(pmanage<&property::PBag::make_bool>(
           "create_directory",
           [this](bool val) {
             create_dir_ = val;

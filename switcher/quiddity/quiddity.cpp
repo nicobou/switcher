@@ -44,59 +44,59 @@ Quiddity::Quiddity(quiddity::Config&& conf, claw::Config claw_conf)
       sigs_(
           information_tree_,
           [this](const std::string& key) {
-            smanage<MPtr(&signal::SBag::notify)>(on_tree_grafted_id_, InfoTree::make(key));
+            smanage<&signal::SBag::notify>(on_tree_grafted_id_, InfoTree::make(key));
           },
           [this](const std::string& key) {
-            smanage<MPtr(&signal::SBag::notify)>(on_tree_pruned_id_, InfoTree::make(key));
+            smanage<&signal::SBag::notify>(on_tree_pruned_id_, InfoTree::make(key));
           }),
       on_method_added_id_(
-          smanage<MPtr(&signal::SBag::make)>("on-method-added", "A method has been installed")),
+          smanage<&signal::SBag::make>("on-method-added", "A method has been installed")),
       on_method_removed_id_(
-          smanage<MPtr(&signal::SBag::make)>("on-method-removed", "A method has been uninstalled")),
-      on_tree_grafted_id_(smanage<MPtr(&signal::SBag::make)>("on-tree-grafted", "On Tree Grafted")),
-      on_tree_pruned_id_(smanage<MPtr(&signal::SBag::make)>(
+          smanage<&signal::SBag::make>("on-method-removed", "A method has been uninstalled")),
+      on_tree_grafted_id_(smanage<&signal::SBag::make>("on-tree-grafted", "On Tree Grafted")),
+      on_tree_pruned_id_(smanage<&signal::SBag::make>(
           "on-tree-pruned", "A tree has been pruned from the quiddity tree")),
-      on_user_data_grafted_id_(smanage<MPtr(&signal::SBag::make)>(
+      on_user_data_grafted_id_(smanage<&signal::SBag::make>(
           "on-user-data-grafted", "A tree has been grafted to the quiddity's user data tree")),
-      on_user_data_pruned_id_(smanage<MPtr(&signal::SBag::make)>(
+      on_user_data_pruned_id_(smanage<&signal::SBag::make>(
           "on-user-data-pruned", "A branch has been pruned from the quiddity's user data tree")),
-      on_nicknamed_id_(smanage<MPtr(&signal::SBag::make)>(
+      on_nicknamed_id_(smanage<&signal::SBag::make>(
           "on-nicknamed", "A nickname has been given to the quiddity")),
-      on_connection_spec_grafted_id_(smanage<MPtr(&signal::SBag::make)>(
+      on_connection_spec_grafted_id_(smanage<&signal::SBag::make>(
           "on-connection-spec-added",
           "New specification has been added to the connection specification")),
-      on_connection_spec_pruned_id_(smanage<MPtr(&signal::SBag::make)>(
+      on_connection_spec_pruned_id_(smanage<&signal::SBag::make>(
           "on-connection-spec-removed",
           "Specification has been removed from the connection specification")),
       props_(
           information_tree_,
           [this](const std::string& key) {
-            smanage<MPtr(&signal::SBag::notify)>(on_tree_grafted_id_, InfoTree::make(key));
+            smanage<&signal::SBag::notify>(on_tree_grafted_id_, InfoTree::make(key));
           },
           [this](const std::string& key) {
-            smanage<MPtr(&signal::SBag::notify)>(on_tree_pruned_id_, InfoTree::make(key));
+            smanage<&signal::SBag::notify>(on_tree_pruned_id_, InfoTree::make(key));
           }),
       meths_(
           this,
           information_tree_,
           [this](const std::string& key) {  // on_tree_grafted_cb
-            smanage<MPtr(&signal::SBag::notify)>(on_tree_grafted_id_, InfoTree::make(key));
+            smanage<&signal::SBag::notify>(on_tree_grafted_id_, InfoTree::make(key));
           },
           [this](const std::string& key) {  // on_tree_pruned_cb
-            smanage<MPtr(&signal::SBag::notify)>(on_tree_pruned_id_, InfoTree::make(key));
+            smanage<&signal::SBag::notify>(on_tree_pruned_id_, InfoTree::make(key));
           },
           [this](const std::string& method_name) {  // on_method_created
-            smanage<MPtr(&signal::SBag::notify)>(on_method_added_id_, InfoTree::make(method_name));
+            smanage<&signal::SBag::notify>(on_method_added_id_, InfoTree::make(method_name));
           },
           [this](const std::string& method_name) {  // on_method_removed
-            smanage<MPtr(&signal::SBag::notify)>(on_method_removed_id_,
+            smanage<&signal::SBag::notify>(on_method_removed_id_,
                                                  InfoTree::make(method_name));
           },
           [this](const std::string& method_name) {  // on_method_enabled
-            smanage<MPtr(&signal::SBag::notify)>(on_method_added_id_, InfoTree::make(method_name));
+            smanage<&signal::SBag::notify>(on_method_added_id_, InfoTree::make(method_name));
           },
           [this](const std::string& method_name) {  // on_method_disabled
-            smanage<MPtr(&signal::SBag::notify)>(on_method_removed_id_,
+            smanage<&signal::SBag::notify>(on_method_removed_id_,
                                                  InfoTree::make(method_name));
           }),
       id_(conf.id_),
@@ -130,13 +130,13 @@ std::string Quiddity::get_quiddity_caps() {
 bool Quiddity::graft_tree(const std::string& path, InfoTree::ptr tree, bool do_signal) {
   if (!information_tree_->graft(path, tree)) return false;
   if (do_signal) {
-    smanage<MPtr(&signal::SBag::notify)>(on_tree_grafted_id_, InfoTree::make(path));
+    smanage<&signal::SBag::notify>(on_tree_grafted_id_, InfoTree::make(path));
   }
   return true;
 }
 
 void Quiddity::notify_tree_updated(const std::string& path) {
-  smanage<MPtr(&signal::SBag::notify)>(on_tree_grafted_id_, InfoTree::make(path));
+  smanage<&signal::SBag::notify>(on_tree_grafted_id_, InfoTree::make(path));
 }
 
 InfoTree::ptr Quiddity::get_tree(const std::string& path) {
@@ -147,7 +147,7 @@ InfoTree::ptr Quiddity::prune_tree(const std::string& path, bool do_signal) {
   InfoTree::ptr result = information_tree_->prune(path);
   if (result) {
     if (do_signal) {
-      smanage<MPtr(&signal::SBag::notify)>(on_tree_pruned_id_, InfoTree::make(path));
+      smanage<&signal::SBag::notify>(on_tree_pruned_id_, InfoTree::make(path));
     }
   }
   return result;
@@ -155,31 +155,31 @@ InfoTree::ptr Quiddity::prune_tree(const std::string& path, bool do_signal) {
 
 bool Quiddity::user_data_graft_hook(const std::string& path, InfoTree::ptr tree) {
   if (!structured_user_data_->graft(path, std::forward<InfoTree::ptr>(tree))) return false;
-  smanage<MPtr(&signal::SBag::notify)>(on_user_data_grafted_id_, InfoTree::make(path));
+  smanage<&signal::SBag::notify>(on_user_data_grafted_id_, InfoTree::make(path));
   return true;
 }
 
 InfoTree::ptr Quiddity::user_data_prune_hook(const std::string& path) {
   auto res = structured_user_data_->prune(path);
   if (res) {
-    smanage<MPtr(&signal::SBag::notify)>(on_user_data_pruned_id_, InfoTree::make(path));
+    smanage<&signal::SBag::notify>(on_user_data_pruned_id_, InfoTree::make(path));
   }
   return res;
 }
 
 void Quiddity::notify_user_data_grafted(const std::string& path) {
-  smanage<MPtr(&signal::SBag::notify)>(on_user_data_grafted_id_, InfoTree::make(path));
+  smanage<&signal::SBag::notify>(on_user_data_grafted_id_, InfoTree::make(path));
 }
 
 void Quiddity::notify_user_data_pruned(const std::string& path) {
-  smanage<MPtr(&signal::SBag::notify)>(on_user_data_pruned_id_, InfoTree::make(path));
+  smanage<&signal::SBag::notify>(on_user_data_pruned_id_, InfoTree::make(path));
 }
 
 void Quiddity::self_destruct() {
   std::unique_lock<std::mutex> lock(self_destruct_mtx_);
   auto thread = std::thread([ this, th_lock = std::move(lock) ]() mutable {
     th_lock.unlock();
-    auto res = qcontainer_->get_switcher()->quids<MPtr(&quiddity::Container::remove)>(id_);
+    auto res = qcontainer_->get_switcher()->quids<&quiddity::Container::remove>(id_);
     if (!res) sw_warning("{} did not self destruct ({})", get_nickname(), res.msg());
   });
   thread.detach();
@@ -211,7 +211,7 @@ bool Quiddity::toggle_property_saving(const std::string& prop) {
 
 bool Quiddity::set_nickname(const std::string& nickname) {
   nickname_ = nickname;
-  smanage<MPtr(&signal::SBag::notify)>(on_nicknamed_id_, InfoTree::make(nickname));
+  smanage<&signal::SBag::notify>(on_nicknamed_id_, InfoTree::make(nickname));
   return true;
 }
 

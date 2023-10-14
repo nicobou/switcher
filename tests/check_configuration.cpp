@@ -30,34 +30,34 @@ int main() {
   Switcher::ptr mgr = Switcher::make_switcher("test-config", true);
 
   // check a configuration has been applied
-  assert(mgr->conf<MPtr(&Configuration::get_value)>(".logs.filepath").not_null());
-  assert(mgr->conf<MPtr(&Configuration::get_value)>(".logs.log_level").not_null());
-  assert(mgr->conf<MPtr(&Configuration::get_value)>(".shm.prefix").not_null());
+  assert(mgr->conf<&Configuration::get_value>(".logs.filepath").not_null());
+  assert(mgr->conf<&Configuration::get_value>(".logs.log_level").not_null());
+  assert(mgr->conf<&Configuration::get_value>(".shm.prefix").not_null());
 
   // 2. load a configuration from a given file. This one contains definition for some bundles
-  assert(mgr->conf<MPtr(&Configuration::from_file)>("./check_configuration.json"));
+  assert(mgr->conf<&Configuration::from_file>("./check_configuration.json"));
 
   // check mandatory values in the configuration are available
-  assert(mgr->conf<MPtr(&Configuration::get_value)>(".logs.filepath").not_null());
-  assert(mgr->conf<MPtr(&Configuration::get_value)>(".logs.log_level").not_null());
-  assert(mgr->conf<MPtr(&Configuration::get_value)>(".shm.prefix").not_null());
+  assert(mgr->conf<&Configuration::get_value>(".logs.filepath").not_null());
+  assert(mgr->conf<&Configuration::get_value>(".logs.log_level").not_null());
+  assert(mgr->conf<&Configuration::get_value>(".shm.prefix").not_null());
 
   // check the bundles from this configuration are available
-  assert(mgr->conf<MPtr(&Configuration::list_extra_configs)>().size() == 2);
+  assert(mgr->conf<&Configuration::list_extra_configs>().size() == 2);
   assert(quiddity::test::create(mgr, "source-bundle"));
 
   // 3. load a configuration from an InfoTree
-  const auto config_tree = mgr->conf<MPtr(&Configuration::get)>();
+  const auto config_tree = mgr->conf<&Configuration::get>();
   // reapply the same configuration
-  assert(mgr->conf<MPtr(&Configuration::from_tree)>(config_tree.get()));
+  assert(mgr->conf<&Configuration::from_tree>(config_tree.get()));
 
   // check a configuration has been applied
-  assert(mgr->conf<MPtr(&Configuration::get_value)>(".logs.filepath").not_null());
-  assert(mgr->conf<MPtr(&Configuration::get_value)>(".logs.log_level").not_null());
-  assert(mgr->conf<MPtr(&Configuration::get_value)>(".shm.prefix").not_null());
+  assert(mgr->conf<&Configuration::get_value>(".logs.filepath").not_null());
+  assert(mgr->conf<&Configuration::get_value>(".logs.log_level").not_null());
+  assert(mgr->conf<&Configuration::get_value>(".shm.prefix").not_null());
 
   // check bundles has been reloaded from the config_tree
-  assert(mgr->conf<MPtr(&Configuration::list_extra_configs)>().size() == 2);
+  assert(mgr->conf<&Configuration::list_extra_configs>().size() == 2);
   assert(quiddity::test::create(mgr, "source-bundle"));
 
   return 0;

@@ -46,7 +46,7 @@ DummySink::DummySink(quiddity::Config&& conf)
                {kConnectionSpec,
                 [this](const std::string& shmpath, claw::sfid_t) { return connect(shmpath); },
                 [this](claw::sfid_t) { return disconnect(); }}),
-      frame_received_id_(pmanage<MPtr(&property::PBag::make_bool)>(
+      frame_received_id_(pmanage<&property::PBag::make_bool>(
           "frame-received",
           nullptr,
           [this]() { return frame_received_; },
@@ -59,10 +59,10 @@ bool DummySink::connect(const std::string& path) {
   shm_ = std::make_unique<shmdata::Follower>(this, path, [this](void*, size_t) {
     if (!frame_received_) {
       {
-        auto lock = pmanage<MPtr(&property::PBag::get_lock)>(frame_received_id_);
+        auto lock = pmanage<&property::PBag::get_lock>(frame_received_id_);
         frame_received_ = true;
       }
-      pmanage<MPtr(&property::PBag::notify)>(frame_received_id_);
+      pmanage<&property::PBag::notify>(frame_received_id_);
     }
   });
   return true;

@@ -30,10 +30,10 @@ int main() {
 
 
     assert(quiddity::test::full(manager, "v4l2src"));
-    if (!manager->quids<MPtr(&quiddity::Container::create)>("v4l2src", "test", nullptr))
+    if (!manager->quids<&quiddity::Container::create>("v4l2src", "test", nullptr))
       return 0;  // no camera in this computer
-    assert(manager->quids<MPtr(&quiddity::Container::remove)>(
-        manager->quids<MPtr(&quiddity::Container::get_id)>("test")));
+    assert(manager->quids<&quiddity::Container::remove>(
+        manager->quids<&quiddity::Container::get_id>("test")));
   }  // end of scope is releasing the manager
   return 0;
 }

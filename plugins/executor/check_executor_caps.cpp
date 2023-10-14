@@ -34,38 +34,38 @@ int main() {
     Switcher::ptr manager = Switcher::make_switcher("test_manager");
 
     // check can_sink_caps
-    auto eqrox = manager->quids<MPtr(&quiddity::Container::create)>("executor", "exec", nullptr);
+    auto eqrox = manager->quids<&quiddity::Container::create>("executor", "exec", nullptr);
     assert(eqrox);
 
     auto exec = eqrox.get();
     assert(exec);
 
     // should accept connection if empty
-    assert("" == exec->prop<MPtr(&property::PBag::get_str_str)>("whitelist_caps"));
+    assert("" == exec->prop<&property::PBag::get_str_str>("whitelist_caps"));
 
-    auto sfid = exec->claw<MPtr(&Claw::get_sfid)>(std::string("custom"));
+    auto sfid = exec->claw<&Claw::get_sfid>(std::string("custom"));
 
-    bool can_connect = exec->claw<MPtr(&Claw::sfid_can_do_shmtype)>(sfid, ::shmdata::Type("text"));
+    bool can_connect = exec->claw<&Claw::sfid_can_do_shmtype>(sfid, ::shmdata::Type("text"));
     assert(can_connect == true);
 
     // should reject connection if the caps doesn't match
-    assert(exec->prop<MPtr(&property::PBag::set_str_str)>("whitelist_caps", "audio/x-raw"));
-    assert("audio/x-raw" == exec->prop<MPtr(&property::PBag::get_str_str)>("whitelist_caps"));
+    assert(exec->prop<&property::PBag::set_str_str>("whitelist_caps", "audio/x-raw"));
+    assert("audio/x-raw" == exec->prop<&property::PBag::get_str_str>("whitelist_caps"));
 
-    can_connect = exec->claw<MPtr(&Claw::sfid_can_do_shmtype)>(sfid, ::shmdata::Type("text"));
+    can_connect = exec->claw<&Claw::sfid_can_do_shmtype>(sfid, ::shmdata::Type("text"));
     assert(can_connect == false);
 
     // should accept connection if the caps match
     can_connect =
-        exec->claw<MPtr(&Claw::sfid_can_do_shmtype)>(sfid, ::shmdata::Type("audio/x-raw"));
+        exec->claw<&Claw::sfid_can_do_shmtype>(sfid, ::shmdata::Type("audio/x-raw"));
     assert(can_connect == true);
 
     // should accept connection if the caps match with many whitelisted caps
-    assert(exec->prop<MPtr(&property::PBag::set_str_str)>("whitelist_caps",
+    assert(exec->prop<&property::PBag::set_str_str>("whitelist_caps",
                                                           "audio/x-raw; video/x-raw"));
 
     can_connect =
-        exec->claw<MPtr(&Claw::sfid_can_do_shmtype)>(sfid, ::shmdata::Type("video/x-raw"));
+        exec->claw<&Claw::sfid_can_do_shmtype>(sfid, ::shmdata::Type("video/x-raw"));
     assert(can_connect == true);
 
   }  // end of scope is releasing the manager

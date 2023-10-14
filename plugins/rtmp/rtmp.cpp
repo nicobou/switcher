@@ -56,7 +56,7 @@ RTMP::RTMP(quiddity::Config&& conf)
                 },
                 [this](claw::sfid_t sfid) { return on_shmdata_disconnect(sfid); }}),
       Startable(this),
-      stream_app_url_id_(pmanage<MPtr(&property::PBag::make_string)>(
+      stream_app_url_id_(pmanage<&property::PBag::make_string>(
           "stream_app_url",
           [this](const std::string& val) {
             stream_app_url_ = val;
@@ -66,7 +66,7 @@ RTMP::RTMP(quiddity::Config&& conf)
           "Stream application URL",
           "Address of the RTMP server used to stream",
           stream_app_url_)),
-      stream_key_id_(pmanage<MPtr(&property::PBag::make_string)>(
+      stream_key_id_(pmanage<&property::PBag::make_string>(
           "stream_key",
           [this](const std::string& val) {
             stream_key_ = val;
@@ -144,8 +144,8 @@ bool RTMP::start() {
 
   gst_pipeline_->play(true);
 
-  pmanage<MPtr(&property::PBag::disable)>(stream_app_url_id_, Startable::disabledWhenStartedMsg);
-  pmanage<MPtr(&property::PBag::disable)>(stream_key_id_, Startable::disabledWhenStartedMsg);
+  pmanage<&property::PBag::disable>(stream_app_url_id_, Startable::disabledWhenStartedMsg);
+  pmanage<&property::PBag::disable>(stream_key_id_, Startable::disabledWhenStartedMsg);
 
   return true;
 }
@@ -154,8 +154,8 @@ bool RTMP::stop() {
   if (this->is_started()) {
     gst_pipeline_->play(false);
     gst_pipeline_.reset();
-    pmanage<MPtr(&property::PBag::enable)>(stream_app_url_id_);
-    pmanage<MPtr(&property::PBag::enable)>(stream_key_id_);
+    pmanage<&property::PBag::enable>(stream_app_url_id_);
+    pmanage<&property::PBag::enable>(stream_key_id_);
   }
   return true;
 }
@@ -209,7 +209,7 @@ bool RTMP::on_shmdata_disconnect(claw::sfid_t sfid) {
     return false;
   }
 
-  pmanage<MPtr(&property::PBag::set_str_str)>("started", "false");
+  pmanage<&property::PBag::set_str_str>("started", "false");
   return true;
 }
 

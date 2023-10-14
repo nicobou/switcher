@@ -57,7 +57,7 @@ GstVideoConverter::GstVideoConverter(quiddity::Config&& conf)
            [this](claw::sfid_t) { return on_shmdata_disconnect(); }}),
       video_format_(
           gst::utils::get_gst_element_capability_as_list("videoconvert", "format", GST_PAD_SRC), 0),
-      video_format_id_(pmanage<MPtr(&property::PBag::make_selection<>)>(
+      video_format_id_(pmanage<&property::PBag::make_selection<>>(
           "pixel_format",
           [this](const quiddity::property::IndexOrName& val) {
             video_format_.select(val);
@@ -74,7 +74,7 @@ bool GstVideoConverter::on_shmdata_disconnect() {
   shmsink_sub_.reset();
   shmsrc_sub_.reset();
   converter_.reset();
-  pmanage<MPtr(&property::PBag::enable)>(video_format_id_);
+  pmanage<&property::PBag::enable>(video_format_id_);
   return true;
 }
 
@@ -99,7 +99,7 @@ bool GstVideoConverter::on_shmdata_connect(const std::string& shmpath) {
                                                 converter_->get_shmsrc(),
                                                 shmpath_to_convert_,
                                                 shmdata::GstTreeUpdater::Direction::reader);
-  pmanage<MPtr(&property::PBag::disable)>(video_format_id_,
+  pmanage<&property::PBag::disable>(video_format_id_,
                                           property::PBag::disabledWhenConnectedMsg);
   return true;
 }

@@ -51,7 +51,7 @@ VRPNSink::VRPNSink(quiddity::Config&& conf)
                 [this](const std::string& shmpath, claw::sfid_t) { return connect(shmpath); },
                 [this](claw::sfid_t) { return disconnect(); }}),
       Startable(this) {
-  port_id_ = pmanage<MPtr(&property::PBag::make_int)>("port",
+  port_id_ = pmanage<&property::PBag::make_int>("port",
                                                       [this](int val) {
                                                         port_ = val;
                                                         return true;
@@ -63,10 +63,10 @@ VRPNSink::VRPNSink(quiddity::Config&& conf)
                                                       1,
                                                       65536);
 
-  pmanage<MPtr(&property::PBag::make_group)>(
+  pmanage<&property::PBag::make_group>(
       "advanced", "Advanced configuration", "Advanced configuration");
 
-  pmanage<MPtr(&property::PBag::make_parented_bool)>("debug",
+  pmanage<&property::PBag::make_parented_bool>("debug",
                                                      "advanced",
                                                      [this](bool val) {
                                                        debug_ = val;
@@ -78,7 +78,7 @@ VRPNSink::VRPNSink(quiddity::Config&& conf)
                                                      debug_);
 
   create_analog_device_id_ =
-      mmanage<MPtr(&method::MBag::make_method<std::function<bool(std::string)>>)>(
+      mmanage<&method::MBag::make_method<std::function<bool(std::string)>>>(
           "create_analog_device",
           infotree::json::deserialize(
               R"(
@@ -96,7 +96,7 @@ VRPNSink::VRPNSink(quiddity::Config&& conf)
           [this](const std::string& dev) { return createAnalogDeviceMethod(dev); });
 
   create_button_device_id_ =
-      mmanage<MPtr(&method::MBag::make_method<std::function<bool(std::string)>>)>(
+      mmanage<&method::MBag::make_method<std::function<bool(std::string)>>>(
           "create_button_device",
           infotree::json::deserialize(
               R"(
@@ -208,11 +208,11 @@ bool VRPNSink::createAnalogDevice(const std::string& deviceName) {
 
   // Create the device property group
   std::string groupName = std::string(deviceName) + "-analog";
-  pmanage<MPtr(&property::PBag::make_group)>(
+  pmanage<&property::PBag::make_group>(
       groupName, "\"" + std::string(deviceName) + "\" Analog Device", "Analog Device Properties");
 
   // Add a property to the group, controlling the number of channels
-  pmanage<MPtr(&property::PBag::make_parented_int)>(groupName + "-numChannels",
+  pmanage<&property::PBag::make_parented_int>(groupName + "-numChannels",
                                                     groupName,
                                                     [this, deviceName](int val) {
                                                       // Called from switcher's thread
@@ -238,7 +238,7 @@ bool VRPNSink::createAnalogDevice(const std::string& deviceName) {
                                                     vrpn_CHANNEL_MAX);
 
   // Create a container for the properties
-  pmanage<MPtr(&property::PBag::make_parented_group)>(
+  pmanage<&property::PBag::make_parented_group>(
       groupName + "-channels", groupName, "Channels", "Channel Properties");
 
   // Start the device if we are already started
@@ -287,7 +287,7 @@ void VRPNSink::updateAnalogProperties(const std::string& deviceName, int numChan
     if (numChannels > initialSize) {
       // Add missing properties
       for (int i = initialSize; i < numChannels; ++i) {
-        auto property = pmanage<MPtr(&property::PBag::make_parented_double)>(
+        auto property = pmanage<&property::PBag::make_parented_double>(
             deviceName + "-analog-" + std::to_string(i),
             std::string(deviceName) + "-analog-channels",
             [this, deviceId, i](double val) {
@@ -314,13 +314,13 @@ void VRPNSink::updateAnalogProperties(const std::string& deviceName, int numChan
             std::numeric_limits<double>::max());
         props->push_back(property);
         if (!is_started()) {
-          pmanage<MPtr(&property::PBag::disable)>(property, Startable::disabledWhenStopedMsg);
+          pmanage<&property::PBag::disable>(property, Startable::disabledWhenStopedMsg);
         }
       }
     } else if (numChannels < initialSize) {
       // Remove extra properties
       for (int i = initialSize; i > numChannels; --i) {
-        pmanage<MPtr(&property::PBag::remove)>(props->at((size_t)i - 1));
+        pmanage<&property::PBag::remove>(props->at((size_t)i - 1));
       }
       props->resize((size_t)numChannels);
     }
@@ -365,13 +365,13 @@ bool VRPNSink::createButtonDevice(const std::string& deviceName) {
 
   // Create the device property group
   std::string groupName = std::string(deviceName) + "-button";
-  pmanage<MPtr(&property::PBag::make_group)>(
+  pmanage<&property::PBag::make_group>(
       groupName,
       "\"" + std::string(deviceName) + "\" Button Device Button",
       "Button Device Properties");
 
   // Add a property to the group, controlling the number of channels
-  pmanage<MPtr(&property::PBag::make_parented_int)>(groupName + "-numChannels",
+  pmanage<&property::PBag::make_parented_int>(groupName + "-numChannels",
                                                     groupName,
                                                     [this, deviceName](int val) {
                                                       // Called from switcher's thread
@@ -397,7 +397,7 @@ bool VRPNSink::createButtonDevice(const std::string& deviceName) {
                                                     vrpn_BUTTON_MAX_BUTTONS);
 
   // Create a container for the properties
-  pmanage<MPtr(&property::PBag::make_parented_group)>(
+  pmanage<&property::PBag::make_parented_group>(
       groupName + "-buttons", groupName, "Buttons", "Button Properties");
 
   // Start the device if we are already started
@@ -446,7 +446,7 @@ void VRPNSink::updateButtonProperties(const std::string& deviceName, int numButt
     if (numButtons > initialSize) {
       // Add missing properties
       for (int i = initialSize; i < numButtons; ++i) {
-        auto property = pmanage<MPtr(&property::PBag::make_parented_bool)>(
+        auto property = pmanage<&property::PBag::make_parented_bool>(
             deviceName + "-button-" + std::to_string(i),
             std::string(deviceName) + "-button-buttons",
             [this, deviceId, i](bool val) {
@@ -471,13 +471,13 @@ void VRPNSink::updateButtonProperties(const std::string& deviceName, int numButt
             false);
         props->push_back(property);
         if (!is_started()) {
-          pmanage<MPtr(&property::PBag::disable)>(property, Startable::disabledWhenStopedMsg);
+          pmanage<&property::PBag::disable>(property, Startable::disabledWhenStopedMsg);
         }
       }
     } else if (numButtons < initialSize) {
       // Remove extra properties
       for (int i = initialSize; i > numButtons; --i) {
-        pmanage<MPtr(&property::PBag::remove)>(props->at((size_t)i - 1));
+        pmanage<&property::PBag::remove>(props->at((size_t)i - 1));
       }
       props->resize((size_t)numButtons);
     }
@@ -554,9 +554,9 @@ bool VRPNSink::start() {
     return false;
   }
 
-  pmanage<MPtr(&property::PBag::disable)>(port_id_, disabledWhenStartedMsg);
-  mmanage<MPtr(&method::MBag::enable)>(create_analog_device_id_);
-  mmanage<MPtr(&method::MBag::enable)>(create_button_device_id_);
+  pmanage<&property::PBag::disable>(port_id_, disabledWhenStartedMsg);
+  mmanage<&method::MBag::enable>(create_analog_device_id_);
+  mmanage<&method::MBag::enable>(create_button_device_id_);
 
   for (auto& device : devices_) {
     device.second->start(connection_.get());
@@ -564,7 +564,7 @@ bool VRPNSink::start() {
 
   for (auto& deviceProperties : devicesProperties_) {
     for (auto property : *deviceProperties.second) {
-      pmanage<MPtr(&property::PBag::enable)>(property);
+      pmanage<&property::PBag::enable>(property);
     }
   }
 
@@ -590,10 +590,10 @@ bool VRPNSink::stop() {
   }
   connection_.reset(nullptr);
 
-  pmanage<MPtr(&property::PBag::enable)>(port_id_);
+  pmanage<&property::PBag::enable>(port_id_);
   for (auto& deviceProperties : devicesProperties_) {
     for (auto property : *deviceProperties.second) {
-      pmanage<MPtr(&property::PBag::disable)>(property, Startable::disabledWhenStopedMsg);
+      pmanage<&property::PBag::disable>(property, Startable::disabledWhenStopedMsg);
     }
   }
 

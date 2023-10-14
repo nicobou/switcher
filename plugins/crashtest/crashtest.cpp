@@ -33,7 +33,7 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(CrashTest,
 
 CrashTest::CrashTest(quiddity::Config&& conf)
     : Quiddity(std::forward<quiddity::Config>(conf)),
-      crash_id_(pmanage<MPtr(&property::PBag::make_bool)>(
+      crash_id_(pmanage<&property::PBag::make_bool>(
           "crash",
           [this](bool val) {
             crash_ = val;

@@ -34,22 +34,22 @@ int main() {
     Switcher::ptr manager = Switcher::make_switcher("test_manager");
 
     // check can_sink_caps
-    auto cqrox = manager->quids<MPtr(&quiddity::Container::create)>("cropper", "crop", nullptr);
+    auto cqrox = manager->quids<&quiddity::Container::create>("cropper", "crop", nullptr);
     assert(cqrox);
 
     auto crop = cqrox.get();
     assert(crop);
 
-    auto sfid = crop->claw<MPtr(&Claw::get_sfid)>("video");
+    auto sfid = crop->claw<&Claw::get_sfid>("video");
     assert(Ids::kInvalid != sfid);
 
     // should reject connection if the caps is not "video/x-raw"
     bool can_connect =
-        crop->claw<MPtr(&Claw::sfid_can_do_shmtype)>(sfid, ::shmdata::Type("audio/x-raw"));
+        crop->claw<&Claw::sfid_can_do_shmtype>(sfid, ::shmdata::Type("audio/x-raw"));
     assert(can_connect == false);
 
     // should accept connection if the caps are valid and of type "video/x-raw"
-    can_connect = crop->claw<MPtr(&Claw::sfid_can_do_shmtype)>(
+    can_connect = crop->claw<&Claw::sfid_can_do_shmtype>(
         sfid, ::shmdata::Type("video/x-raw, format=I420, width=1920, height=1080, framerate=30/1"));
     assert(can_connect == true);
 

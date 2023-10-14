@@ -62,7 +62,7 @@ ShmDelay::ShmDelay(quiddity::Config&& conf)
                   return on_shmdata_connect(shmpath, sfid);
                 },
                 [this](claw::sfid_t sfid) { return on_shmdata_disconnect(sfid); }}),
-      time_delay_id_(pmanage<MPtr(&property::PBag::make_double)>(
+      time_delay_id_(pmanage<&property::PBag::make_double>(
           "time_delay",
           [this](const double& val) {
             time_delay_ = val;
@@ -74,7 +74,7 @@ ShmDelay::ShmDelay(quiddity::Config&& conf)
           time_delay_,
           0,
           60000)),
-      buffer_size_id_(pmanage<MPtr(&property::PBag::make_unsigned_int)>(
+      buffer_size_id_(pmanage<&property::PBag::make_unsigned_int>(
           "buffer_size",
           [this](const unsigned int& val) {
             buffer_size_ = val;
@@ -87,7 +87,7 @@ ShmDelay::ShmDelay(quiddity::Config&& conf)
           buffer_size_,
           128,  // Minimum 100 MB in the buffer otherwise it doesn't really make sense
           8096)),
-      restrict_caps_id_(pmanage<MPtr(&property::PBag::make_selection<>)>(
+      restrict_caps_id_(pmanage<&property::PBag::make_selection<>>(
           "restrict_caps",
           [this](const quiddity::property::IndexOrName& val) {
             restrict_caps_.select(val);
@@ -121,14 +121,14 @@ bool ShmDelay::on_shmdata_connect(const std::string& shmpath, claw::sfid_t sfid)
         shmpath,
         [this](void* data, size_t data_size) {
           if (!data_size) return;
-          pmanage<MPtr(&property::PBag::set<double>)>(time_delay_id_, *static_cast<double*>(data));
+          pmanage<&property::PBag::set<double>>(time_delay_id_, *static_cast<double*>(data));
         },
         nullptr,
         nullptr,
         shmdata::Stat::kDefaultUpdateInterval,
         shmdata::Follower::Direction::reader,
         true);
-    pmanage<MPtr(&property::PBag::disable)>(
+    pmanage<&property::PBag::disable>(
         time_delay_id_, "Delay is provided by an ltc-diff shmdata, it cannot be changed manually");
   } else {
     // We do not delay using an ltc-diff shmdata.
@@ -178,7 +178,7 @@ bool ShmDelay::on_shmdata_connect(const std::string& shmpath, claw::sfid_t sfid)
                 // We record the timestamp of the shmdata we are now forwarding.
                 last_timestamp_ = closest.timestamp_;
 
-                shmw_->writer<MPtr(&::shmdata::Writer::copy_to_shm)>(closest.content_.data(),
+                shmw_->writer<&::shmdata::Writer::copy_to_shm>(closest.content_.data(),
                                                                      closest.data_size_);
                 shmw_->bytes_written(closest.data_size_);
               },
@@ -196,7 +196,7 @@ bool ShmDelay::on_shmdata_connect(const std::string& shmpath, claw::sfid_t sfid)
 bool ShmDelay::on_shmdata_disconnect(claw::sfid_t sfid) {
   if (claw_.get_follower_label(sfid) == "ltc-diff") {
     diff_follower_.reset();
-    pmanage<MPtr(&property::PBag::enable)>(time_delay_id_);
+    pmanage<&property::PBag::enable>(time_delay_id_);
   } else {
     writing_task_.reset();
     shmw_.reset();

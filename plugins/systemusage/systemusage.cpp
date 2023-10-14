@@ -56,7 +56,7 @@ SystemUsage::SystemUsage(quiddity::Config&& conf)
       pollStateTask_(std::make_unique<PeriodicTask<>>(
           [this]() { this->pollState(); },
           std::chrono::milliseconds(static_cast<int>(1000 * period_)))) {
-  pmanage<MPtr(&property::PBag::make_float)>(
+  pmanage<&property::PBag::make_float>(
       "period",
       [this](const float& val) {
         period_ = val;

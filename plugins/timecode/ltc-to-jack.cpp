@@ -62,7 +62,7 @@ LTCToJack::LTCToJack(quiddity::Config&& conf)
     return;
   }
 
-  drift_threshold_id_ = pmanage<MPtr(&property::PBag::make_double)>(
+  drift_threshold_id_ = pmanage<&property::PBag::make_double>(
       "drift_threshold",
       [this](const double& val) {
         std::lock_guard<std::mutex> lock(threshold_mutex_);

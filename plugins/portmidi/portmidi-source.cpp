@@ -53,7 +53,7 @@ PortMidiSource::PortMidiSource(quiddity::Config&& conf)
     is_valid_ = false;
     return;
   }
-  devices_id_ = pmanage<MPtr(&property::PBag::make_selection<>)>(
+  devices_id_ = pmanage<&property::PBag::make_selection<>>(
       "device",
       [this](const quiddity::property::IndexOrName& val) {
         input_devices_enum_.select(val);
@@ -64,7 +64,7 @@ PortMidiSource::PortMidiSource(quiddity::Config&& conf)
       "MIDI capture devices to use",
       input_devices_enum_);
   last_midi_value_id_ =
-      pmanage<MPtr(&property::PBag::make_int)>("last-midi-value",
+      pmanage<&property::PBag::make_int>("last-midi-value",
                                                nullptr,
                                                [this]() { return last_data2_; },
                                                "Last MIDI value",
@@ -72,10 +72,10 @@ PortMidiSource::PortMidiSource(quiddity::Config&& conf)
                                                0,
                                                0,
                                                127);
-  pmanage<MPtr(&property::PBag::disable)>(last_midi_value_id_, disabledWhenStopedMsg);
+  pmanage<&property::PBag::disable>(last_midi_value_id_, disabledWhenStopedMsg);
 
   auto next_midi_event_to_property_id_ =
-      mmanage<MPtr(&method::MBag::make_method<std::function<bool(std::string)>>)>(
+      mmanage<&method::MBag::make_method<std::function<bool(std::string)>>>(
           "next_midi_event_to_property",
           infotree::json::deserialize(
               R"(
@@ -93,11 +93,11 @@ PortMidiSource::PortMidiSource(quiddity::Config&& conf)
           [this](const std::string& prop_name) {
             return next_midi_event_to_property_method(prop_name);
           });
-  mmanage<MPtr(&method::MBag::disable)>(next_midi_event_to_property_id_,
+  mmanage<&method::MBag::disable>(next_midi_event_to_property_id_,
                                         Startable::disabledWhenStopedMsg);
 
   auto remove_midi_property_id_ =
-      mmanage<MPtr(&method::MBag::make_method<std::function<bool(std::string)>>)>(
+      mmanage<&method::MBag::make_method<std::function<bool(std::string)>>>(
           "remove_midi_property",
           infotree::json::deserialize(
               R"(
@@ -113,10 +113,10 @@ PortMidiSource::PortMidiSource(quiddity::Config&& conf)
                   }
               )"),
           [this](const std::string& prop_name) { return remove_property_method(prop_name); });
-  mmanage<MPtr(&method::MBag::disable)>(remove_midi_property_id_, Startable::disabledWhenStopedMsg);
+  mmanage<&method::MBag::disable>(remove_midi_property_id_, Startable::disabledWhenStopedMsg);
 
   using map_midi_to_prop_t = std::function<bool(std::string, int, int)>;
-  auto map_midi_to_property_id_ = mmanage<MPtr(&method::MBag::make_method<map_midi_to_prop_t>)>(
+  auto map_midi_to_property_id_ = mmanage<&method::MBag::make_method<map_midi_to_prop_t>>(
       "map_midi_to_property",
       infotree::json::deserialize(
           R"(
@@ -142,7 +142,7 @@ PortMidiSource::PortMidiSource(quiddity::Config&& conf)
       [this](const std::string& prop_name, int status, int data) {
         return make_property(prop_name, status, data);
       });
-  mmanage<MPtr(&method::MBag::disable)>(map_midi_to_property_id_, Startable::disabledWhenStopedMsg);
+  mmanage<&method::MBag::disable>(map_midi_to_property_id_, Startable::disabledWhenStopedMsg);
 }
 
 bool PortMidiSource::start() {
@@ -153,23 +153,23 @@ bool PortMidiSource::start() {
     shm_.reset(nullptr);
     return false;
   }
-  pmanage<MPtr(&property::PBag::disable)>(devices_id_, disabledWhenStartedMsg);
+  pmanage<&property::PBag::disable>(devices_id_, disabledWhenStartedMsg);
   open_input_device(std::stoi(input_devices_enum_.get_attached()), on_pm_event, this);
-  pmanage<MPtr(&property::PBag::enable)>(last_midi_value_id_);
-  mmanage<MPtr(&method::MBag::enable)>(next_midi_event_to_property_id_);
-  mmanage<MPtr(&method::MBag::enable)>(remove_midi_property_id_);
-  mmanage<MPtr(&method::MBag::enable)>(map_midi_to_property_id_);
+  pmanage<&property::PBag::enable>(last_midi_value_id_);
+  mmanage<&method::MBag::enable>(next_midi_event_to_property_id_);
+  mmanage<&method::MBag::enable>(remove_midi_property_id_);
+  mmanage<&method::MBag::enable>(map_midi_to_property_id_);
   return true;
 }
 
 bool PortMidiSource::stop() {
   close_input_device(std::stoi(input_devices_enum_.get_attached()));
-  pmanage<MPtr(&property::PBag::disable)>(last_midi_value_id_, disabledWhenStopedMsg);
-  mmanage<MPtr(&method::MBag::disable)>(next_midi_event_to_property_id_,
+  pmanage<&property::PBag::disable>(last_midi_value_id_, disabledWhenStopedMsg);
+  mmanage<&method::MBag::disable>(next_midi_event_to_property_id_,
                                         Startable::disabledWhenStopedMsg);
-  mmanage<MPtr(&method::MBag::disable)>(remove_midi_property_id_, Startable::disabledWhenStopedMsg);
-  mmanage<MPtr(&method::MBag::disable)>(map_midi_to_property_id_, Startable::disabledWhenStopedMsg);
-  pmanage<MPtr(&property::PBag::enable)>(devices_id_);
+  mmanage<&method::MBag::disable>(remove_midi_property_id_, Startable::disabledWhenStopedMsg);
+  mmanage<&method::MBag::disable>(map_midi_to_property_id_, Startable::disabledWhenStopedMsg);
+  pmanage<&property::PBag::enable>(devices_id_);
   shm_.reset(nullptr);
   return true;
 }
@@ -180,7 +180,7 @@ void PortMidiSource::on_pm_event(PmEvent* event, void* user_data) {
   PmEvent* tmp_event = (PmEvent*)g_malloc(sizeof(PmEvent));
   tmp_event->message = event->message;
   tmp_event->timestamp = event->timestamp;
-  context->shm_->writer<MPtr(&::shmdata::Writer::copy_to_shm)>(tmp_event, sizeof(PmEvent));
+  context->shm_->writer<&::shmdata::Writer::copy_to_shm>(tmp_event, sizeof(PmEvent));
   context->shm_->bytes_written(sizeof(PmEvent));
   g_free(tmp_event);
 
@@ -192,16 +192,16 @@ void PortMidiSource::on_pm_event(PmEvent* event, void* user_data) {
   context->last_data1_ = static_cast<int>(data1);
 
   {
-    auto lock = context->pmanage<MPtr(&property::PBag::get_lock)>(context->last_midi_value_id_);
+    auto lock = context->pmanage<&property::PBag::get_lock>(context->last_midi_value_id_);
     context->last_data2_ = (int)data2;
   }
-  context->pmanage<MPtr(&property::PBag::notify)>(context->last_midi_value_id_);
+  context->pmanage<&property::PBag::notify>(context->last_midi_value_id_);
   // updating property if needed
   if (context->midi_channels_.find(std::make_pair(status, data1)) !=
       context->midi_channels_.end()) {
     std::string prop_long_name = context->midi_channels_[std::make_pair(status, data1)];
     context->midi_values_[prop_long_name] = data2;
-    context->pmanage<MPtr(&property::PBag::notify)>(context->prop_ids_[prop_long_name]);
+    context->pmanage<&property::PBag::notify>(context->prop_ids_[prop_long_name]);
   }
 
   // making property if needed
@@ -233,7 +233,7 @@ bool PortMidiSource::remove_property_method(const std::string& long_name) {
   }
 
   gchar* prop_name = g_strdup_printf("%u-%u", midi_channel.first, midi_channel.second);
-  pmanage<MPtr(&property::PBag::remove)>(prop_ids_[long_name]);
+  pmanage<&property::PBag::remove>(prop_ids_[long_name]);
   unused_props_specs_[prop_name] = prop_ids_[long_name];
   prop_ids_.erase(long_name);
   midi_channels_.erase(midi_channel);
@@ -260,7 +260,7 @@ bool PortMidiSource::make_property(const std::string& property_long_name,
     midi_property_context.port_midi_source_ = this;
     midi_property_context.property_long_name_ = property_long_name;
     midi_property_contexts_[property_long_name] = midi_property_context;
-    prop_ids_[property_long_name] = pmanage<MPtr(&property::PBag::make_int)>(
+    prop_ids_[property_long_name] = pmanage<&property::PBag::make_int>(
         prop_name,
         nullptr,
         [this, property_long_name]() { return midi_values_[property_long_name]; },

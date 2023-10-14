@@ -31,8 +31,8 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(SignalQuid,
 
 SignalQuid::SignalQuid(quiddity::Config&& conf)
     : Quiddity(std::forward<quiddity::Config>(conf)),
-      signal_id_(smanage<MPtr(&signal::SBag::make)>("test-signal", "A test signal")) {
-  mmanage<MPtr(&method::MBag::make_method<std::function<bool()>>)>(
+      signal_id_(smanage<&signal::SBag::make>("test-signal", "A test signal")) {
+  mmanage<&method::MBag::make_method<std::function<bool()>>>(
       "emit-signal",
       infotree::json::deserialize(
           R"(
@@ -45,13 +45,13 @@ SignalQuid::SignalQuid(quiddity::Config&& conf)
       [&]() {
         auto tree = InfoTree::make();
         tree->graft(".zetremendouskey", InfoTree::make("zegreatvalue"));
-        smanage<MPtr(&signal::SBag::notify)>(signal_id_, std::move(tree));
+        smanage<&signal::SBag::notify>(signal_id_, std::move(tree));
         // also grafting the tree
         graft_tree(".zetremendouskey", InfoTree::make("zegreatvalue"), true);
         prune_tree(".zetremendouskey", true);
         return true;
       });
-  mmanage<MPtr(&method::MBag::make_method<std::function<bool()>>)>(
+  mmanage<&method::MBag::make_method<std::function<bool()>>>(
       "do-graft-tree",
       infotree::json::deserialize(
           R"(
@@ -65,7 +65,7 @@ SignalQuid::SignalQuid(quiddity::Config&& conf)
         graft_tree(".hello", InfoTree::make("world"), true);
         return true;
       });
-  mmanage<MPtr(&method::MBag::make_method<std::function<bool()>>)>("do-prune-tree",
+  mmanage<&method::MBag::make_method<std::function<bool()>>>("do-prune-tree",
                                                                    infotree::json::deserialize(
                                                                        R"(
                   {

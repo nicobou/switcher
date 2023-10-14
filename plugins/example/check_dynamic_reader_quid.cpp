@@ -34,52 +34,52 @@ int main() {
     Switcher::ptr sw = Switcher::make_switcher("test_manager");
     assert(quiddity::test::full(sw, "dyn-reader-quid"));
 
-    auto reader = sw->quids<MPtr(&Container::create)>("dyn-reader-quid", "reader", nullptr).get();
+    auto reader = sw->quids<&Container::create>("dyn-reader-quid", "reader", nullptr).get();
     assert(reader);
     // register to new connection spec in the tree
     int num_added_received = 0;
     assert(0 !=
-           reader->sig<MPtr(&signal::SBag::subscribe_by_name)>(
+           reader->sig<&signal::SBag::subscribe_by_name>(
                "on-connection-spec-added", [&](const InfoTree::ptr& tree) {
                  assert(stringutils::starts_with(tree->read_data().as<std::string>(), "follower."));
                  ++num_added_received;
                }));
     int num_removed_received = 0;
     assert(0 !=
-           reader->sig<MPtr(&signal::SBag::subscribe_by_name)>(
+           reader->sig<&signal::SBag::subscribe_by_name>(
                "on-connection-spec-removed", [&](const InfoTree::ptr& tree) {
                  assert(stringutils::starts_with(tree->read_data().as<std::string>(), "follower."));
                  ++num_removed_received;
                }));
 
-    auto writer = sw->quids<MPtr(&Container::create)>("connection-quid", "writer", nullptr).get();
+    auto writer = sw->quids<&Container::create>("connection-quid", "writer", nullptr).get();
     assert(writer);
 
     // check connection of the writer "texture" with the reader "video%"
     {
       // get information from the claw + check of consitency among class and Quiddity Tree
-      auto wtexture_id = writer->claw<MPtr(&Claw::get_swid)>("texture");
+      auto wtexture_id = writer->claw<&Claw::get_swid>("texture");
       assert(Ids::kInvalid != wtexture_id);
-      auto rtexture_id = reader->claw<MPtr(&Claw::get_sfid)>("video%");
+      auto rtexture_id = reader->claw<&Claw::get_sfid>("video%");
       assert(Ids::kInvalid != rtexture_id);
 
       // check only one follower is specified
-      assert(1 == reader->claw<MPtr(&Claw::get_follower_labels)>().size());
+      assert(1 == reader->claw<&Claw::get_follower_labels>().size());
       // connection of both texture shmdata
-      auto res_id = reader->claw<MPtr(&Claw::connect)>(rtexture_id, writer->get_id(), wtexture_id);
+      auto res_id = reader->claw<&Claw::connect>(rtexture_id, writer->get_id(), wtexture_id);
       assert(0 != res_id);
       // since follower texture IS meta, we expect to obtain a different id
       assert(res_id != rtexture_id);
       // check a follower has been created
-      assert(2 == reader->claw<MPtr(&Claw::get_follower_labels)>().size());
+      assert(2 == reader->claw<&Claw::get_follower_labels>().size());
       // check we had a notification for addition into the connection spec
       assert(1 == num_added_received);
       // and then disconnect
-      assert(reader->claw<MPtr(&Claw::disconnect)>(res_id));
+      assert(reader->claw<&Claw::disconnect>(res_id));
       // check we received a notification for spec removal
       assert(1 == num_removed_received);
       // check the created follower has been removed
-      assert(1 == reader->claw<MPtr(&Claw::get_follower_labels)>().size());
+      assert(1 == reader->claw<&Claw::get_follower_labels>().size());
     }
 
   }  // end of scope is releasing the switcher

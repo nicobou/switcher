@@ -60,7 +60,7 @@ Uridecodebin::Uridecodebin(quiddity::Config&& conf)
     return;
   }
 
-  pmanage<MPtr(&property::PBag::make_string)>(
+  pmanage<&property::PBag::make_string>(
       "uri",
       [this](const std::string& val) {
         // first reset all existing writers from dynamic specs
@@ -75,7 +75,7 @@ Uridecodebin::Uridecodebin(quiddity::Config&& conf)
       "URI To Be Redirected Into Shmdata(s)",
       "");
 
-  pmanage<MPtr(&property::PBag::make_bool)>(
+  pmanage<&property::PBag::make_bool>(
       "loop",
       [this](const bool val) {
         loop_ = val;

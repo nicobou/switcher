@@ -61,7 +61,7 @@ int main() {
     Switcher::ptr manager = Switcher::make_switcher("bundle", true);
 
     // loading configuration with bundle
-    assert(manager->conf<MPtr(&Configuration::from_file)>("./check_bundle.config")); 
+    assert(manager->conf<&Configuration::from_file>("./check_bundle.config")); 
 
     // creating and removing some complex bundles
     auto bundles = {"source-bundle", "sink-bundle", "filter-bundle", "whitespaces-bundle"};
@@ -71,33 +71,33 @@ int main() {
 
     // testing shmdata communication from a bundle to an other
     auto srcqrox =
-        manager->quids<MPtr(&quiddity::Container::create)>("vid-source-bundle", "src", nullptr);
+        manager->quids<&quiddity::Container::create>("vid-source-bundle", "src", nullptr);
     assert(srcqrox);
     auto dummyqrox =
-        manager->quids<MPtr(&quiddity::Container::create)>("dummy-sink-bundle", "dummy", nullptr);
+        manager->quids<&quiddity::Container::create>("dummy-sink-bundle", "dummy", nullptr);
     assert(dummyqrox);
     auto dummy = dummyqrox.get();
 
-    assert(srcqrox.get()->prop<MPtr(&quiddity::property::PBag::set_str_str)>("started", "true"));
+    assert(srcqrox.get()->prop<&quiddity::property::PBag::set_str_str>("started", "true"));
     assert(0 !=
-           dummy->prop<MPtr(&quiddity::property::PBag::subscribe)>(
-               dummy->prop<MPtr(&quiddity::property::PBag::get_id)>("dummy/frame-received"), [&]() {
-                 if (dummy->prop<MPtr(&quiddity::property::PBag::get<bool>)>(
-                         dummy->prop<MPtr(&quiddity::property::PBag::get_id)>(
+           dummy->prop<&quiddity::property::PBag::subscribe>(
+               dummy->prop<&quiddity::property::PBag::get_id>("dummy/frame-received"), [&]() {
+                 if (dummy->prop<&quiddity::property::PBag::get<bool>>(
+                         dummy->prop<&quiddity::property::PBag::get_id>(
                              "dummy/frame-received"))) {
                    notify_success();
                  }
                }));
 
-    std::cout << srcqrox.get()->conspec<MPtr(&InfoTree::get_copy)>()->serialize_json() << '\n';
-    std::cout << dummy->conspec<MPtr(&InfoTree::get_copy)>()->serialize_json() << '\n';
-    assert(dummy->claw<MPtr(&quiddity::claw::Claw::connect)>(
-        dummy->claw<MPtr(&quiddity::claw::Claw::get_sfid)>("dummy/default"),
+    std::cout << srcqrox.get()->conspec<&InfoTree::get_copy>()->serialize_json() << '\n';
+    std::cout << dummy->conspec<&InfoTree::get_copy>()->serialize_json() << '\n';
+    assert(dummy->claw<&quiddity::claw::Claw::connect>(
+        dummy->claw<&quiddity::claw::Claw::get_sfid>("dummy/default"),
         srcqrox.get_id(),
-        srcqrox.get()->claw<MPtr(&quiddity::claw::Claw::get_swid)>("encoder/video-encoded")));
+        srcqrox.get()->claw<&quiddity::claw::Claw::get_swid>("encoder/video-encoded")));
     wait_until_success();
 
-    assert(srcqrox.get()->prop<MPtr(&quiddity::property::PBag::set_str_str)>("started", "false"));
+    assert(srcqrox.get()->prop<&quiddity::property::PBag::set_str_str>("started", "false"));
     if (!success) {
       std::cout << "No data received." << std::endl;
       return 1;

@@ -35,7 +35,7 @@ int main() {
 
     Switcher::ptr manager = Switcher::make_switcher("crashtest");
     assert(quiddity::test::full(manager, "crashtest"));
-    auto qrox = manager->quids<MPtr(&quiddity::Container::create)>("crashtest", "test", nullptr);
+    auto qrox = manager->quids<&quiddity::Container::create>("crashtest", "test", nullptr);
     auto quid = qrox.get();
     assert(quid);
 
@@ -47,7 +47,7 @@ int main() {
     sigaction(SIGSEGV, &sa, NULL); /* ignore whether it works or not */
 
     // generate the SEGFAULT
-    quid->prop<MPtr(&property::PBag::set_str_str)>("crash", "true");
+    quid->prop<&property::PBag::set_str_str>("crash", "true");
 
   }          // end of scope is releasing the manager
   return 1;  // error, SEGFAULT should have been handled

@@ -68,7 +68,7 @@ VncClientSrc::VncClientSrc(quiddity::Config&& conf)
            [this](claw::sfid_t sfid) { return disconnect(sfid); }}),
       Startable(this) {
   vnc_server_address_id_ =
-      pmanage<MPtr(&property::PBag::make_string)>("vnc_server_address",
+      pmanage<&property::PBag::make_string>("vnc_server_address",
                                                   [this](const std::string& val) {
                                                     vnc_server_address_ = val;
                                                     return true;
@@ -77,7 +77,7 @@ VncClientSrc::VncClientSrc(quiddity::Config&& conf)
                                                   "IP address",
                                                   "Address of the VNC server",
                                                   vnc_server_address_);
-  capture_truecolor_id_ = pmanage<MPtr(&property::PBag::make_bool)>(
+  capture_truecolor_id_ = pmanage<&property::PBag::make_bool>(
       "capture_truecolor",
       [this](const bool val) {
         capture_truecolor_ = val;
@@ -118,7 +118,7 @@ bool VncClientSrc::start() {
       if (i > 0) {
         if (!HandleRFBServerMessage(rfb_client_)) return;
         if (vnc_writer_) {
-          vnc_writer_->writer<MPtr(&::shmdata::Writer::copy_to_shm)>(rfb_client_->frameBuffer,
+          vnc_writer_->writer<&::shmdata::Writer::copy_to_shm>(rfb_client_->frameBuffer,
                                                                      framebuffer_size_);
           vnc_writer_->bytes_written(framebuffer_size_);
         }
@@ -237,7 +237,7 @@ void VncClientSrc::update_vnc(rfbClient* client, int, int, int, int) {
 
   that->framebuffer_size_ = width * height * depth / 8;
   if (!that->vnc_writer_ ||
-      that->framebuffer_size_ > that->vnc_writer_->writer<MPtr(&::shmdata::Writer::alloc_size)>() ||
+      that->framebuffer_size_ > that->vnc_writer_->writer<&::shmdata::Writer::alloc_size>() ||
       that->previous_truecolor_state_ != that->capture_truecolor_) {
     auto data_type = string();
     if (that->capture_truecolor_)

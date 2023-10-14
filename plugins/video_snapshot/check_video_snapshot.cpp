@@ -58,27 +58,27 @@ int main() {
   assert(test::full(switcher, "videosnapshot"));
 
   // creating a video snapshot quiddity
-  auto snap = switcher->quids<MPtr(&Container::create)>("videosnapshot", "snap", nullptr).get();
+  auto snap = switcher->quids<&Container::create>("videosnapshot", "snap", nullptr).get();
 
   // configure snap
-  snap->prop<MPtr(&PBag::set_str_str)>("imgdir", "/tmp/");
-  snap->prop<MPtr(&PBag::set_str_str)>("imgname", "check_video_snapshot");
-  snap->prop<MPtr(&PBag::set_str_str)>("num_files", "true");
-  snap->prop<MPtr(&PBag::set_str_str)>("quality", "90");
+  snap->prop<&PBag::set_str_str>("imgdir", "/tmp/");
+  snap->prop<&PBag::set_str_str>("imgname", "check_video_snapshot");
+  snap->prop<&PBag::set_str_str>("num_files", "true");
+  snap->prop<&PBag::set_str_str>("quality", "90");
 
   // ensure we cannot shot without being connected to a video stream
-  assert(!snap->prop<MPtr(&PBag::set_str_str)>("shot", "true"));
+  assert(!snap->prop<&PBag::set_str_str>("shot", "true"));
 
   // create a video source
-  auto vtestsrc = switcher->quids<MPtr(&Container::create)>("videotestsrc", "vid", nullptr).get();
-  vtestsrc->prop<MPtr(&property::PBag::set_str_str)>("started", "true");
+  auto vtestsrc = switcher->quids<&Container::create>("videotestsrc", "vid", nullptr).get();
+  vtestsrc->prop<&property::PBag::set_str_str>("started", "true");
 
   // connect VideoSnapshot to the videotestsrc
-  assert(Ids::kInvalid != snap->claw<MPtr(&Claw::try_connect)>(vtestsrc->get_id()));
+  assert(Ids::kInvalid != snap->claw<&Claw::try_connect>(vtestsrc->get_id()));
 
   // subscribe to last_image in order to notify success stop after first successful shot
-  auto last_image_id = snap->prop<MPtr(&PBag::get_id)>("last_image");
-  snap->prop<MPtr(&PBag::subscribe)>(last_image_id, [&]() {
+  auto last_image_id = snap->prop<&PBag::get_id>("last_image");
+  snap->prop<&PBag::subscribe>(last_image_id, [&]() {
     std::unique_lock<std::mutex> lock(mut);
     success = true;
     do_continue.store(false);
@@ -86,7 +86,7 @@ int main() {
   });
 
   // trigger the shot
-  snap->prop<MPtr(&PBag::set_str_str)>("shot", "true");
+  snap->prop<&PBag::set_str_str>("shot", "true");
 
   wait_until_success();
 

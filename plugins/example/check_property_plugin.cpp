@@ -36,40 +36,40 @@ int main() {
     assert(quiddity::test::full(manager, "property-quid"));
 
     // creating a "myplugin" quiddity
-    auto qrox = manager->quids<MPtr(&quiddity::Container::create)>("property-quid", "test", nullptr);
+    auto qrox = manager->quids<&quiddity::Container::create>("property-quid", "test", nullptr);
     auto pquid = qrox.get();
     assert(pquid);
 
-    assert(pquid->prop<MPtr(&property::PBag::set_str_str)>("color_", "0A93D8FF"));
-    assert(!pquid->prop<MPtr(&property::PBag::set_str_str)>("color_", "0A93D8"));
-    assert(!pquid->prop<MPtr(&property::PBag::set_str_str)>("color_", "GGGGGGGGGG"));
-    assert(!pquid->prop<MPtr(&property::PBag::set_str_str)>("color_", "0000000T"));
+    assert(pquid->prop<&property::PBag::set_str_str>("color_", "0A93D8FF"));
+    assert(!pquid->prop<&property::PBag::set_str_str>("color_", "0A93D8"));
+    assert(!pquid->prop<&property::PBag::set_str_str>("color_", "GGGGGGGGGG"));
+    assert(!pquid->prop<&property::PBag::set_str_str>("color_", "0000000T"));
 
     // tuple testing (get)
     using MyTuple = std::tuple<long long, float, std::string>;
-    auto tid = pquid->prop<MPtr(&property::PBag::get_id)>("tuple_");
-    std::cout << pquid->prop<MPtr(&property::PBag::get_str)>(tid) << '\n';
+    auto tid = pquid->prop<&property::PBag::get_id>("tuple_");
+    std::cout << pquid->prop<&property::PBag::get_str>(tid) << '\n';
 
-    MyTuple my_tuple = pquid->prop<MPtr(&property::PBag::get<MyTuple>)>(tid);
+    MyTuple my_tuple = pquid->prop<&property::PBag::get<MyTuple>>(tid);
     std::cout << "get is working !!!"
               << " " << std::get<0>(my_tuple) << " "  // 2
               << std::get<1>(my_tuple) << " "         // 2.2
               << std::get<2>(my_tuple) << "\n";       // a22
 
     // tuple testing (set)
-    pquid->prop<MPtr(&property::PBag::set_str)>(
+    pquid->prop<&property::PBag::set_str>(
         tid, std::string("4,4.4,") + serialize::esc_for_tuple("b,44"));
 
-    std::cout << pquid->prop<MPtr(&property::PBag::get_str)>(tid) << '\n';
+    std::cout << pquid->prop<&property::PBag::get_str>(tid) << '\n';
 
-    my_tuple = pquid->prop<MPtr(&property::PBag::get<MyTuple>)>(tid);
+    my_tuple = pquid->prop<&property::PBag::get<MyTuple>>(tid);
     std::cout << "get after set"
               << " " << std::get<0>(my_tuple) << " "  // 4
               << std::get<1>(my_tuple) << " "         // 4.4
               << std::get<2>(my_tuple) << "\n";       // b,44
 
     // removing the quiddity
-    assert(manager->quids<MPtr(&quiddity::Container::remove)>(qrox.get_id()));
+    assert(manager->quids<&quiddity::Container::remove>(qrox.get_id()));
   }  // end of scope is releasing the manager
   return 0;
 }

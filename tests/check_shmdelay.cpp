@@ -61,25 +61,25 @@ int main() {
     if (!quiddity::test::full(manager, "shmdelay")) return 1;
 
     auto shmdelaytest_qrox =
-        manager->quids<MPtr(&quiddity::Container::create)>("shmdelay", "shmdelaytest", nullptr);
+        manager->quids<&quiddity::Container::create>("shmdelay", "shmdelaytest", nullptr);
     if (!shmdelaytest_qrox) return 1;
     auto shmdelaytest = shmdelaytest_qrox.get();
 
     auto videotest_qrox =
-        manager->quids<MPtr(&quiddity::Container::create)>("videotestsrc", "videotest", nullptr);
+        manager->quids<&quiddity::Container::create>("videotestsrc", "videotest", nullptr);
     if (!videotest_qrox) return 1;
     auto videotest = videotest_qrox.get();
 
     // We set 1 second of delay.
-    if (!shmdelaytest->prop<MPtr(&quiddity::property::PBag::set_str_str)>("time_delay", "1000"))
+    if (!shmdelaytest->prop<&quiddity::property::PBag::set_str_str>("time_delay", "1000"))
       return 1;
 
-    if (!videotest->prop<MPtr(&quiddity::property::PBag::set_str_str)>("started", "true")) return 1;
+    if (!videotest->prop<&quiddity::property::PBag::set_str_str>("started", "true")) return 1;
 
-    if (!shmdelaytest->claw<MPtr(&quiddity::claw::Claw::connect)>(
-            shmdelaytest->claw<MPtr(&quiddity::claw::Claw::get_sfid)>("shm"),
+    if (!shmdelaytest->claw<&quiddity::claw::Claw::connect>(
+            shmdelaytest->claw<&quiddity::claw::Claw::get_sfid>("shm"),
             videotest->get_id(),
-            videotest->claw<MPtr(&quiddity::claw::Claw::get_swid)>("video")))
+            videotest->claw<&quiddity::claw::Claw::get_swid>("video")))
       return 1;
 
     auto start_time = std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -88,8 +88,8 @@ int main() {
 
     ::shmdata::ConsoleLogger logger;
     auto reader = std::make_unique<::shmdata::Follower>(
-        shmdelaytest->claw<MPtr(&Claw::get_writer_shmpath)>(
-            shmdelaytest->claw<MPtr(&Claw::get_swid)>("delayed-shm")),
+        shmdelaytest->claw<&Claw::get_writer_shmpath>(
+            shmdelaytest->claw<&Claw::get_swid>("delayed-shm")),
         [&start_time](void*, size_t data_size) {
           if (!data_size) return;
           auto reception_time = std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -105,13 +105,13 @@ int main() {
 
     wait_until_success();
 
-    if (!shmdelaytest->claw<MPtr(&quiddity::claw::Claw::disconnect)>(
-            shmdelaytest->claw<MPtr(&quiddity::claw::Claw::get_sfid)>("shm")))
+    if (!shmdelaytest->claw<&quiddity::claw::Claw::disconnect>(
+            shmdelaytest->claw<&quiddity::claw::Claw::get_sfid>("shm")))
       return 1;
 
-    videotest->prop<MPtr(&quiddity::property::PBag::set_str_str)>("started", "false");
-    manager->quids<MPtr(&quiddity::Container::remove)>(videotest_qrox.get_id());
-    manager->quids<MPtr(&quiddity::Container::remove)>(shmdelaytest_qrox.get_id());
+    videotest->prop<&quiddity::property::PBag::set_str_str>("started", "false");
+    manager->quids<&quiddity::Container::remove>(videotest_qrox.get_id());
+    manager->quids<&quiddity::Container::remove>(shmdelaytest_qrox.get_id());
   }  // end of scope is releasing the manager
   return success ? 0 : 1;
 }

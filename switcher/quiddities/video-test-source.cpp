@@ -46,29 +46,29 @@ const std::string VideoTestSource::kConnectionSpec(R"(
 VideoTestSource::VideoTestSource(quiddity::Config&& conf)
     : Quiddity(std::forward<quiddity::Config>(conf), {kConnectionSpec}),
       quiddity::Startable(this),
-      resolutions_id_(pmanage<MPtr(&property::PBag::make_selection<property::Fraction>)>(
+      resolutions_id_(pmanage<&property::PBag::make_selection<property::Fraction>>(
           "resolution",
           [this](const property::IndexOrName& val) {
             resolutions_.select(val);
             if (resolutions_.get_current() == "Custom") {
-              pmanage<MPtr(&property::PBag::enable)>(width_id_);
-              pmanage<MPtr(&property::PBag::enable)>(height_id_);
+              pmanage<&property::PBag::enable>(width_id_);
+              pmanage<&property::PBag::enable>(height_id_);
               return true;
             }
             auto fract = resolutions_.get_attached();
-            pmanage<MPtr(&property::PBag::set<int>)>(width_id_, fract.numerator());
-            pmanage<MPtr(&property::PBag::set<int>)>(height_id_, fract.denominator());
+            pmanage<&property::PBag::set<int>>(width_id_, fract.numerator());
+            pmanage<&property::PBag::set<int>>(height_id_, fract.denominator());
             static const std::string why_disconnected =
                 "This property is available only with custom resolution";
-            pmanage<MPtr(&property::PBag::disable)>(width_id_, why_disconnected);
-            pmanage<MPtr(&property::PBag::disable)>(height_id_, why_disconnected);
+            pmanage<&property::PBag::disable>(width_id_, why_disconnected);
+            pmanage<&property::PBag::disable>(height_id_, why_disconnected);
             return true;
           },
           [this]() { return resolutions_.get(); },
           "Resolutions",
           "Select resolutions",
           resolutions_)),
-      width_id_(pmanage<MPtr(&property::PBag::make_int)>(
+      width_id_(pmanage<&property::PBag::make_int>(
           "width",
           [this](int val) {
             width_ = val;
@@ -80,7 +80,7 @@ VideoTestSource::VideoTestSource(quiddity::Config&& conf)
           width_,
           kMinWidth,
           kMaxWidth)),
-      height_id_(pmanage<MPtr(&property::PBag::make_int)>(
+      height_id_(pmanage<&property::PBag::make_int>(
           "height",
           [this](int val) {
             height_ = val;
@@ -92,7 +92,7 @@ VideoTestSource::VideoTestSource(quiddity::Config&& conf)
           height_,
           kMinHeight,
           kMaxHeight)),
-      framerates_id_(pmanage<MPtr(&property::PBag::make_selection<property::Fraction>)>(
+      framerates_id_(pmanage<&property::PBag::make_selection<property::Fraction>>(
           "framerate",
           [this](const property::IndexOrName& val) {
             framerates_.select(val);
@@ -105,7 +105,7 @@ VideoTestSource::VideoTestSource(quiddity::Config&& conf)
       formats_(property::Selection<>(
           gst::utils::get_gst_element_capability_as_list("videotestsrc", "format", GST_PAD_SRC),
           0)),
-      formats_id_(pmanage<MPtr(&property::PBag::make_selection<>)>(
+      formats_id_(pmanage<&property::PBag::make_selection<>>(
           "format",
           [this](const property::IndexOrName& val) {
             formats_.select(val);
@@ -117,10 +117,10 @@ VideoTestSource::VideoTestSource(quiddity::Config&& conf)
           formats_)),
       gst_pipeline_(std::make_unique<gst::Pipeliner>(nullptr, nullptr)) {
   // We do this so that width and height properties states are correct.
-  pmanage<MPtr(&property::PBag::set_to_current)>(resolutions_id_);
+  pmanage<&property::PBag::set_to_current>(resolutions_id_);
 
   // Apply default pixel format
-  pmanage<MPtr(&property::PBag::set<property::IndexOrName>)>(formats_id_, cDefaultPixelFormat);
+  pmanage<&property::PBag::set<property::IndexOrName>>(formats_id_, cDefaultPixelFormat);
 
   if (!videotestsrc_ || !capsfilter_ || !shmdatasink_) {
     is_valid_ = false;
@@ -141,7 +141,7 @@ VideoTestSource::VideoTestSource(quiddity::Config&& conf)
                    nullptr);
   gst_element_link_many(
       videotestsrc_.get_raw(), capsfilter_.get_raw(), shmdatasink_.get_raw(), nullptr);
-  pmanage<MPtr(&property::PBag::push)>(
+  pmanage<&property::PBag::push>(
       "pattern", quiddity::property::to_prop(G_OBJECT(videotestsrc_.get_raw()), "pattern"));
 }
 
@@ -164,11 +164,11 @@ bool VideoTestSource::start() {
   update_caps();
   g_object_set(G_OBJECT(gst_pipeline_->get_pipeline()), "async-handling", TRUE, nullptr);
   gst_pipeline_->play(true);
-  pmanage<MPtr(&property::PBag::disable)>(width_id_, disabledWhenStartedMsg);
-  pmanage<MPtr(&property::PBag::disable)>(height_id_, disabledWhenStartedMsg);
-  pmanage<MPtr(&property::PBag::disable)>(resolutions_id_, disabledWhenStartedMsg);
-  pmanage<MPtr(&property::PBag::disable)>(framerates_id_, disabledWhenStartedMsg);
-  pmanage<MPtr(&property::PBag::disable)>(formats_id_, disabledWhenStartedMsg);
+  pmanage<&property::PBag::disable>(width_id_, disabledWhenStartedMsg);
+  pmanage<&property::PBag::disable>(height_id_, disabledWhenStartedMsg);
+  pmanage<&property::PBag::disable>(resolutions_id_, disabledWhenStartedMsg);
+  pmanage<&property::PBag::disable>(framerates_id_, disabledWhenStartedMsg);
+  pmanage<&property::PBag::disable>(formats_id_, disabledWhenStartedMsg);
   return true;
   }
 
@@ -181,8 +181,8 @@ bool VideoTestSource::start() {
       gst_pipeline_.reset();
       return false;
     }
-    pmanage<MPtr(&property::PBag::replace)>(
-        pmanage<MPtr(&property::PBag::get_id)>("pattern"),
+    pmanage<&property::PBag::replace>(
+        pmanage<&property::PBag::get_id>("pattern"),
         quiddity::property::to_prop(G_OBJECT(videotestsrc_.get_raw()), "pattern"));
     gst_pipeline_ = std::make_unique<gst::Pipeliner>(nullptr, nullptr);
     gst_bin_add_many(GST_BIN(gst_pipeline_->get_pipeline()),
@@ -192,11 +192,11 @@ bool VideoTestSource::start() {
                      nullptr);
     gst_element_link_many(
         videotestsrc_.get_raw(), capsfilter_.get_raw(), shmdatasink_.get_raw(), nullptr);
-    pmanage<MPtr(&property::PBag::enable)>(resolutions_id_);
+    pmanage<&property::PBag::enable>(resolutions_id_);
     // This way it will let the setter manage the state of width/height property.
-    pmanage<MPtr(&property::PBag::set_to_current)>(resolutions_id_);
-    pmanage<MPtr(&property::PBag::enable)>(framerates_id_);
-    pmanage<MPtr(&property::PBag::enable)>(formats_id_);
+    pmanage<&property::PBag::set_to_current>(resolutions_id_);
+    pmanage<&property::PBag::enable>(framerates_id_);
+    pmanage<&property::PBag::enable>(formats_id_);
     return true;
   }
 

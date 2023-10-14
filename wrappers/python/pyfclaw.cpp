@@ -58,7 +58,7 @@ int pyFollowerClaw::FollowerClaw_init(pyFollowerClawObject* self, PyObject* args
     raw_quid = reinterpret_cast<pyQuiddity::pyQuiddityObject*>(quid)->quid.lock().get();
   }
 
-  self->id = raw_quid->claw<MPtr(&Claw::get_sfid)>(label);
+  self->id = raw_quid->claw<&Claw::get_sfid>(label);
   self->quid = raw_quid->get_weak_ptr_to_this();
   if (Ids::kInvalid == self->id) {
     PyErr_Format(PyExc_RuntimeError, "error follower label not found for in Quiddity Claw");
@@ -82,7 +82,7 @@ PyObject* pyFollowerClaw::label(pyFollowerClawObject* self, PyObject* args, PyOb
     PyErr_SetString(PyExc_MemoryError, "Quiddity or parent Switcher has been deleted");
     return nullptr;
   }
-  return PyUnicode_FromString(quid->claw<MPtr(&Claw::get_follower_label)>(self->id).c_str());
+  return PyUnicode_FromString(quid->claw<&Claw::get_follower_label>(self->id).c_str());
 }
 
 PyDoc_STRVAR(pyfollowerclaw_get_can_do_str_doc,
@@ -98,7 +98,7 @@ PyObject* pyFollowerClaw::get_can_do_str(pyFollowerClawObject* self,
     PyErr_SetString(PyExc_MemoryError, "Quiddity or parent Switcher has been deleted");
     return nullptr;
   }
-  auto can_dos = quid->claw<MPtr(&Claw::get_follower_can_do)>(self->id);
+  auto can_dos = quid->claw<&Claw::get_follower_can_do>(self->id);
   PyObject* res = PyList_New(can_dos.size());
   int i = 0;
   for (const auto& can_do : can_dos) {
@@ -149,7 +149,7 @@ PyObject* pyFollowerClaw::connect(pyFollowerClawObject* self, PyObject* args, Py
     PyErr_SetString(PyExc_MemoryError, "Quiddity or parent Switcher has been deleted");
     return nullptr;
   }
-  const auto res = quid->claw<MPtr(&Claw::connect)>(
+  const auto res = quid->claw<&Claw::connect>(
       self->id,
       connect_quid->get_id(),
       reinterpret_cast<pyWriterClaw::pyWriterClawObject*>(wclaw)->id);
@@ -171,7 +171,7 @@ PyObject* pyFollowerClaw::connect(pyFollowerClawObject* self, PyObject* args, Py
   PyDict_SetItemString(
       keyworded_args,
       "label",
-      PyUnicode_FromString(quid->claw<MPtr(&Claw::get_follower_label)>(res).c_str()));
+      PyUnicode_FromString(quid->claw<&Claw::get_follower_label>(res).c_str()));
   auto quid_capsule = PyCapsule_New(static_cast<void*>(quid.get()), nullptr, nullptr);
   On_scope_exit { Py_XDECREF(quid_capsule); };
   PyDict_SetItemString(keyworded_args, "quid_c_ptr", quid_capsule);
@@ -204,7 +204,7 @@ PyObject* pyFollowerClaw::connect_quid(pyFollowerClawObject* self, PyObject* arg
     PyErr_SetString(PyExc_MemoryError, "Quiddity or parent Switcher has been deleted");
     return nullptr;
   }
-  const auto res = quid->claw<MPtr(&Claw::connect_quid)>(self->id, connect_quid->get_id());
+  const auto res = quid->claw<&Claw::connect_quid>(self->id, connect_quid->get_id());
   if (Ids::kInvalid == res) {
     PyErr_Format(PyExc_RuntimeError, "failed to connect, check switcher log for more information");
     return nullptr;
@@ -223,7 +223,7 @@ PyObject* pyFollowerClaw::connect_quid(pyFollowerClawObject* self, PyObject* arg
   PyDict_SetItemString(
       keyworded_args,
       "label",
-      PyUnicode_FromString(quid->claw<MPtr(&Claw::get_follower_label)>(res).c_str()));
+      PyUnicode_FromString(quid->claw<&Claw::get_follower_label>(res).c_str()));
   auto quid_capsule = PyCapsule_New(static_cast<void*>(quid.get()), nullptr, nullptr);
   On_scope_exit { Py_XDECREF(quid_capsule); };
   PyDict_SetItemString(keyworded_args, "quid_c_ptr", quid_capsule);
@@ -248,7 +248,7 @@ PyObject* pyFollowerClaw::connect_raw(pyFollowerClawObject* self, PyObject* args
     PyErr_SetString(PyExc_MemoryError, "Quiddity or parent Switcher has been deleted");
     return nullptr;
   }
-  const auto res = quid->claw<MPtr(&Claw::connect_raw)>(self->id, std::string(shmpath));
+  const auto res = quid->claw<&Claw::connect_raw>(self->id, std::string(shmpath));
   if (Ids::kInvalid == res) {
     PyErr_Format(PyExc_RuntimeError, "failed to connect, check switcher log for more information");
     return nullptr;
@@ -267,7 +267,7 @@ PyObject* pyFollowerClaw::connect_raw(pyFollowerClawObject* self, PyObject* args
   PyDict_SetItemString(
       keyworded_args,
       "label",
-      PyUnicode_FromString(quid->claw<MPtr(&Claw::get_follower_label)>(res).c_str()));
+      PyUnicode_FromString(quid->claw<&Claw::get_follower_label>(res).c_str()));
   auto quid_capsule = PyCapsule_New(static_cast<void*>(quid.get()), nullptr, nullptr);
   On_scope_exit { Py_XDECREF(quid_capsule); };
   PyDict_SetItemString(keyworded_args, "quid_c_ptr", quid_capsule);
@@ -285,7 +285,7 @@ PyObject* pyFollowerClaw::disconnect(pyFollowerClawObject* self, PyObject* args,
     PyErr_SetString(PyExc_MemoryError, "Quiddity or parent Switcher has been deleted");
     return nullptr;
   }
-  if (!quid->claw<MPtr(&Claw::disconnect)>(self->id)) {
+  if (!quid->claw<&Claw::disconnect>(self->id)) {
     Py_INCREF(Py_False);
     return Py_False;
   }
@@ -312,7 +312,7 @@ PyObject* pyFollowerClaw::can_do_shmtype_str(pyFollowerClawObject* self,
     PyErr_SetString(PyExc_MemoryError, "Quiddity or parent Switcher has been deleted");
     return nullptr;
   }
-  if (!quid->claw<MPtr(&Claw::sfid_can_do_shmtype)>(self->id,
+  if (!quid->claw<&Claw::sfid_can_do_shmtype>(self->id,
                                                     ::shmdata::Type(std::string(shmtype)))) {
     Py_INCREF(Py_False);
     return Py_False;
@@ -353,7 +353,7 @@ PyObject* pyFollowerClaw::can_do_writer_claw(pyFollowerClawObject* self,
     PyErr_SetString(PyExc_MemoryError, "Quiddity or parent Switcher has been deleted");
     return nullptr;
   }
-  if (!quid->claw<MPtr(&Claw::can_do_swid)>(
+  if (!quid->claw<&Claw::can_do_swid>(
           self->id,
           can_do_quid->get_id(),
           reinterpret_cast<pyWriterClaw::pyWriterClawObject*>(wclaw)->id)) {

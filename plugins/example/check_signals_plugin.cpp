@@ -34,30 +34,30 @@ int main() {
 
   // Test create/remove notification system
   unsigned int create_remove_counter = 0;
-  manager->quids<MPtr(&quiddity::Container::register_creation_cb)>(
+  manager->quids<&quiddity::Container::register_creation_cb>(
       [&](auto) { ++create_remove_counter; });
-  manager->quids<MPtr(&quiddity::Container::register_removal_cb)>(
+  manager->quids<&quiddity::Container::register_removal_cb>(
       [&](auto) { ++create_remove_counter; });
   auto qrox =
-      manager->quids<MPtr(&quiddity::Container::create)>("signal-quid", "signal-quiddity", nullptr);
+      manager->quids<&quiddity::Container::create>("signal-quid", "signal-quiddity", nullptr);
   auto qsig = qrox.get();
   assert(qsig);
 
-  auto registration_id = qsig->sig<MPtr(&signal::SBag::subscribe_by_name)>(
+  auto registration_id = qsig->sig<&signal::SBag::subscribe_by_name>(
       "test-signal", [&](const InfoTree::ptr&) { ++signal_counter; });
 
   assert(0 != registration_id);
 
-  auto emit_signal_id = qsig->meth<MPtr(&method::MBag::get_id)>("emit-signal");
-  qsig->meth<MPtr(&method::MBag::invoke_str)>(emit_signal_id, std::string());
-  qsig->meth<MPtr(&method::MBag::invoke_str)>(emit_signal_id, std::string());
-  qsig->meth<MPtr(&method::MBag::invoke_str)>(emit_signal_id, std::string());
+  auto emit_signal_id = qsig->meth<&method::MBag::get_id>("emit-signal");
+  qsig->meth<&method::MBag::invoke_str>(emit_signal_id, std::string());
+  qsig->meth<&method::MBag::invoke_str>(emit_signal_id, std::string());
+  qsig->meth<&method::MBag::invoke_str>(emit_signal_id, std::string());
 
-  assert(qsig->sig<MPtr(&signal::SBag::unsubscribe_by_name)>("test-signal", registration_id));
+  assert(qsig->sig<&signal::SBag::unsubscribe_by_name>("test-signal", registration_id));
   // the following should not imply incrementation of signal_counter
-  qsig->meth<MPtr(&method::MBag::invoke_str)>(emit_signal_id, std::string());
+  qsig->meth<&method::MBag::invoke_str>(emit_signal_id, std::string());
 
-  assert(manager->quids<MPtr(&quiddity::Container::remove)>(qrox.get_id()));
+  assert(manager->quids<&quiddity::Container::remove>(qrox.get_id()));
 
   gst_deinit();
   if (create_remove_counter == 2 && signal_counter == 3) return 0;

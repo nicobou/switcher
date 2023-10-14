@@ -44,7 +44,7 @@ const std::string ExternalWriter::kConnectionSpec(R"(
 
 ExternalWriter::ExternalWriter(quiddity::Config&& conf)
     : Quiddity(std::forward<quiddity::Config>(conf), {kConnectionSpec}) {
-  pmanage<MPtr(&property::PBag::make_string)>(
+  pmanage<&property::PBag::make_string>(
       "shmdata-path",
       [this](const std::string& val) {
         shmdata_path_ = val;
@@ -64,7 +64,7 @@ ExternalWriter::ExternalWriter(quiddity::Config&& conf)
 }
 
 InfoTree::ptr ExternalWriter::on_saving() {
-  return infotree::json::deserialize(tree<MPtr(&InfoTree::serialize_json)>(".shmdata.writer."));
+  return infotree::json::deserialize(tree<&InfoTree::serialize_json>(".shmdata.writer."));
 }
 
 void ExternalWriter::on_loading(InfoTree::ptr&& tree) {

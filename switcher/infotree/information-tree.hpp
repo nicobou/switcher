@@ -116,7 +116,7 @@ class InfoTree {
   std::string json() const;
 
   // get child keys - returning a newly allocated list
-  std::list<std::string> get_child_keys(const std::string& path) const;
+  std::vector<std::string> get_child_keys(const std::string& path) const;
 
   // get child key in place, use with std::insert_iterator
   template <typename Iter>

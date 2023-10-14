@@ -147,7 +147,7 @@ bool Switcher::load_state(InfoTree* state) {
           quid_to_start.push_back(name);
         } else {
           auto quid = qcontainer_->get_quiddity(qcontainer_->get_id(name));
-          if (!quid || !quid->prop<MPtr(&quiddity::property::PBag::set_str_str)>(
+          if (!quid || !quid->prop<&quiddity::property::PBag::set_str_str>(
                            prop, Any::to_string(properties->branch_get_value(name + "." + prop)))) {
             sw_warning("failed to apply value, quiddity is {}, property is {}, value is {}",
                        name,
@@ -167,7 +167,7 @@ bool Switcher::load_state(InfoTree* state) {
       if (0 != quid_id) {
         auto child_keys = quiddities_user_data->get_child_keys(it);
         for (auto& kit : child_keys) {
-          qcontainer_->user_data<MPtr(&InfoTree::graft)>(
+          qcontainer_->user_data<&InfoTree::graft>(
               quid_id, kit, quiddities_user_data->get_tree(it + "." + kit));
         }
       }
@@ -180,7 +180,7 @@ bool Switcher::load_state(InfoTree* state) {
       sw_warning("failed to get quiddity {}", name);
       continue;
     }
-    if (!quid || !quid->prop<MPtr(&quiddity::property::PBag::set_str_str)>("started", "true")) {
+    if (!quid || !quid->prop<&quiddity::property::PBag::set_str_str>("started", "true")) {
       sw_warning("failed to start quiddity {}", name);
     }
   }
@@ -192,10 +192,9 @@ bool Switcher::load_state(InfoTree* state) {
       auto quid_id = qcontainer_->get_id(quid);
       auto quidreaders = readers->get_child_keys(quid + ".shm_from_quid");
       auto connect_quid_id =
-          qcontainer_->meths<MPtr(&quiddity::method::MBag::get_id)>(quid_id, "connect-quid");
+          qcontainer_->meths<&quiddity::method::MBag::get_id>(quid_id, "connect-quid");
       for (auto& reader : quidreaders) {
-        qcontainer_->meths<MPtr(
-            &quiddity::method::MBag::invoke<std::function<bool(std::string, std::string)>>)>(
+        qcontainer_->meths<&quiddity::method::MBag::invoke<std::function<bool(std::string, std::string)>>>(
             quid_id,
             connect_quid_id,
             std::make_tuple(Any::to_string(readers->branch_get_value(quid + ".shm_from_quid." +
@@ -205,9 +204,9 @@ bool Switcher::load_state(InfoTree* state) {
       }
       auto rawreaders = readers->get_child_keys(quid + ".raw_shm");
       for (auto& reader : rawreaders) {
-        qcontainer_->meths<MPtr(&quiddity::method::MBag::invoke<std::function<bool(std::string)>>)>(
+        qcontainer_->meths<&quiddity::method::MBag::invoke<std::function<bool(std::string)>>>(
             qcontainer_->get_id(quid),
-            qcontainer_->meths<MPtr(&quiddity::method::MBag::get_id)>(qcontainer_->get_id(quid),
+            qcontainer_->meths<&quiddity::method::MBag::get_id>(qcontainer_->get_id(quid),
                                                                       "connect"),
             std::make_tuple(Any::to_string(readers->branch_get_value(quid + "." + reader))));
       }
@@ -253,35 +252,35 @@ InfoTree::ptr Switcher::get_state() const {
 
     // user data
     auto quid = qcontainer_->get_quiddity(quid_id);
-    auto quid_user_data_tree = quid->user_data<MPtr(&InfoTree::get_tree)>(".");
+    auto quid_user_data_tree = quid->user_data<&InfoTree::get_tree>(".");
     if (!quid_user_data_tree->empty()) {
       tree->graft(".userdata." + nick, quid_user_data_tree);
     }
 
     // writable property values
-    quid->prop<MPtr(&quiddity::property::PBag::update_values_in_tree)>();
-    auto props = quid->tree<MPtr(&InfoTree::get_child_keys)>("property");
+    quid->prop<&quiddity::property::PBag::update_values_in_tree>();
+    auto props = quid->tree<&InfoTree::get_child_keys>("property");
     for (auto& prop : props) {
       // Don't save unwritable properties.
-      if (!quid->tree<MPtr(&InfoTree::branch_get_value)>(std::string("property.") + prop +
+      if (!quid->tree<&InfoTree::branch_get_value>(std::string("property.") + prop +
                                                          ".writable"))
         continue;
       // Don't save properties with saving disabled.
       if (!quid->prop_is_saved(prop)) continue;
       tree->graft(".properties." + nick + "." + prop,
-                  InfoTree::make(quid->tree<MPtr(&InfoTree::branch_get_value)>(
+                  InfoTree::make(quid->tree<&InfoTree::branch_get_value>(
                       std::string("property.") + prop + ".value")));
     }
 
     // Record shmdata connections.
     // Ignore them if no connect-to methods is installed for this quiddity.
-    if (0 == quid->meth<MPtr(&quiddity::method::MBag::get_id)>("connect-quid")) continue;
+    if (0 == quid->meth<&quiddity::method::MBag::get_id>("connect-quid")) continue;
 
-    auto readers = quid->tree<MPtr(&InfoTree::get_child_keys)>("shmdata.reader");
+    auto readers = quid->tree<&InfoTree::get_child_keys>("shmdata.reader");
     int nb = 0;
     for (auto& reader : readers) {
       auto writer_info =
-          quid->tree<MPtr(&InfoTree::branch_get_copy)>("shmdata.reader." + reader + ".writer");
+          quid->tree<&InfoTree::branch_get_copy>("shmdata.reader." + reader + ".writer");
       if (writer_info) {
         tree->graft(".readers." + nick + ".shm_from_quid.reader_" + std::to_string(++nb),
                     writer_info);

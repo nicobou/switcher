@@ -62,16 +62,16 @@ int main() {
     if (!quiddity::test::full(manager, "filesrc")) return 1;
 
     auto filesrc =
-        manager->quids<MPtr(&quiddity::Container::create)>("filesrc", "src", nullptr).get();
+        manager->quids<&quiddity::Container::create>("filesrc", "src", nullptr).get();
 
-    filesrc->prop<MPtr(&quiddity::property::PBag::set_str_str)>("loop", "true");
-    filesrc->prop<MPtr(&quiddity::property::PBag::set_str_str)>("play", "true");
-    filesrc->prop<MPtr(&quiddity::property::PBag::set_str_str)>("location", "./oie.mp3");
+    filesrc->prop<&quiddity::property::PBag::set_str_str>("loop", "true");
+    filesrc->prop<&quiddity::property::PBag::set_str_str>("play", "true");
+    filesrc->prop<&quiddity::property::PBag::set_str_str>("location", "./oie.mp3");
 
     ::shmdata::ConsoleLogger logger;
     auto reader = std::make_unique<::shmdata::Follower>(
-        filesrc->claw<MPtr(&Claw::get_writer_shmpath)>(
-            filesrc->claw<MPtr(&Claw::get_swid)>("audio")),
+        filesrc->claw<&Claw::get_writer_shmpath>(
+            filesrc->claw<&Claw::get_swid>("audio")),
         [](void*, size_t data_size) {
           if (!data_size) return;
           notify_success();

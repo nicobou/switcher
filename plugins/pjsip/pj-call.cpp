@@ -93,7 +93,7 @@ PJCall::PJCall() {
   status = PJCodec::install_codecs();
   if (status != PJ_SUCCESS) SIPPlugin::this_->sw_warning("install codecs failed");
   // properties and methods for user
-  SIPPlugin::this_->mmanage<MPtr(&method::MBag::make_method<std::function<bool(std::string)>>)>(
+  SIPPlugin::this_->mmanage<&method::MBag::make_method<std::function<bool(std::string)>>>(
       "send",
       infotree::json::deserialize(
           R"(
@@ -110,7 +110,7 @@ PJCall::PJCall() {
               )"),
       [this](const std::string& url) { return send_to(url); });
 
-  SIPPlugin::this_->mmanage<MPtr(&method::MBag::make_method<std::function<bool(std::string)>>)>(
+  SIPPlugin::this_->mmanage<&method::MBag::make_method<std::function<bool(std::string)>>>(
       "hang-up",
       infotree::json::deserialize(
           R"(
@@ -127,7 +127,7 @@ PJCall::PJCall() {
               )"),
       [this](const std::string& url) { return hang_up(url); });
 
-    SIPPlugin::this_->mmanage<MPtr(&method::MBag::make_method<std::function<bool()>>)>(
+  SIPPlugin::this_->mmanage<&method::MBag::make_method<std::function<bool()>>>(
       "hang_up_all",
       infotree::json::deserialize(
           R"(
@@ -140,7 +140,7 @@ PJCall::PJCall() {
       [this]() { return hang_up_all_calls(); });
 
   using attach_t = std::function<bool(std::string, std::string, bool)>;
-  SIPPlugin::this_->mmanage<MPtr(&method::MBag::make_method<attach_t>)>(
+  SIPPlugin::this_->mmanage<&method::MBag::make_method<attach_t>>(
       "attach_shmdata_to_contact",
       infotree::json::deserialize(
           R"(
@@ -652,7 +652,7 @@ void PJCall::process_incoming_call(pjsip_rx_data* rdata) {
     auto* writer = call->rtp_writers_.back().get();
     call->ice_trans_->set_data_cb(
         call->rtp_writers_.size(), [writer, rtp_shmpath](void* data, size_t size) {
-          writer->writer<MPtr(&::shmdata::Writer::copy_to_shm)>(data, size);
+          writer->writer<&::shmdata::Writer::copy_to_shm>(data, size);
           writer->bytes_written(size);
         });
     // setting a decoder for this shmdata
@@ -855,7 +855,7 @@ bool PJCall::is_call_valid(const std::string& contact_uri) {
   }
 
   // Is at least one shmdata attached to the contact?
-  auto paths = SIPPlugin::this_->tree<MPtr(&InfoTree::copy_leaf_values)>(
+  auto paths = SIPPlugin::this_->tree<&InfoTree::copy_leaf_values>(
       std::string(".buddies." + std::to_string(id) + ".connections"));
   if (paths.empty()) {
     SIPPlugin::this_->sw_error("no shmdatas attached to buddy {}, call aborted", contact_uri);
@@ -1018,7 +1018,7 @@ bool PJCall::create_outgoing_sdp(pjsip_dialog* dlg, call_t* call, pjmedia_sdp_se
     SIPPlugin::this_->sw_error("could not find buddy {}", call->peer_uri);
     return false;
   }
-  auto paths = SIPPlugin::this_->tree<MPtr(&InfoTree::copy_leaf_values)>(
+  auto paths = SIPPlugin::this_->tree<&InfoTree::copy_leaf_values>(
       std::string(".buddies." + std::to_string(id) + ".connections"));
 
   // Create ICE transport for sending

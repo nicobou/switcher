@@ -1,5 +1,24 @@
 This file lists changes to apply when migrating from a switcher version to a new one.
 
+From switcher version 3.2.4 to version 3.3.0
+--------------------------------------------
+
+The C++ API has changed due to an update to the `make_consultable` util. It has been simplified with the removal of the `MPtr(...)` macro.
+
+  - When writing quiddity plugin, it was required with `pmanage`, `mmanage`, `smanage`, `config`
+  - When using a `Switcher::ptr` instance, it was required with `quids`, `factory`, `conf`
+  - When using a `Quiddity` instance, it was required with `claw`, `conspec`, `prop`, `sig`, `meth`, `tree`, `user_data`
+  - When using a `shmdata::Writer` instance, it was required with `writer`
+
+For instance, if there was a line like:
+```
+pmanage<MPtr(&property::PBag::set_str_str)>("started", "false");
+```
+It must be replaced with:
+```
+pmanage<&property::PBag::set_str_str>("started", "false");
+```
+
 From switcher version 3.1.14 to version 3.2.0
 --------------------------------------------
 

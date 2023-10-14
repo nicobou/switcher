@@ -334,8 +334,8 @@ std::string InfoTree::unescape_dots(const std::string& str) {
   return stringutils::replace_string(str, "__DOT__", ".");
 }
 
-std::list<std::string> InfoTree::get_child_keys(const std::string& path) const {
-  std::list<std::string> res;
+std::vector<std::string> InfoTree::get_child_keys(const std::string& path) const {
+  std::vector<std::string> res;
   std::lock_guard<std::recursive_mutex> lock(mutex_);
   // if root is asked
   if (path_is_root(path)) {

@@ -51,9 +51,9 @@ PulseSrc::PulseSrc(quiddity::Config&& conf)
       Startable(this),
       mainloop_(std::make_unique<gst::GlibMainLoop>()),
       gst_pipeline_(std::make_unique<gst::Pipeliner>(nullptr, nullptr)) {
-  pmanage<MPtr(&property::PBag::make_group)>(
+  pmanage<&property::PBag::make_group>(
       "advanced", "Advanced configuration", "Advanced configuration");
-  pmanage<MPtr(&property::PBag::make_parented_selection<>)>(
+  pmanage<&property::PBag::make_parented_selection<>>(
       "save_mode",
       "advanced",
       [this](const quiddity::property::IndexOrName& val) {
@@ -87,9 +87,9 @@ PulseSrc::PulseSrc(quiddity::Config&& conf)
     is_valid_ = false;
     return;
   }
-  volume_id_ = pmanage<MPtr(&property::PBag::push)>(
+  volume_id_ = pmanage<&property::PBag::push>(
       "volume", quiddity::property::to_prop(G_OBJECT(pulsesrc_.get_raw()), "volume"));
-  mute_id_ = pmanage<MPtr(&property::PBag::push)>(
+  mute_id_ = pmanage<&property::PBag::push>(
       "mute", quiddity::property::to_prop(G_OBJECT(pulsesrc_.get_raw()), "mute"));
 }
 
@@ -204,10 +204,10 @@ void PulseSrc::get_source_info_callback(pa_context* pulse_context,
     auto get = [context]() { return context->devices_.get_current_index(); };
 
     if (!context->devices_id_) {
-      context->devices_id_ = context->pmanage<MPtr(&property::PBag::make_selection<>)>(
+      context->devices_id_ = context->pmanage<&property::PBag::make_selection<>>(
           "device", set, get, "Device", "Audio capture device to use", context->devices_);
     } else {
-      context->pmanage<MPtr(&property::PBag::replace_and_notify)>(
+      context->pmanage<&property::PBag::replace_and_notify>(
           context->devices_id_,
           std::make_unique<
               property::Property<property::Selection<>, property::Selection<>::index_t>>(
@@ -332,23 +332,23 @@ bool PulseSrc::start() {
       GST_BIN(gst_pipeline_->get_pipeline()), pulsesrc_.get_raw(), shmsink_.get_raw(), nullptr);
   gst_element_link_many(pulsesrc_.get_raw(), shmsink_.get_raw(), nullptr);
   gst_pipeline_->play(true);
-  pmanage<MPtr(&property::PBag::disable)>(devices_id_, Startable::disabledWhenStartedMsg);
+  pmanage<&property::PBag::disable>(devices_id_, Startable::disabledWhenStartedMsg);
   return true;
 }
 
 bool PulseSrc::stop() {
   shm_sub_.reset(nullptr);
-  pmanage<MPtr(&property::PBag::remove)>(volume_id_);
+  pmanage<&property::PBag::remove>(volume_id_);
   volume_id_ = 0;
-  pmanage<MPtr(&property::PBag::remove)>(mute_id_);
+  pmanage<&property::PBag::remove>(mute_id_);
   mute_id_ = 0;
   if (!remake_elements()) return false;
-  volume_id_ = pmanage<MPtr(&property::PBag::push)>(
+  volume_id_ = pmanage<&property::PBag::push>(
       "volume", quiddity::property::to_prop(G_OBJECT(pulsesrc_.get_raw()), "volume"));
-  mute_id_ = pmanage<MPtr(&property::PBag::push)>(
+  mute_id_ = pmanage<&property::PBag::push>(
       "mute", quiddity::property::to_prop(G_OBJECT(pulsesrc_.get_raw()), "mute"));
   gst_pipeline_ = std::make_unique<gst::Pipeliner>(nullptr, nullptr);
-  pmanage<MPtr(&property::PBag::enable)>(devices_id_);
+  pmanage<&property::PBag::enable>(devices_id_);
   return true;
 }
 
@@ -383,7 +383,7 @@ void PulseSrc::on_loading(InfoTree::ptr&& tree) {
           "Audio capture device not found on its saved port when loading saved scenario, "
           "defaulting to first available device");
     } else {
-      pmanage<MPtr(&property::PBag::set<quiddity::property::IndexOrName>)>(
+      pmanage<&property::PBag::set<quiddity::property::IndexOrName>>(
           devices_id_, quiddity::property::IndexOrName(it - capture_devices_.begin()));
     }
   } else {  // save by device
@@ -396,7 +396,7 @@ void PulseSrc::on_loading(InfoTree::ptr&& tree) {
           "Saved audio capture not found when loading saved scenario, defaulting to first "
           "available device");
     } else {
-      pmanage<MPtr(&property::PBag::set<quiddity::property::IndexOrName>)>(
+      pmanage<&property::PBag::set<quiddity::property::IndexOrName>>(
           devices_id_, quiddity::property::IndexOrName(it - capture_devices_.begin()));
     }
   }

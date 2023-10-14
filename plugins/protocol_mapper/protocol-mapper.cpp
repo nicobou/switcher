@@ -31,7 +31,7 @@ SWITCHER_MAKE_QUIDDITY_DOCUMENTATION(ProtocolMapper,
 
 ProtocolMapper::ProtocolMapper(quiddity::Config&& conf)
     : Quiddity(std::forward<quiddity::Config>(conf)) {
-  config_file_id_ = pmanage<MPtr(&property::PBag::make_string)>(
+  config_file_id_ = pmanage<&property::PBag::make_string>(
       "config_file",
       [this](const std::string& val) {
         config_file_ = val;
@@ -57,7 +57,7 @@ ProtocolMapper::ProtocolMapper(quiddity::Config&& conf)
         if (!protocol_reader_->make_properties(this, tree->get_tree("commands").get()))
           return false;
 
-        pmanage<MPtr(&property::PBag::disable)>(config_file_id_, "Service already loaded");
+        pmanage<&property::PBag::disable>(config_file_id_, "Service already loaded");
 
         return true;
       },

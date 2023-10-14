@@ -37,11 +37,11 @@ int main() {
     InfoTree::ptr server_config = InfoTree::make();
     server_config->vgraft("driver", "dummy");
     server_config->vgraft("realtime", false);
-    auto jserv = manager->quids<MPtr(&quiddity::Container::create)>(
+    auto jserv = manager->quids<&quiddity::Container::create>(
         "jackserver", "test_server", server_config.get());
     assert(jserv);
-    assert(jserv.get()->prop<MPtr(&property::PBag::set_str_str)>("driver", "dummy"));
-    assert(jserv.get()->prop<MPtr(&property::PBag::set_str_str)>("started", "true"));
+    assert(jserv.get()->prop<&property::PBag::set_str_str>("driver", "dummy"));
+    assert(jserv.get()->prop<&property::PBag::set_str_str>("started", "true"));
 
     if (!quiddity::test::full(manager, "ltctojack")) success = false;
   }  // end of scope is releasing the manager

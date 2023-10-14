@@ -83,7 +83,7 @@ Executor::Executor(quiddity::Config&& conf)
                 },
                 [this](claw::sfid_t sfid) { return on_shmdata_disconnect(sfid); }}),
       Startable(this),
-      command_line_id_(pmanage<MPtr(&property::PBag::make_string)>(
+      command_line_id_(pmanage<&property::PBag::make_string>(
           "command_line",
           [this](const std::string& val) {
             command_line_ = val;
@@ -93,7 +93,7 @@ Executor::Executor(quiddity::Config&& conf)
           "Command Line",
           "Command line to execute",
           command_line_)),
-      autostart_id_(pmanage<MPtr(&property::PBag::make_bool)>(
+      autostart_id_(pmanage<&property::PBag::make_bool>(
           "autostart",
           [this](bool val) {
             autostart_ = val;
@@ -103,7 +103,7 @@ Executor::Executor(quiddity::Config&& conf)
           "Autostart",
           "Execute command line on shmdata connect or not",
           autostart_)),
-      restart_on_change_id_(pmanage<MPtr(&property::PBag::make_bool)>(
+      restart_on_change_id_(pmanage<&property::PBag::make_bool>(
           "restart_on_change",
           [this](bool val) {
             restart_on_change_ = val;
@@ -113,7 +113,7 @@ Executor::Executor(quiddity::Config&& conf)
           "Restart on change",
           "Restart process execution when shmdata connections change or not",
           restart_on_change_)),
-      periodic_id_(pmanage<MPtr(&property::PBag::make_bool)>(
+      periodic_id_(pmanage<&property::PBag::make_bool>(
           "periodic",
           [this](bool val) {
             periodic_ = val;
@@ -125,7 +125,7 @@ Executor::Executor(quiddity::Config&& conf)
           periodic_)),
 
       // Whitelist caps in order to control connections with an Executor as a writer
-      whitelist_caps_id_(pmanage<MPtr(&property::PBag::make_string)>(
+      whitelist_caps_id_(pmanage<&property::PBag::make_string>(
           "whitelist_caps",
           [this](const std::string& val) {
             whitelist_caps_ = val;
@@ -316,7 +316,7 @@ void Executor::monitor_process() {
           start();
           restart_ = false;
         } else {
-          pmanage<MPtr(&property::PBag::set_str_str)>("started", "false");
+          pmanage<&property::PBag::set_str_str>("started", "false");
         }
       }
     }

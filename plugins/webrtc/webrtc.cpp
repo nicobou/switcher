@@ -68,7 +68,7 @@ Webrtc::Webrtc(quiddity::Config&& conf)
                 [this](claw::sfid_t sfid) { return on_shmdata_disconnect(sfid); }}),
       quiddity::Startable(this),
       pipeline_(std::make_unique<gst::Pipeliner>(nullptr, nullptr)),
-      signaling_server_id_(pmanage<MPtr(&property::PBag::make_string)>(
+      signaling_server_id_(pmanage<&property::PBag::make_string>(
           "signaling_server",
           [this](const std::string& val) {
             signaling_server_ = val;
@@ -78,7 +78,7 @@ Webrtc::Webrtc(quiddity::Config&& conf)
           "WebSocket Signaling Server",
           "Address of the signaling server,  e.g. wss://1.1.1.1:8443",
           signaling_server_)),
-      room_id_(pmanage<MPtr(&property::PBag::make_string)>(
+      room_id_(pmanage<&property::PBag::make_string>(
           "room",
           [this](const std::string& val) {
             room_ = val;
@@ -88,7 +88,7 @@ Webrtc::Webrtc(quiddity::Config&& conf)
           "Room",
           "Room to join on the signaling server",
           room_)),
-      username_id_(pmanage<MPtr(&property::PBag::make_string)>(
+      username_id_(pmanage<&property::PBag::make_string>(
           "username",
           [this](const std::string& val) {
             username_ = val;
@@ -98,7 +98,7 @@ Webrtc::Webrtc(quiddity::Config&& conf)
           "Username",
           "Username to use on the server",
           username_)),
-      stun_server_id_(pmanage<MPtr(&property::PBag::make_string)>(
+      stun_server_id_(pmanage<&property::PBag::make_string>(
           "stun_server",
           [this](const std::string& val) {
             stun_server_ = val;
@@ -108,7 +108,7 @@ Webrtc::Webrtc(quiddity::Config&& conf)
           "STUN server",
           "Address of the STUN server,  e.g. stun://hostname:port",
           stun_server_)),
-      turn_server_id_(pmanage<MPtr(&property::PBag::make_string)>(
+      turn_server_id_(pmanage<&property::PBag::make_string>(
           "turn_server",
           [this](const std::string& val) {
             turn_server_ = val;

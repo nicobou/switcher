@@ -60,15 +60,15 @@ NVencPlugin::NVencPlugin(quiddity::Config&& conf)
           {kConnectionSpec,
            [this](const std::string& shmpath, claw::sfid_t) { return on_shmdata_connect(shmpath); },
            [this](claw::sfid_t) { return on_shmdata_disconnect(); }}),
-      default_preset_id_(pmanage<MPtr(&property::PBag::make_bool)>(
+      default_preset_id_(pmanage<&property::PBag::make_bool>(
           "bitrate_from_preset",
           [this](bool value) {
             bitrate_from_preset_ = value;
             if (bitrate_from_preset_) {
-              pmanage<MPtr(&property::PBag::disable)>(
+              pmanage<&property::PBag::disable>(
                   bitrate_id_, "Cannot set bitrate if using default preset configuration.");
             } else {
-              pmanage<MPtr(&property::PBag::enable)>(bitrate_id_);
+              pmanage<&property::PBag::enable>(bitrate_id_);
             }
             return true;
           },
@@ -76,7 +76,7 @@ NVencPlugin::NVencPlugin(quiddity::Config&& conf)
           "Default preset configuration",
           "Use default preset configuration.",
           bitrate_from_preset_)),
-      bitrate_id_(pmanage<MPtr(&property::PBag::make_unsigned_int)>(
+      bitrate_id_(pmanage<&property::PBag::make_unsigned_int>(
           "bitrate",
           [this](const uint32_t& value) {
             bitrate_ = value;
@@ -103,7 +103,7 @@ NVencPlugin::NVencPlugin(quiddity::Config&& conf)
   sw_info(CudaContext::get_support_description());
   devices_ = property::Selection<>(std::move(names), 0);
   update_device();
-  devices_id_ = pmanage<MPtr(&property::PBag::make_selection<>)>(
+  devices_id_ = pmanage<&property::PBag::make_selection<>>(
       "gpu",
       [this](const quiddity::property::IndexOrName& val) {
         if (devices_.get_current_index() == val.index_) return true;
@@ -115,7 +115,7 @@ NVencPlugin::NVencPlugin(quiddity::Config&& conf)
       "Encoder GPU",
       "Selection of the GPU used for encoding",
       devices_);
-  pmanage<MPtr(&property::PBag::set_to_current)>(default_preset_id_);
+  pmanage<&property::PBag::set_to_current>(default_preset_id_);
 
   if (!es_) {
     is_valid_ = false;
@@ -161,10 +161,10 @@ void NVencPlugin::update_codec() {
   };
   auto get = [this]() { return codecs_.get_current_index(); };
   if (0 == codecs_id_)
-    codecs_id_ = pmanage<MPtr(&property::PBag::make_selection<>)>(
+    codecs_id_ = pmanage<&property::PBag::make_selection<>>(
         "codec", set, get, "Codec", "Video codec", codecs_);
   else
-    pmanage<MPtr(&property::PBag::replace)>(
+    pmanage<&property::PBag::replace>(
         codecs_id_,
         std::make_unique<property::Property<property::Selection<>, property::Selection<>::index_t>>(
             set, get, "Codec", "Video codec", codecs_, codecs_.size() - 1));
@@ -198,10 +198,10 @@ void NVencPlugin::update_preset() {
   };
   auto get = [this]() { return presets_.get(); };
   if (0 == presets_id_)
-    presets_id_ = pmanage<MPtr(&property::PBag::make_selection<>)>(
+    presets_id_ = pmanage<&property::PBag::make_selection<>>(
         "preset", set, get, "Preset", "Encoding preset", presets_);
   else
-    pmanage<MPtr(&property::PBag::replace)>(
+    pmanage<&property::PBag::replace>(
         presets_id_,
         std::make_unique<
             property::Property<property::Selection<>, quiddity::property::IndexOrName>>(
@@ -225,10 +225,10 @@ void NVencPlugin::update_profile() {
   };
   auto get = [this]() { return profiles_.get(); };
   if (0 == profiles_id_)
-    profiles_id_ = pmanage<MPtr(&property::PBag::make_selection<>)>(
+    profiles_id_ = pmanage<&property::PBag::make_selection<>>(
         "profile", set, get, "Profile", "Encoding profile", profiles_);
   else
-    pmanage<MPtr(&property::PBag::replace)>(
+    pmanage<&property::PBag::replace>(
         profiles_id_,
         std::make_unique<
             property::Property<property::Selection<>, quiddity::property::IndexOrName>>(
@@ -247,7 +247,7 @@ void NVencPlugin::update_max_width_height() {
   max_height_ = mwh.second;
   auto getwidth = [this]() { return this->max_width_; };
   if (0 == max_width_id_)
-    max_width_id_ = pmanage<MPtr(&property::PBag::make_int)>("maxwidth",
+    max_width_id_ = pmanage<&property::PBag::make_int>("maxwidth",
                                                              nullptr,
                                                              getwidth,
                                                              "Max width",
@@ -256,11 +256,11 @@ void NVencPlugin::update_max_width_height() {
                                                              max_width_,
                                                              max_width_);
   else
-    pmanage<MPtr(&property::PBag::notify)>(max_width_id_);
+    pmanage<&property::PBag::notify>(max_width_id_);
 
   auto getheight = [this]() { return max_height_; };
   if (0 == max_height_id_)
-    max_height_id_ = pmanage<MPtr(&property::PBag::make_int)>("maxheight",
+    max_height_id_ = pmanage<&property::PBag::make_int>("maxheight",
                                                               nullptr,
                                                               getheight,
                                                               "Max height",
@@ -269,7 +269,7 @@ void NVencPlugin::update_max_width_height() {
                                                               max_height_,
                                                               max_height_);
   else
-    pmanage<MPtr(&property::PBag::notify)>(max_height_id_);
+    pmanage<&property::PBag::notify>(max_height_id_);
 }
 
 void NVencPlugin::update_input_formats() {
@@ -309,14 +309,14 @@ bool NVencPlugin::on_shmdata_disconnect() {
                                                    devices_nv_ids_[devices_.get_current_index()]);
   shmw_.reset(nullptr);
 
-  pmanage<MPtr(&property::PBag::enable)>(devices_id_);
-  pmanage<MPtr(&property::PBag::enable)>(presets_id_);
-  pmanage<MPtr(&property::PBag::enable)>(profiles_id_);
-  pmanage<MPtr(&property::PBag::enable)>(codecs_id_);
-  pmanage<MPtr(&property::PBag::enable)>(max_width_id_);
-  pmanage<MPtr(&property::PBag::enable)>(max_height_id_);
-  pmanage<MPtr(&property::PBag::enable)>(default_preset_id_);
-  pmanage<MPtr(&property::PBag::set_to_current)>(default_preset_id_);
+  pmanage<&property::PBag::enable>(devices_id_);
+  pmanage<&property::PBag::enable>(presets_id_);
+  pmanage<&property::PBag::enable>(profiles_id_);
+  pmanage<&property::PBag::enable>(codecs_id_);
+  pmanage<&property::PBag::enable>(max_width_id_);
+  pmanage<&property::PBag::enable>(max_height_id_);
+  pmanage<&property::PBag::enable>(default_preset_id_);
+  pmanage<&property::PBag::set_to_current>(default_preset_id_);
 
   return true;
 }
@@ -330,15 +330,15 @@ bool NVencPlugin::on_shmdata_connect(const std::string& shmpath) {
       [this](void* data, size_t size) { this->on_shmreader_data(data, size); },
       [this](const std::string& data_descr) { this->on_shmreader_server_connected(data_descr); }));
 
-  pmanage<MPtr(&property::PBag::disable)>(devices_id_, property::PBag::disabledWhenConnectedMsg);
-  pmanage<MPtr(&property::PBag::disable)>(presets_id_, property::PBag::disabledWhenConnectedMsg);
-  pmanage<MPtr(&property::PBag::disable)>(profiles_id_, property::PBag::disabledWhenConnectedMsg);
-  pmanage<MPtr(&property::PBag::disable)>(codecs_id_, property::PBag::disabledWhenConnectedMsg);
-  pmanage<MPtr(&property::PBag::disable)>(max_width_id_, property::PBag::disabledWhenConnectedMsg);
-  pmanage<MPtr(&property::PBag::disable)>(max_height_id_, property::PBag::disabledWhenConnectedMsg);
-  pmanage<MPtr(&property::PBag::disable)>(default_preset_id_,
+  pmanage<&property::PBag::disable>(devices_id_, property::PBag::disabledWhenConnectedMsg);
+  pmanage<&property::PBag::disable>(presets_id_, property::PBag::disabledWhenConnectedMsg);
+  pmanage<&property::PBag::disable>(profiles_id_, property::PBag::disabledWhenConnectedMsg);
+  pmanage<&property::PBag::disable>(codecs_id_, property::PBag::disabledWhenConnectedMsg);
+  pmanage<&property::PBag::disable>(max_width_id_, property::PBag::disabledWhenConnectedMsg);
+  pmanage<&property::PBag::disable>(max_height_id_, property::PBag::disabledWhenConnectedMsg);
+  pmanage<&property::PBag::disable>(default_preset_id_,
                                           property::PBag::disabledWhenConnectedMsg);
-  pmanage<MPtr(&property::PBag::disable)>(bitrate_id_, property::PBag::disabledWhenConnectedMsg);
+  pmanage<&property::PBag::disable>(bitrate_id_, property::PBag::disabledWhenConnectedMsg);
 
   return true;
 }
@@ -352,7 +352,7 @@ void NVencPlugin::on_shmreader_data(void* data, size_t size) {
   es_.get()->invoke_async([](NVencES* ctx) { ctx->encode_current_input(); });
   es_.get()->invoke_async([&](NVencES* ctx) {
     ctx->process_encoded_frame([&](void* data, uint32_t enc_size) {
-      shmw_->writer<MPtr(&::shmdata::Writer::copy_to_shm)>(data, enc_size);
+      shmw_->writer<&::shmdata::Writer::copy_to_shm>(data, enc_size);
       shmw_->bytes_written(enc_size);
     });
   });

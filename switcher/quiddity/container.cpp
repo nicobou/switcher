@@ -61,7 +61,7 @@ Qrox Container::quiet_create(const std::string& quiddity_kind,
                              const std::string& raw_nickname,
                              InfoTree::ptrc override_config) {
   // checks before creation
-  if (!switcher_->factory<MPtr(&Factory::exists)>(quiddity_kind)) {
+  if (!switcher_->factory<&Factory::exists>(quiddity_kind)) {
     return Qrox(false, "unknown Quiddity kind");
   }
 
@@ -89,7 +89,7 @@ Qrox Container::quiet_create(const std::string& quiddity_kind,
 
   // building configuration for quiddity creation
   InfoTree::ptr tree;
-  auto conf = switcher_->conf<MPtr(&Configuration::get)>();
+  auto conf = switcher_->conf<&Configuration::get>();
   if (conf) {
     tree = conf->get_tree(quiddity_kind);
     if (tree->empty()) tree = conf->get_tree("bundle." + quiddity_kind);

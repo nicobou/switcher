@@ -48,7 +48,7 @@ ShmdataToOsc::ShmdataToOsc(quiddity::Config&& conf)
            [this](const std::string& shmpath, claw::sfid_t) { return on_shmdata_connect(shmpath); },
            [this](claw::sfid_t) { return on_shmdata_disconnect(); }}),
       Startable(this),
-      port_id_(pmanage<MPtr(&property::PBag::make_int)>(
+      port_id_(pmanage<&property::PBag::make_int>(
           "port",
           [this](const int& val) {
             if (port_ == val) return true;
@@ -64,7 +64,7 @@ ShmdataToOsc::ShmdataToOsc(quiddity::Config&& conf)
           port_,
           1,
           65536)),
-      host_id_(pmanage<MPtr(&property::PBag::make_string)>(
+      host_id_(pmanage<&property::PBag::make_string>(
           "host",
           [this](const std::string& val) {
             if (host_ == val) return true;
@@ -78,7 +78,7 @@ ShmdataToOsc::ShmdataToOsc(quiddity::Config&& conf)
           "Destination Host",
           "OSC destination host",
           host_)),
-      autostart_id_(pmanage<MPtr(&property::PBag::make_bool)>(
+      autostart_id_(pmanage<&property::PBag::make_bool>(
           "autostart",
           [this](bool val) {
             autostart_ = val;
@@ -134,7 +134,7 @@ bool ShmdataToOsc::on_shmdata_connect(const std::string& path) {
       shmdata::Follower::Direction::reader,
       true);
   if (autostart_ && !address_) {
-    return pmanage<MPtr(&property::PBag::set_str_str)>("started", "true");
+    return pmanage<&property::PBag::set_str_str>("started", "true");
   }
   return true;
 }
@@ -142,7 +142,7 @@ bool ShmdataToOsc::on_shmdata_connect(const std::string& path) {
 bool ShmdataToOsc::on_shmdata_disconnect() {
   shm_.reset();
   if (autostart_) {
-    return pmanage<MPtr(&property::PBag::set_str_str)>("started", "false");
+    return pmanage<&property::PBag::set_str_str>("started", "false");
   }
   return true;
 }

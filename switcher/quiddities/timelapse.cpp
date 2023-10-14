@@ -50,7 +50,7 @@ Timelapse::Timelapse(quiddity::Config&& conf)
                   return on_shmdata_connect(shmpath, sfid);
                 },
                 [this](claw::sfid_t sfid) { return on_shmdata_disconnect(sfid); }}),
-      img_dir_id_(pmanage<MPtr(&property::PBag::make_string)>(
+      img_dir_id_(pmanage<&property::PBag::make_string>(
           "imgdir",
           [this](const std::string& val) {
             img_dir_ = val;
@@ -68,7 +68,7 @@ Timelapse::Timelapse(quiddity::Config&& conf)
           "Directory where to store jpeg files to be produced. If empty, the "
           "path will be <video_shmdata_path>.jpg",
           img_dir_)),
-      img_name_id_(pmanage<MPtr(&property::PBag::make_string)>(
+      img_name_id_(pmanage<&property::PBag::make_string>(
           "imgname",
           [this](const std::string& val) {
             img_name_ = val;
@@ -82,7 +82,7 @@ Timelapse::Timelapse(quiddity::Config&& conf)
           "take the input shmdata name with option file number and jpg "
           "extension",
           img_name_)),
-      num_files_id_(pmanage<MPtr(&property::PBag::make_bool)>(
+      num_files_id_(pmanage<&property::PBag::make_bool>(
           "num_files",
           [this](const bool num_files) {
             num_files_ = num_files;
@@ -93,7 +93,7 @@ Timelapse::Timelapse(quiddity::Config&& conf)
           "Number Files",
           "Automatically number produced files",
           num_files_)),
-      notify_last_file_id_(pmanage<MPtr(&property::PBag::make_bool)>(
+      notify_last_file_id_(pmanage<&property::PBag::make_bool>(
           "notify_last_files",
           [this](const bool notify) {
             notify_last_file_ = notify;
@@ -103,7 +103,7 @@ Timelapse::Timelapse(quiddity::Config&& conf)
           "Notify last file produced",
           "Update last file property with produced jpg file",
           notify_last_file_)),
-      framerate_id_(pmanage<MPtr(&property::PBag::make_fraction)>(
+      framerate_id_(pmanage<&property::PBag::make_fraction>(
           "framerate",
           [this](const property::Fraction& val) {
             framerate_ = val;
@@ -118,7 +118,7 @@ Timelapse::Timelapse(quiddity::Config&& conf)
           1,  // min num/denom
           60,
           5)),  // max num/denom
-      max_files_id_(pmanage<MPtr(&property::PBag::make_unsigned_int)>(
+      max_files_id_(pmanage<&property::PBag::make_unsigned_int>(
           "maxfiles",
           [this](unsigned int val) {
             max_files_ = val;
@@ -131,7 +131,7 @@ Timelapse::Timelapse(quiddity::Config&& conf)
           max_files_,
           0,
           4294967295)),
-      jpg_quality_id_(pmanage<MPtr(&property::PBag::make_unsigned_int)>(
+      jpg_quality_id_(pmanage<&property::PBag::make_unsigned_int>(
           "quality",
           [this](unsigned int val) {
             jpg_quality_ = val;
@@ -144,14 +144,14 @@ Timelapse::Timelapse(quiddity::Config&& conf)
           jpg_quality_,
           0,
           100)),
-      last_image_id_(pmanage<MPtr(&property::PBag::make_string)>(
+      last_image_id_(pmanage<&property::PBag::make_string>(
           "last_image",
           nullptr,
           [this]() { return last_image_; },
           "Last image written",
           "Path of the last jpeg file written",
           last_image_)),
-      width_id_(pmanage<MPtr(&property::PBag::make_unsigned_int)>(
+      width_id_(pmanage<&property::PBag::make_unsigned_int>(
           "width",
           [this](unsigned int val) {
             width_ = val;
@@ -164,7 +164,7 @@ Timelapse::Timelapse(quiddity::Config&& conf)
           width_,
           0,
           8192)),
-      height_id_(pmanage<MPtr(&property::PBag::make_unsigned_int)>(
+      height_id_(pmanage<&property::PBag::make_unsigned_int>(
           "height",
           [this](unsigned int val) {
             height_ = val;
@@ -192,16 +192,16 @@ Timelapse::Timelapse(quiddity::Config&& conf)
 
 bool Timelapse::on_shmdata_disconnect(claw::sfid_t sfid) {
   std::unique_lock<std::mutex> lock(timelapse_mtx_);
-  pmanage<MPtr(&property::PBag::enable)>(img_name_id_);
+  pmanage<&property::PBag::enable>(img_name_id_);
   if (!stop_timelapse(sfid)) return false;
-  if (timelapse_.size() == 1) pmanage<MPtr(&property::PBag::enable)>(img_name_id_);
+  if (timelapse_.size() == 1) pmanage<&property::PBag::enable>(img_name_id_);
   return true;
 }
 
 bool Timelapse::on_shmdata_connect(const std::string& shmpath, claw::sfid_t sfid) {
   std::unique_lock<std::mutex> lock(timelapse_mtx_);
   if (timelapse_.size() == 1) {
-    pmanage<MPtr(&property::PBag::disable)>(img_name_id_, property::PBag::disabledWhenConnectedMsg);
+    pmanage<&property::PBag::disable>(img_name_id_, property::PBag::disabledWhenConnectedMsg);
     img_name_.clear();
   }
   return start_timelapse(shmpath, sfid);
@@ -238,10 +238,10 @@ bool Timelapse::start_timelapse(const std::string& shmpath, claw::sfid_t sfid) {
       timelapse_config_, this, [this, shmpath](std::string&& file_name) {
         if (!notify_last_file_) return;
         {
-          auto lock = pmanage<MPtr(&property::PBag::get_lock)>(last_image_id_);
+          auto lock = pmanage<&property::PBag::get_lock>(last_image_id_);
           last_image_ = file_name;
         }
-        pmanage<MPtr(&property::PBag::notify)>(last_image_id_);
+        pmanage<&property::PBag::notify>(last_image_id_);
       });
   if (!new_timelapse.get()) return false;
   timelapse_[sfid] = std::move(new_timelapse);

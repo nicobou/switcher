@@ -66,13 +66,13 @@ LADSPA::LADSPA(quiddity::Config&& conf)
           std::move(plugins_list_.first), std::move(plugins_list_.second), 0)) {
   if (plugins_list_.first.empty()) return;
 
-  perchannel_group_id_ = pmanage<MPtr(&property::PBag::make_group)>(
+  perchannel_group_id_ = pmanage<&property::PBag::make_group>(
       "perchannel_group",
       "Per-channel settings",
       "If multiple channels are input they will all be configured separately in this group.");
 
   global_settings_id_ =
-      pmanage<MPtr(&property::PBag::make_bool)>("global_settings",
+      pmanage<&property::PBag::make_bool>("global_settings",
                                                 [this](bool val) {
                                                   global_settings_ = val;
                                                   return true;
@@ -82,7 +82,7 @@ LADSPA::LADSPA(quiddity::Config&& conf)
                                                 "Toggle the global settings for all channels",
                                                 true);
 
-  plugins_id_ = pmanage<MPtr(&property::PBag::make_selection<>)>(
+  plugins_id_ = pmanage<&property::PBag::make_selection<>>(
       "plugins",
       [this](const quiddity::property::IndexOrName& val) {
         plugins_.select(val);
@@ -108,8 +108,8 @@ LADSPA::LADSPA(quiddity::Config&& conf)
       "Select a LADSPA plugin among all the ones installed on the system.",
       plugins_);
 
-  pmanage<MPtr(&property::PBag::set_to_current)>(plugins_id_);
-  pmanage<MPtr(&property::PBag::set_to_current)>(global_settings_id_);
+  pmanage<&property::PBag::set_to_current>(plugins_id_);
+  pmanage<&property::PBag::set_to_current>(global_settings_id_);
 }
 
 LADSPA::PluginList LADSPA::get_ladspa_plugins() {
@@ -138,7 +138,7 @@ void LADSPA::mirror_gst_properties() {
   if (ladspa_elements_.empty()) return;
   // Unsubscribe old global properties
   for (auto& subscriber : prop_subscribers_) {
-    pmanage<MPtr(&property::PBag::unsubscribe)>(subscriber.first, subscriber.second);
+    pmanage<&property::PBag::unsubscribe>(subscriber.first, subscriber.second);
   }
   prop_subscribers_.clear();
 
@@ -150,22 +150,22 @@ void LADSPA::mirror_gst_properties() {
   }
   std::string first_element_name = gst_element_get_name(first_element);
   for (auto& property : properties_) {
-    auto prop_id = static_cast<property::prop_id_t>(pmanage<MPtr(&property::PBag::push)>(
+    auto prop_id = static_cast<property::prop_id_t>(pmanage<&property::PBag::push>(
         property, quiddity::property::to_prop(G_OBJECT(first_element), property)));
 
     // When the global property changes we propagate the change on all the elements
     auto rid =
-        pmanage<MPtr(&property::PBag::subscribe)>(prop_id, [this, property, first_element_name]() {
+        pmanage<&property::PBag::subscribe>(prop_id, [this, property, first_element_name]() {
           if (!global_settings_) return;
           auto property_value =
-              pmanage<MPtr(&property::PBag::get_str_str)>(property + "_" + first_element_name);
+              pmanage<&property::PBag::get_str_str>(property + "_" + first_element_name);
           for (auto& element : ladspa_elements_) {
-            pmanage<MPtr(&property::PBag::set_str_str)>(
+            pmanage<&property::PBag::set_str_str>(
                 property + "_" + gst_element_get_name(element), property_value);
           }
         });
     // We start by propagating once for each property.
-    pmanage<MPtr(&property::PBag::set_to_current)>(prop_id);
+    pmanage<&property::PBag::set_to_current>(prop_id);
     prop_subscribers_.push_back(std::make_pair<>(prop_id, rid));
   }
 }
@@ -280,17 +280,17 @@ void LADSPA::get_gst_properties() {
     std::string element_name = gst_element_get_name(element);
 
     // Remove the group too
-    pmanage<MPtr(&property::PBag::remove)>(pmanage<MPtr(&property::PBag::get_id)>(element_name));
+    pmanage<&property::PBag::remove>(pmanage<&property::PBag::get_id>(element_name));
 
     for (auto& property : properties_) {
-      pmanage<MPtr(&property::PBag::remove)>(
-          pmanage<MPtr(&property::PBag::get_id)>(property + "_" + element_name));
+      pmanage<&property::PBag::remove>(
+          pmanage<&property::PBag::get_id>(property + "_" + element_name));
     }
   }
 
   // We unsubscribe the global properties before clearing the list.
   for (auto& property : properties_) {
-    pmanage<MPtr(&property::PBag::remove)>(pmanage<MPtr(&property::PBag::get_id)>(property));
+    pmanage<&property::PBag::remove>(pmanage<&property::PBag::get_id>(property));
   }
   properties_.clear();
 
@@ -307,13 +307,13 @@ void LADSPA::get_gst_properties() {
 
   for (auto& element : ladspa_elements_) {
     std::string element_name = gst_element_get_name(element);
-    pmanage<MPtr(&property::PBag::make_parented_group)>(
+    pmanage<&property::PBag::make_parented_group>(
         element_name,
         "perchannel_group",
         element_name,
         std::string("Setting of ladspa instance ") + element_name);
     for (auto& property : properties_) {
-      pmanage<MPtr(&property::PBag::push_parented)>(
+      pmanage<&property::PBag::push_parented>(
           property + "_" + element_name,
           element_name,
           quiddity::property::to_prop(G_OBJECT(element), property));
@@ -335,7 +335,7 @@ bool LADSPA::on_shmdata_connect(const std::string& shmpath) {
     save_properties();
     first_connect_ = false;
   }
-  pmanage<MPtr(&property::PBag::disable)>(plugins_id_, property::PBag::disabledWhenConnectedMsg);
+  pmanage<&property::PBag::disable>(plugins_id_, property::PBag::disabledWhenConnectedMsg);
 
   create_and_play_gst_pipeline();
 
@@ -396,7 +396,7 @@ void LADSPA::create_and_play_gst_pipeline() {
 }
 
 bool LADSPA::on_shmdata_disconnect() {
-  pmanage<MPtr(&property::PBag::enable)>(plugins_id_);
+  pmanage<&property::PBag::enable>(plugins_id_);
   shmsrc_sub_.reset();
   shmsink_sub_.reset();
 
@@ -440,7 +440,7 @@ void LADSPA::on_loading(InfoTree::ptr&& tree) {
   channels_number_ = tree->branch_read_data<int>(".channels_number");
 
   reset_saved_properties_ = false;
-  pmanage<MPtr(&property::PBag::set_to_current)>(plugins_id_);
+  pmanage<&property::PBag::set_to_current>(plugins_id_);
 }
 
 void LADSPA::save_properties() {
@@ -454,7 +454,7 @@ void LADSPA::save_properties() {
     std::string element_name = gst_element_get_name(element);
     for (auto& prop_name : properties_) {
       saved_properties_[element_name][prop_name] =
-          pmanage<MPtr(&property::PBag::get_str_str)>(prop_name + "_" + element_name);
+          pmanage<&property::PBag::get_str_str>(prop_name + "_" + element_name);
     }
   }
 }
