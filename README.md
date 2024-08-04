@@ -1,3 +1,10 @@
+> [!WARNING]
+> This repository is no longer maintained. Some of Switcher features are parly available throught an improved version of Shmdata, named Sh4lt, and available [here](https://gitlab.com/sh4lt/sh4lt/). Sh4lt is a Shmdata fork with added timecode, improved data description, added monitoring API, and added writer retrieval through "label" and "group" instead of a raw socket file path.
+> Some of the missing feature from Switcher may be added to Sh4lt in the future. This can be discussed through creation of a Sh4lt [issue](https://gitlab.com/sh4lt/sh4lt/-/issues)
+>
+> Note that a Switcher repository may still be active [here](https://gitlab.com/sat-mtl/tools/switcher)
+
+
 Switcher
 ========
 
